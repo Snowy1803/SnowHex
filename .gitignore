@@ -1,0 +1,14 @@
+/target/
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+local.properties
+.settings/
+
+.DS_Store
+
+# Not open sourcing this one
+/src/lang/de_CH.lang

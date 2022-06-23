@@ -1,0 +1,128 @@
+lang.id=en_US
+lang.text=English (US)
+
+frame.title=SnowHex hexadecimal editor
+frame.title.file=%s - SnowHex
+frame.empty=No open file
+frame.preview=Preview
+frame.preview.null=An error occured:
+frame.overwrite=Overwrite
+frame.insert=Insert
+frame.caretPos=Line: %d Column: %d
+
+frame.udp.name=Identifier:
+frame.udp.ext=Extension:
+frame.udp.type=Type:
+frame.udp.type.-1=None
+frame.udp.type.0=Error
+frame.udp.type.1=File header
+frame.udp.type.2=Comment
+frame.udp.type.3=Chunk header
+frame.udp.type.4=Metadata
+frame.udp.type.5=Reserved
+frame.udp.type.6=Length
+frame.udp.type.7=Image palette *
+frame.udp.type.8=Color
+frame.udp.type.9=Image data *
+frame.udp.type.10=Image size
+frame.udp.type.11=Chunk *
+frame.udp.required=Required
+frame.udp.matches=Condition:
+frame.udp.matches.exact=Exactly: (Val: xx xx xx...)
+frame.udp.matches.plain=Length: (Val: n)
+frame.udp.matches.value=Value:
+frame.udp.rename.title=Rename language
+frame.udp.rename.text=Cannot save: the language already exists or his name contains forbidden characters. Enter the new name:
+
+button.create=Create
+button.new=+ New
+button.edit=Edit
+button.cancel=Cancel
+
+menu.file=File
+menu.file.new=New
+menu.file.open=Open
+menu.file.save=Save
+menu.view=View
+menu.view.coloring=Coloration
+menu.view.coloring.udp=Define new coloration...
+menu.view.lang=Language
+menu.view.showDump=Show dump
+menu.view.showResult=Show preview
+
+parser.none=No coloration
+parser.multipleNotices=Multiple notices:
+parser.sni=Snow Image (SNI)
+parser.sni.ioob=The end of the file is missing
+parser.sni.header=The SNI header (53 4d) is missing.
+parser.sni.meta=Metadata:
+parser.sni.meta.alpha.true=<span style="color: green">✓</span> With transparency
+parser.sni.meta.alpha.false=<span style="color: red">✗</span> Without transparency
+parser.sni.meta.grayscaled.true=<span style="color: gray">Grayscaled</span>
+parser.sni.meta.grayscaled.false=<span style="color: green">Colored</span>
+parser.sni.meta.cpalette.true=<span style="color: green">✓</span> With compressed palette
+parser.sni.meta.palette.true=<span style="color: blue">✓</span> With palette
+parser.sni.meta.palette.false=<span style="color: red">✗</span> Without palette
+parser.sni.meta.clip.true=<span style="color: green">✓</span> With special shape
+parser.sni.meta.clip.false=<span style="color: red">✗</span> Without special shape
+parser.sni.size=Size: %d×%d
+parser.sni.palette.size=Palette size: %d
+parser.sni.color=Color: <span style="color: #%s;">■</span> %s
+parser.sni.clipSize=The shift is too high, it goes outside of the image.
+parser.sni.clip=The data is shifted of %dpx, its length is %dpx.
+parser.sni.dead=The image end has been reached
+parser.sni.palette.ioob=The palette is smaller than %d.
+
+parser.gif=Graphics Interchange Format (GIF)
+parser.gif.header=The GIF header (47 49 46 38 (37|39) 61) is missing.
+parser.gif.ioob=The end of the file is missing
+parser.gif.pos=Position: %d, %d
+parser.gif.size=Size: %d×%d
+parser.gif.charSize=Character size: %d×%d
+parser.gif.globalColorTable.true=<span style="color: green">✓</span> With global color table (GCT)
+parser.gif.globalColorTable.false=<span style="color: red">✗</span> Without global color table (GCT)
+parser.gif.localColorTable.true=<span style="color: green">✓</span> With local color table (LCT)
+parser.gif.localColorTable.false=<span style="color: red">✗</span> Without local color table (LCT)
+parser.gif.sort.true=<span style="color: green">✓</span> Sorted color table
+parser.gif.sort.false=<span style="color: red">✗</span> Unsorted color table
+parser.gif.colorRes=Color resolution: %d
+parser.gif.gctSize=GCT size: %d
+parser.gif.lctSize=LCT size: %d
+parser.gif.bci=Position of the background in the palette: %d (<span style="color: #%2$s;">■</span> %2$s)
+parser.gif.par.false=<span style="color: red">✗</span> No given pixel aspect ratio
+parser.gif.par=Pixel aspect ratio: %d
+parser.gif.color=Color: <span style="color: #%1$s;">■</span> %1$s
+parser.gif.block.length=Bloc size: %d bytes
+parser.gif.block.noterminator=Block end must be '00'
+parser.gif.block.unknown=Unknown block
+parser.gif.block.img=Sub-image
+parser.gif.ext.header=GIF Extension: '%s'
+parser.gif.ext.gce.disposal.0=No required disposal
+parser.gif.ext.gce.disposal.1=No disposal
+parser.gif.ext.gce.disposal.2=Reset to background color
+parser.gif.ext.gce.disposal.3=Reset to previous graphics
+parser.gif.ext.gce.userInput.true=<span style="color: green">✓</span> Wait for user input
+parser.gif.ext.gce.userInput.false=<span style="color: red">✗</span> Dont wait for user input
+parser.gif.ext.gce.transparentColor.true=<span style="color: green">✓</span> Active transparent pixel
+parser.gif.ext.gce.transparentColor.false=<span style="color: red">✗</span> Inactive transparent pixel
+parser.gif.ext.gce.transparentColor=The transparent pixel is #%d
+parser.gif.ext.gce.delay=Wait after the generation of the next image: %.1f secondes
+parser.gif.ext.app=Application '%s'
+parser.gif.ext.app.version=Version '%s'
+parser.gif.ext.text.fore=Position of the foreground in the palette: %d
+parser.gif.ext.text.back=Position of the background in the palette : %d
+parser.gif.interlace.true=<span style="color: green">✓</span> Interlaced
+parser.gif.interlace.false=<span style="color: red">✗</span> Not interlaced
+
+parser.ser=Java Serialized File (SER)
+parser.ser.header=The SER header (AC ED) is missing
+parser.ser.version=Serialisation version %d
+parser.ser.fieldname=Field name: '%s'
+
+parser.ant1=Antman type 1
+parser.ant3=Antman type 3
+parser.cor=Corewar Warrior
+
+parser.udp=Defined coloration
+parser.udp.incorrectValue=Incorrect value
+parser.udp.ioob=The end of the file is missing

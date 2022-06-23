@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launcher xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://elementalcube.infos.st/product/12 http://elementalcube.infos.st/api/libcenter.xsd" xmlns="http://elementalcube.infos.st/product/12" version="1.0">
+	<jar id="elementalcube:snowhex"
+		version="1.0"
+		main="st.infos.elementalcube.snowhex.HexFrame"
+		icon="img/icon.png"
+		iconbg="#000000"
+		startmode="non-embedded">
+		<name value="SnowHex"/>
+		<name lang="en_US" long="true" value="SnowHex - Hexadecimal Editor"/>
+		<name lang="fr_FR" long="true" value="SnowHex - Éditeur hexadécimal"/>
+	</jar>
+	<library id="elementalcube:langapi" version="1.0+"/>
+	<library id="elementalcube:snisupport" version="1.0+"/>
+	<library id="apache:commons-io" version="2.5+"/>
+	<library id="apache:commons-lang3" version="3.6+"/>
+</launcher>

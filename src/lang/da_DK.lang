@@ -1,0 +1,128 @@
+lang.id=da_DK
+lang.text=Dansk
+
+frame.title=SnowHex hexadecimal editor
+frame.title.file=%s - SnowHex
+frame.empty=Ingen åben fil
+frame.preview=Resultat
+frame.preview.null=Der opstod en fejl:
+frame.overwrite=Overskrive
+frame.insert=Indsæt
+frame.caretPos=Linje: %d Kolonne: %d
+
+frame.udp.name=ID:
+frame.udp.ext=Extension:
+frame.udp.type=Type:
+frame.udp.type.-1=Ingen
+frame.udp.type.0=Fejl
+frame.udp.type.1=Fil header
+frame.udp.type.2=Kommentar
+frame.udp.type.3=Blok header
+frame.udp.type.4=Metadata
+frame.udp.type.5=Reserveret
+frame.udp.type.6=Længde
+frame.udp.type.7=Billede palet *
+frame.udp.type.8=Farve
+frame.udp.type.9=Billede data *
+frame.udp.type.10=Billede størrelse
+frame.udp.type.11=Blok *
+frame.udp.required=Påkrævet
+frame.udp.matches=Betingelse:
+frame.udp.matches.exact=Nøjagtigt: (Val: xx xx xx...)
+frame.udp.matches.plain=Længde: (Val: n)
+frame.udp.matches.value=Værdi:
+frame.udp.rename.title=Omdøb farvning
+frame.udp.rename.text=Kan ikke gemme: farvningen findes allerede eller sin navn indeholder nogen forbudte tegn. Indsæt den nye navn:
+
+button.create=Opret
+button.new=+ Ny
+button.edit=Ændre
+button.cancel=Annuller
+
+menu.file=Fil
+menu.file.new=Ny
+menu.file.open=Åbn
+menu.file.save=Gem
+menu.view=Vis
+menu.view.coloring=Farvning
+menu.view.coloring.udp=Definer farvning...
+menu.view.lang=Sprog
+menu.view.showDump=Vis dump
+menu.view.showResult=Vis resultatet
+
+parser.none=Ingen farvning
+parser.multipleNotices=Flere etiketter:
+parser.sni=Snow Image (SNI)
+parser.sni.ioob=Slutningen af filen mangler
+parser.sni.header=SNI headeren (53 4d) mangler.
+parser.sni.meta=Metadata:
+parser.sni.meta.alpha.true=<span style="color: green">✓</span> Med gennemsigtighed
+parser.sni.meta.alpha.false=<span style="color: red">✗</span> Uden gennemsigtighed
+parser.sni.meta.grayscaled.true=<span style="color: gray">Gråtoner</span>
+parser.sni.meta.grayscaled.false=<span style="color: green">I farver</span>
+parser.sni.meta.cpalette.true=<span style="color: green">✓</span> Med kompresseret palet
+parser.sni.meta.palette.true=<span style="color: blue">✓</span> Med palet
+parser.sni.meta.palette.false=<span style="color: red">✗</span> Uden palet
+parser.sni.meta.clip.true=<span style="color: green">✓</span> Med speciel form
+parser.sni.meta.clip.false=<span style="color: red">✗</span> Uden speciel form
+parser.sni.size=Størrelse: %d×%d
+parser.sni.palette.size=Palettens længde: %d
+parser.sni.color=Farve: <span style="color: #%s;">■</span> %s
+parser.sni.clipSize=Flytningen er for høj, den går ud af billedet.
+parser.sni.clip=Dataen er flyttet af %dpx, sin længde er %dpx.
+parser.sni.dead=Slutningen af filen er nået
+parser.sni.palette.ioob=Paletten er mindre en %d.
+
+parser.gif=Graphics Interchange Format (GIF)
+parser.gif.header=GIF headeren (47 49 46 38 (37|39) 61) mangler.
+parser.gif.ioob=Slutningen af filen mangler
+parser.gif.pos=Position: %d, %d
+parser.gif.size=Størrelse: %d×%d
+parser.gif.charSize=Størrelsen af tegnet: %d×%d
+parser.gif.globalColorTable.true=<span style="color: green">✓</span> Med globalt farvebord (GCT)
+parser.gif.globalColorTable.false=<span style="color: red">✗</span> Uden globalt farvebord (GCT)
+parser.gif.localColorTable.true=<span style="color: green">✓</span> Med lokalt farvebord (LCT)
+parser.gif.localColorTable.false=<span style="color: red">✗</span> Uden lokalt farvebord (LCT)
+parser.gif.sort.true=<span style="color: green">✓</span> Sorteret farvebord
+parser.gif.sort.false=<span style="color: red">✗</span> Ikke sorteret farvebord
+parser.gif.colorRes=Farveopløsning: %d
+parser.gif.gctSize=Længde på GCT: %d
+parser.gif.lctSize=Længde på LCT: %d
+parser.gif.bci=Baggrundens placering i paletten: %d (<span style="color: #%2$s;">■</span> %2$s)
+parser.gif.par.false=<span style="color: red">✗</span> Ingen pixelformatforhold
+parser.gif.par=Pixelformatforhold: %d
+parser.gif.color=Farve: <span style="color: #%1$s;">■</span> %1$s
+parser.gif.block.length=Blokens størrelse: %d bytes
+parser.gif.block.noterminator=Blokens slutning skal være '00'
+parser.gif.block.unknown=Ukendt blok
+parser.gif.block.img=Underbillede
+parser.gif.ext.header=GIF Extension: '%s'
+parser.gif.ext.gce.disposal.0=Ingen billed rengøring påkrævet
+parser.gif.ext.gce.disposal.1=Ingen billed rengøring
+parser.gif.ext.gce.disposal.2=Nulstil til baggrunds farve
+parser.gif.ext.gce.disposal.3=Nulstil til tidligere grafik
+parser.gif.ext.gce.userInput.true=<span style="color: green">✓</span> Vente på brugerinput
+parser.gif.ext.gce.userInput.false=<span style="color: red">✗</span> Ikke vente på brugerinput
+parser.gif.ext.gce.transparentColor.true=<span style="color: green">✓</span> Gennemsigtig pixel aktiveret
+parser.gif.ext.gce.transparentColor.false=<span style="color: red">✗</span> Gennemsigtig pixel deaktiveret
+parser.gif.ext.gce.transparentColor=Den gennemsigtige pixel er #%d
+parser.gif.ext.gce.delay=Ventetid efter generation af næste billede: %.1f secondes
+parser.gif.ext.app=Appen '%s'
+parser.gif.ext.app.version=Version '%s'
+parser.gif.ext.text.fore=Position af forgrunden i paletten: %d
+parser.gif.ext.text.back=Position af baggrunden i paletten: %d
+parser.gif.interlace.true=<span style="color: green">✓</span> Interlaced
+parser.gif.interlace.false=<span style="color: red">✗</span> Ikke interlaced
+
+parser.ser=Java Serialiseret Fil (SER)
+parser.ser.header=SER headeren (AC ED) mangler
+parser.ser.version=Serialisation version %d
+parser.ser.fieldname=Feltnavn: '%s'
+
+parser.ant1=Antman type 1
+parser.ant3=Antman type 3
+parser.cor=Corewar Spiller
+
+parser.udp=Defineret farvning
+parser.udp.incorrectValue=Forkert værdi
+parser.udp.ioob=Slutningen af filen mangler
