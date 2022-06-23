@@ -153,15 +153,16 @@ public class GIFTokenMaker extends TokenMaker {
 	}
 	
 	private int readSubBlocks(ArrayList<Token> list, byte[] array, int i, int token) {
-		int len = array[i++];
-		if (len == 0) {
-			list.add(createToken(TOKEN_RESERVED, i - 1, 1));
-			return i;
+		while (true) {
+			int len = Byte.toUnsignedInt(array[i++]);
+			if (len == 0) {
+				list.add(createToken(TOKEN_RESERVED, i - 1, 1));
+				return i;
+			}
+			list.add(createToken(TOKEN_LENGTH, i - 1, 1));
+			if (token >= 0) list.add(createToken(token, i, len));
+			i += len;
 		}
-		list.add(createToken(TOKEN_LENGTH, i - 1, 1));
-		if (token >= 0) list.add(createToken(token, i, len));
-		i += len;
-		return readSubBlocks(list, array, i, token);
 	}
 	
 	private static String parseColor(byte[] array, int i) {
