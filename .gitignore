@@ -9,6 +9,7 @@ local.properties
 .settings/
 
 .DS_Store
+SnowHex.xcodeproj
 
 # Not open sourcing this one
 /src/lang/de_CH.lang

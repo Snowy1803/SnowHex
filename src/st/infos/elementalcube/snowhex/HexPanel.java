@@ -294,6 +294,11 @@ public class HexPanel extends JPanel {
 		return insert;
 	}
 	
+	public void toggleInsertMode() {
+		insert = !insert;
+		if (listener != null) listener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null));
+	}
+	
 	public int getCaretPosition() {
 		return caretIndex;
 	}

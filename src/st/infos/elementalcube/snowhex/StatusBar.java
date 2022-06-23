@@ -3,6 +3,8 @@ package st.infos.elementalcube.snowhex;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -27,6 +29,12 @@ public class StatusBar extends JPanel implements ActionListener {
 		caret.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 		add(newJSeparator(JSeparator.VERTICAL));
 		add(mode = new JLabel(Lang.getString("frame." + (panel.isInsertMode() ? "insert" : "overwrite"))));
+		mode.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				panel.toggleInsertMode();
+			}
+		});
 		mode.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 	}
 	
