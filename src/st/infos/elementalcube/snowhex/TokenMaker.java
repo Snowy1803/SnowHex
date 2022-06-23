@@ -11,10 +11,7 @@ import java.util.Set;
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowylangapi.Lang;
 
-public abstract class TokenMaker {
-	public static final int TOKEN_ERRORED = 0, TOKEN_FILE_HEADER = 1, TOKEN_COMMENT = 2, TOKEN_CHUNK_HEADER = 3, TOKEN_METADATA = 4,
-			TOKEN_RESERVED = 5, TOKEN_LENGTH = 6, TOKEN_IMAGE_PALETTE = 7, TOKEN_IMAGE_COLOR = 8, TOKEN_IMAGE_DATA = 9, TOKEN_IMAGE_SIZE = 10,
-			TOKEN_CHUNK = 11, TOKEN_LAST = 11;
+public abstract class TokenMaker implements TokenTypes {
 	private static ArrayList<Token> cache = new ArrayList<>();
 	private static HashMap<String, Class<? extends TokenMaker>> subclasses = new HashMap<>();
 	
