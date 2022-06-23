@@ -28,6 +28,8 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
 import org.apache.commons.io.FileUtils;
@@ -86,10 +88,10 @@ public class HexFrame extends JFrame {
 				save = new JMenuItem(Lang.getString("menu.file.save")), showDump = new JCheckBoxMenuItem(Lang.getString("menu.view.showDump")),
 				showResult = new JCheckBoxMenuItem(Lang.getString("menu.view.showResult"));
 		
-		ArrayList<String> list = new ArrayList<>(TokenMaker.getParsers());
-		list.sort(null);
+		ArrayList<String> tokenmakers = new ArrayList<>(TokenMaker.getParsers());
+		tokenmakers.sort(null);
 		ButtonGroup group = new ButtonGroup();
-		for (String ext : list) {
+		for (String ext : tokenmakers) {
 			JRadioButtonMenuItem item = new JRadioButtonMenuItem(Lang.getString("parser." + ext));
 			item.addActionListener(e -> {
 				editor.setColorer(TokenMaker.getTokenMaker(ext));
@@ -135,6 +137,10 @@ public class HexFrame extends JFrame {
 		open.addActionListener(e -> {
 			JFileChooser fc = new JFileChooser();
 			fc.setCurrentDirectory(this.file == null ? null : this.file.getParentFile());
+			for (String ext : tokenmakers) {
+				fc.addChoosableFileFilter(new FileNameExtensionFilter(Lang.getString("parser." + ext), ext));
+			}
+			fc.addChoosableFileFilter(null);
 			fc.showOpenDialog(HexFrame.this);
 			if (fc.getSelectedFile() != null) {
 				open(fc.getSelectedFile());
