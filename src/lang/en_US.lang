@@ -5,34 +5,10 @@ frame.title=SnowHex hexadecimal editor
 frame.title.file=%s - SnowHex
 frame.empty=No open file
 frame.preview=Preview
-frame.preview.null=An error occured:
+frame.preview.null=An error occurred:
 frame.overwrite=Overwrite
 frame.insert=Insert
 frame.caretPos=Line: %d Column: %d
-
-frame.udp.name=Identifier:
-frame.udp.ext=Extension:
-frame.udp.type=Type:
-frame.udp.type.-1=None
-frame.udp.type.0=Error
-frame.udp.type.1=File header
-frame.udp.type.2=Comment
-frame.udp.type.3=Chunk header
-frame.udp.type.4=Metadata
-frame.udp.type.5=Reserved
-frame.udp.type.6=Length
-frame.udp.type.7=Image palette *
-frame.udp.type.8=Color
-frame.udp.type.9=Image data *
-frame.udp.type.10=Image size
-frame.udp.type.11=Chunk *
-frame.udp.required=Required
-frame.udp.matches=Condition:
-frame.udp.matches.exact=Exactly: (Val: xx xx xx...)
-frame.udp.matches.plain=Length: (Val: n)
-frame.udp.matches.value=Value:
-frame.udp.rename.title=Rename language
-frame.udp.rename.text=Cannot save: the language already exists or his name contains forbidden characters. Enter the new name:
 
 button.create=Create
 button.new=+ New
@@ -44,13 +20,12 @@ menu.file.new=New
 menu.file.open=Open
 menu.file.save=Save
 menu.view=View
-menu.view.coloring=Coloration
-menu.view.coloring.udp=Define new coloration...
+menu.view.coloring=Highlighting
 menu.view.lang=Language
 menu.view.showDump=Show dump
 menu.view.showResult=Show preview
 
-parser.none=No coloration
+parser.none=No highlighting
 parser.multipleNotices=Multiple notices:
 parser.sni=Snow Image (SNI)
 parser.sni.ioob=The end of the file is missing
@@ -102,11 +77,11 @@ parser.gif.ext.gce.disposal.1=No disposal
 parser.gif.ext.gce.disposal.2=Reset to background color
 parser.gif.ext.gce.disposal.3=Reset to previous graphics
 parser.gif.ext.gce.userInput.true=<span style="color: green">✓</span> Wait for user input
-parser.gif.ext.gce.userInput.false=<span style="color: red">✗</span> Dont wait for user input
+parser.gif.ext.gce.userInput.false=<span style="color: red">✗</span> Don't wait for user input
 parser.gif.ext.gce.transparentColor.true=<span style="color: green">✓</span> Active transparent pixel
 parser.gif.ext.gce.transparentColor.false=<span style="color: red">✗</span> Inactive transparent pixel
 parser.gif.ext.gce.transparentColor=The transparent pixel is #%d
-parser.gif.ext.gce.delay=Wait after the generation of the next image: %.1f secondes
+parser.gif.ext.gce.delay=Wait after the generation of the next image: %.1f seconds
 parser.gif.ext.app=Application '%s'
 parser.gif.ext.app.version=Version '%s'
 parser.gif.ext.text.fore=Position of the foreground in the palette: %d
@@ -116,13 +91,9 @@ parser.gif.interlace.false=<span style="color: red">✗</span> Not interlaced
 
 parser.ser=Java Serialized File (SER)
 parser.ser.header=The SER header (AC ED) is missing
-parser.ser.version=Serialisation version %d
+parser.ser.version=Serialization version %d
 parser.ser.fieldname=Field name: '%s'
 
 parser.ant1=Antman type 1
 parser.ant3=Antman type 3
 parser.cor=Corewar Warrior
-
-parser.udp=Defined coloration
-parser.udp.incorrectValue=Incorrect value
-parser.udp.ioob=The end of the file is missing

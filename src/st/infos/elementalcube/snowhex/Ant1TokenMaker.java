@@ -8,9 +8,9 @@ public class Ant1TokenMaker extends TokenMaker {
 	@Override
 	public List<Token> generateTokens(byte[] array) {
 		return Arrays.asList(
-				new Token(TOKEN_IMAGE_PALETTE, 0, 8),
-				new Token(TOKEN_IMAGE_DATA, 8, 16),
-				new Token(TOKEN_CHUNK, 24, 32)
+				createToken(TOKEN_IMAGE_PALETTE, 0, 8),
+				createToken(TOKEN_IMAGE_DATA, 8, 16),
+				createToken(TOKEN_CHUNK, 24, 32)
 		);
 	}
 

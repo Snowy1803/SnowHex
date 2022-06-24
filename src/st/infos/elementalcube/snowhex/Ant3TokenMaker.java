@@ -14,19 +14,19 @@ public class Ant3TokenMaker extends TokenMaker {
 			int head = array[offset++] & 0xff;
 			boolean compressed = (head & 128) != 0;
 			int size = head & 127;
-			tokens.add(new Token(TOKEN_CHUNK_HEADER, offset - 1, 1));
+			tokens.add(createToken(TOKEN_CHUNK_HEADER, offset - 1, 1));
 			if (compressed) {
 				if (size == 0) {
-					tokens.add(new Token(TOKEN_IMAGE_PALETTE, offset - 1, 3));
-					tokens.add(new Token(TOKEN_LENGTH, offset, 1));
-					tokens.add(new Token(TOKEN_METADATA, offset + 1, 1));
+					tokens.add(createToken(TOKEN_IMAGE_PALETTE, offset - 1, 3));
+					tokens.add(createToken(TOKEN_LENGTH, offset, 1));
+					tokens.add(createToken(TOKEN_METADATA, offset + 1, 1));
 					offset += 2;
 				} else {
-					tokens.add(new Token(TOKEN_IMAGE_DATA, offset - 1, size + 1));
+					tokens.add(createToken(TOKEN_IMAGE_DATA, offset - 1, size + 1));
 					offset += size;
 				}
 			} else {
-				tokens.add(new Token(TOKEN_CHUNK, offset - 1, size + 1));
+				tokens.add(createToken(TOKEN_CHUNK, offset - 1, size + 1));
 				offset += size;
 			}
 		}

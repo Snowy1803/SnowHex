@@ -30,19 +30,19 @@ public class CORTokenMaker extends TokenMaker {
 	@Override
 	public List<Token> generateTokens(byte[] array) {
 		ArrayList<Token> tokens = new ArrayList<>();
-		tokens.add(new Token(TOKEN_FILE_HEADER, 0, 4, "Magic number", Level.INFO));
-		tokens.add(new Token(TOKEN_COMMENT, 4, 128 + 4, "Program name: " + new String(array, 4, 128 + 4), Level.INFO));
-		tokens.add(new Token(TOKEN_LENGTH, 4 + 128 + 4, 4, "Program size: " + ByteBuffer.wrap(array, 4 + 128 + 4, 4).getInt() + " bytes", Level.INFO));
-		tokens.add(new Token(TOKEN_COMMENT, 4 + 128 + 4 + 4, 2048 + 4, "Program comment: " + new String(array, 4 + 128 + 4 + 4, 2048 + 4), Level.INFO));
+		tokens.add(createToken(TOKEN_FILE_HEADER, 0, 4, "Magic number", Level.INFO));
+		tokens.add(createToken(TOKEN_COMMENT, 4, 128 + 4, "Program name: " + new String(array, 4, 128 + 4), Level.INFO));
+		tokens.add(createToken(TOKEN_LENGTH, 4 + 128 + 4, 4, "Program size: " + ByteBuffer.wrap(array, 4 + 128 + 4, 4).getInt() + " bytes", Level.INFO));
+		tokens.add(createToken(TOKEN_COMMENT, 4 + 128 + 4 + 4, 2048 + 4, "Program comment: " + new String(array, 4 + 128 + 4 + 4, 2048 + 4), Level.INFO));
 		int offset = 2192;
 		while (offset < array.length) {
 			if (array[offset] <= 0 || array[offset] > OPNAMES.length) {
-				tokens.add(new Token(TOKEN_ERRORED, offset, 1, "Invalid opcode", Level.ERROR));
+				tokens.add(createToken(TOKEN_ERRORED, offset, 1, "Invalid opcode", Level.ERROR));
 				offset++;
 				continue;
 			}
 			byte opcode = array[offset];
-			tokens.add(new Token(TOKEN_CHUNK_HEADER, offset, 1, OPNAMES[opcode - 1], Level.INFO));
+			tokens.add(createToken(TOKEN_CHUNK_HEADER, offset, 1, OPNAMES[opcode - 1], Level.INFO));
 			offset++;
 			byte coding;
 			switch (opcode) {
@@ -62,7 +62,7 @@ public class CORTokenMaker extends TokenMaker {
 						break;
 					}
 				}
-				tokens.add(new Token(TOKEN_LENGTH, offset, 1, s, Level.INFO));
+				tokens.add(createToken(TOKEN_LENGTH, offset, 1, s, Level.INFO));
 				offset++;
 				break;
 			case 1:
@@ -75,7 +75,7 @@ public class CORTokenMaker extends TokenMaker {
 			for (int i = 0; i < 4; i++) {
 				switch (coding >>> (6 - 2 * i) & 0b11) {
 				case 0b01:
-					tokens.add(new Token(TOKEN_IMAGE_COLOR, offset, 1, "Register r" + array[offset], Level.INFO));
+					tokens.add(createToken(TOKEN_IMAGE_COLOR, offset, 1, "Register r" + array[offset], Level.INFO));
 					offset += 1;
 					break;
 				case 0b10:
@@ -86,22 +86,22 @@ public class CORTokenMaker extends TokenMaker {
 					case 12:
 					case 14:
 					case 15:
-						tokens.add(new Token(TOKEN_IMAGE_SIZE, offset, 2, "Direct: " + ByteBuffer.wrap(array, offset, 2).getShort(), Level.INFO));
+						tokens.add(createToken(TOKEN_IMAGE_SIZE, offset, 2, "Direct: " + ByteBuffer.wrap(array, offset, 2).getShort(), Level.INFO));
 						offset += 2;
 						break;
 					default:
-						tokens.add(new Token(TOKEN_IMAGE_SIZE, offset, 4, "Direct: " + ByteBuffer.wrap(array, offset, 4).getInt(), Level.INFO));
+						tokens.add(createToken(TOKEN_IMAGE_SIZE, offset, 4, "Direct: " + ByteBuffer.wrap(array, offset, 4).getInt(), Level.INFO));
 						offset += 4;
 						break;
 					}
 					break;
 				case 0b11:
-					tokens.add(new Token(TOKEN_METADATA, offset, 2, "Indirect: " + ByteBuffer.wrap(array, offset, 2).getShort(), Level.INFO));
+					tokens.add(createToken(TOKEN_METADATA, offset, 2, "Indirect: " + ByteBuffer.wrap(array, offset, 2).getShort(), Level.INFO));
 					offset += 2;
 					break;
 				}
 			}
-			tokens.add(new Token(TOKEN_CHUNK, parstart, offset - parstart));
+			tokens.add(createToken(TOKEN_CHUNK, parstart, offset - parstart));
 		}
 		return tokens;
 	}

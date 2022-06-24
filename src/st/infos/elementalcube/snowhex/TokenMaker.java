@@ -24,6 +24,14 @@ public abstract class TokenMaker implements TokenTypes {
 		// TODO subclasses.put("ser", SERTokenMaker.class);
 	}
 	
+	/**
+	 * Create the list of syntactic tokens.
+	 * 
+	 * A same byte can be a part of multiple tokens, usually a secondary (background, bigger length), and a primary (foreground, more restrained in length)
+	 * 
+	 * @param array the bytes in the file
+	 * @return a list of tokens in the file
+	 */
 	public abstract List<Token> generateTokens(byte[] array);
 	
 	public Token createToken(int type, int offset, int length) {
@@ -47,7 +55,8 @@ public abstract class TokenMaker implements TokenTypes {
 	}
 	
 	/**
-	 * Returns a short name for the language (ex: sni, gif, png...)
+	 * Returns a short name for the language (ex: sni, gif, png...).
+	 * This is usually also the file extension
 	 * 
 	 * @return the simple name of the language
 	 */
@@ -62,9 +71,9 @@ public abstract class TokenMaker implements TokenTypes {
 	}
 	
 	/**
-	 * Returns the object to print as a dump.<br/>
-	 * If null, shows the ascii text for the bytes.<br/>
-	 * If instanceof BufferedImage, shows the image.
+	 * Returns the object to show as a preview.<br/>
+	 * If null, shows nothing.<br/>
+	 * If instanceof Image, shows the image.
 	 * 
 	 * @return the object to show to the user
 	 */
