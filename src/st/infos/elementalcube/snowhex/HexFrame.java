@@ -169,6 +169,7 @@ public class HexFrame extends JFrame {
 		});
 		
 		showResult.setSelected(false);
+		showResult.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, getToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
 		showResult.addActionListener(e -> {
 			if (preview == null) {
 				preview = new PreviewFrame(this);

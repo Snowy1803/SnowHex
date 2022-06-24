@@ -82,7 +82,7 @@ parser.gif.ext.gce.userInput.false=<span style="color: red">✗</span> Ne pas at
 parser.gif.ext.gce.transparentColor.true=<span style="color: green">✓</span> Pixel transparent actif
 parser.gif.ext.gce.transparentColor.false=<span style="color: red">✗</span> Pixel transparent inactif
 parser.gif.ext.gce.transparentColor=Le pixel transparent est le n°%d
-parser.gif.ext.gce.delay=Attente après la génération de la prochaine image : %.1f secondes
+parser.gif.ext.gce.delay=Attente après la génération de la prochaine image : %.2f secondes
 parser.gif.ext.app=Application '%s'
 parser.gif.ext.app.version=Version '%s'
 parser.gif.ext.text.fore=Position du premier plan dans la palette : %d

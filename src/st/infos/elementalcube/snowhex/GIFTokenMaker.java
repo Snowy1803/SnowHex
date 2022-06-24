@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import st.infos.elementalcube.snowhex.Token.Level;
 
@@ -83,7 +84,7 @@ public class GIFTokenMaker extends TokenMaker {
 				list.add(createToken(TOKEN_METADATA, i - 1, 1, notice("ext.gce.disposal." + ((packedFields >> 2) & 0x3)) + "<br/>" + notice(
 						"ext.gce.userInput." + ((packedFields & 0x2) != 0)) + "<br/>" + notice("ext.gce.transparentColor." + ((packedFields
 								& 0x1) != 0)), Level.INFO));
-				list.add(createToken(TOKEN_METADATA, i, 2, notice("ext.gce.delay", toShort(array[i++], array[i++]) / 10F), Level.INFO));
+				list.add(createToken(TOKEN_METADATA, i, 2, notice("ext.gce.delay", toShort(array[i++], array[i++]) / 100F), Level.INFO));
 				list.add(createToken(TOKEN_METADATA, i, 1, notice("ext.gce.transparentColor", Byte.toUnsignedInt(array[i++])), Level.INFO));
 				byte terminator = array[i++];
 				if (terminator != 0) {
@@ -185,11 +186,6 @@ public class GIFTokenMaker extends TokenMaker {
 	
 	@Override
 	public Object getDump(byte[] array) {
-		try {
-			return ImageIO.read(new ByteArrayInputStream(array));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return new ImageIcon(array).getImage();
 	}
 }

@@ -82,7 +82,7 @@ parser.gif.ext.gce.userInput.false=<span style="color: red">✗</span> Ikke vent
 parser.gif.ext.gce.transparentColor.true=<span style="color: green">✓</span> Gennemsigtig pixel aktiveret
 parser.gif.ext.gce.transparentColor.false=<span style="color: red">✗</span> Gennemsigtig pixel deaktiveret
 parser.gif.ext.gce.transparentColor=Den gennemsigtige pixel er #%d
-parser.gif.ext.gce.delay=Ventetid efter generation af næste billede: %.1f secondes
+parser.gif.ext.gce.delay=Ventetid efter generation af næste billede: %.2f sekunder
 parser.gif.ext.app=Appen '%s'
 parser.gif.ext.app.version=Version '%s'
 parser.gif.ext.text.fore=Position af forgrunden i paletten: %d

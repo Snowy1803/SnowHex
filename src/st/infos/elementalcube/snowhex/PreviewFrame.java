@@ -44,9 +44,9 @@ public class PreviewFrame extends JDialog implements ActionListener {
 			if (img instanceof Image) {
 				Image img = (Image) PreviewFrame.this.img;
 				if ((double) getWidth() / img.getWidth(null) <= (double) getHeight() / img.getHeight(null)) {
-					g2d.drawImage(img, 0, 0, getWidth(), img.getHeight(null) * getWidth() / img.getWidth(null), null);
+					g2d.drawImage(img, 0, 0, getWidth(), img.getHeight(null) * getWidth() / img.getWidth(null), this);
 				} else {
-					g2d.drawImage(img, 0, 0, img.getWidth(null) * getHeight() / img.getHeight(null), getHeight(), null);
+					g2d.drawImage(img, 0, 0, img.getWidth(null) * getHeight() / img.getHeight(null), getHeight(), this);
 				}
 			} else if (img != null) {
 				String s1 = Lang.getString("frame.preview.null");

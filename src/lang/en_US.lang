@@ -67,7 +67,7 @@ parser.gif.bci=Position of the background in the palette: %d (<span style="color
 parser.gif.par.false=<span style="color: red">✗</span> No given pixel aspect ratio
 parser.gif.par=Pixel aspect ratio: %d
 parser.gif.color=Color: <span style="color: #%1$s;">■</span> %1$s
-parser.gif.block.length=Bloc size: %d bytes
+parser.gif.block.length=Block size: %d bytes
 parser.gif.block.noterminator=Block end must be '00'
 parser.gif.block.unknown=Unknown block
 parser.gif.block.img=Sub-image
@@ -81,7 +81,7 @@ parser.gif.ext.gce.userInput.false=<span style="color: red">✗</span> Don't wai
 parser.gif.ext.gce.transparentColor.true=<span style="color: green">✓</span> Active transparent pixel
 parser.gif.ext.gce.transparentColor.false=<span style="color: red">✗</span> Inactive transparent pixel
 parser.gif.ext.gce.transparentColor=The transparent pixel is #%d
-parser.gif.ext.gce.delay=Wait after the generation of the next image: %.1f seconds
+parser.gif.ext.gce.delay=Wait after the generation of the next image: %.2f seconds
 parser.gif.ext.app=Application '%s'
 parser.gif.ext.app.version=Version '%s'
 parser.gif.ext.text.fore=Position of the foreground in the palette: %d
