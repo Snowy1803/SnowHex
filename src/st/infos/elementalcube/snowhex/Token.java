@@ -79,6 +79,21 @@ public class Token {
 	}
 	
 	public enum Level {
-		INFO, WARNING, ERROR;
+		/**
+		 * Just information about the token. Shows no icon
+		 */
+		INFO,
+		/**
+		 * An unimportant notice
+		 */
+		NOTICE,
+		/**
+		 * A warning about the token
+		 */
+		WARNING,
+		/**
+		 * This token is invalid
+		 */
+		ERROR;
 	}
 }

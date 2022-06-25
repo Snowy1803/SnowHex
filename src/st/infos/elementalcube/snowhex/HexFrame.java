@@ -141,6 +141,7 @@ public class HexFrame extends JFrame {
 		open.addActionListener(e -> {
 			if (USE_NATIVE_FILE_DIALOG) {
 				FileDialog fc = new FileDialog(HexFrame.this, "", FileDialog.LOAD);
+				fc.setModalityType(ModalityType.DOCUMENT_MODAL);
 				fc.setDirectory(this.file == null ? null : this.file.getParentFile().getAbsolutePath());
 				fc.setVisible(true);
 				if (fc.getFile() != null)

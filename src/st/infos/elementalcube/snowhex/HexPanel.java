@@ -442,8 +442,12 @@ public class HexPanel extends JPanel {
 			while (i.hasNext()) {
 				Token t = i.next();
 				if (t.hasToolTip()) {
-					desc.add("<img src=\"" + getClass().getResource("/img/" + t.getToolTipLevel().toString().toLowerCase() + ".png") + "\"/>" + t
+					if (t.getToolTipLevel() == Level.INFO) {
+						desc.add(t.getToolTip());
+					} else {
+						desc.add("<img src=\"" + getClass().getResource("/img/" + t.getToolTipLevel().toString().toLowerCase() + ".png") + "\"/>" + t
 							.getToolTip());
+					}
 				}
 			}
 			if (desc.isEmpty()) return null;
