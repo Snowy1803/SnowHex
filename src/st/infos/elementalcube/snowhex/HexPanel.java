@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -63,6 +64,7 @@ public class HexPanel extends JPanel {
 				caretIndex = getTokenAt(e.getX(), e.getY());
 				int startX = (int) ((addressCols + 2) * length0);
 				caretAfter = caretIndex == -1 ? false : Math.round((e.getX() - startX) / length0 % 3) >= 2;
+				caretDidMove();
 				repaint(pt.x - (int) (length0 * 3), pt.y - (int) (lineH * 2), (int) (length0 * 8), (int) (lineH * 4));
 				repaint(e.getX() - (int) (length0 * 3), e.getY() - (int) (lineH * 2), (int) (length0 * 8), (int) (lineH * 4));
 				if (showDump) {
@@ -121,10 +123,12 @@ public class HexPanel extends JPanel {
 		getActionMap().put("start", new LambdaAction(() -> {
 			caretIndex = -1;
 			caretAfter = true;
+			caretDidMove();
 		}));
 		getActionMap().put("end", new LambdaAction(() -> {
 			caretIndex = bytes.length - 1;
 			caretAfter = true;
+			caretDidMove();
 		}));
 		getActionMap().put("back", new LambdaAction(() -> {
 			int i = caretIndex;
@@ -152,6 +156,14 @@ public class HexPanel extends JPanel {
 	protected void setDocumentModified() {
 		getRootPane().putClientProperty("Window.documentModified", true);
 	}
+	
+	protected void caretDidMove() {
+		if (!validIndex())
+			return;
+		int x1 = (int) (startX() + ((caretIndex % 16) * 3 + (caretAfter ? 2 : 1)) * length0);
+		int y = (int) (((caretIndex / 16) + 2) * lineH);
+		scrollRectToVisible(new Rectangle(x1, y - (int) lineH + 2, 2, (int) lineH + 7));
+	}
 
 	protected void moveCaretUp() {
 		if (caretIndex > 15) {
@@ -160,6 +172,7 @@ public class HexPanel extends JPanel {
 			caretIndex = -1;
 			caretAfter = true;
 		}
+		caretDidMove();
 	}
 	
 	protected void moveCaretDown() {
@@ -168,6 +181,7 @@ public class HexPanel extends JPanel {
 			caretIndex = bytes.length - 1;
 			caretAfter = true;
 		}
+		caretDidMove();
 	}
 	
 	protected void moveCaretRight() {
@@ -181,6 +195,7 @@ public class HexPanel extends JPanel {
 			caretIndex = bytes.length - 1;
 			caretAfter = true;
 		}
+		caretDidMove();
 	}
 	
 	protected void moveCaretLeft() {
@@ -194,6 +209,7 @@ public class HexPanel extends JPanel {
 			caretIndex = -1;
 			caretAfter = true;
 		}
+		caretDidMove();
 	}
 	
 	protected void moveCaretLineStart() {
