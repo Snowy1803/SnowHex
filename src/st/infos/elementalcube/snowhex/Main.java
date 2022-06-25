@@ -12,7 +12,12 @@ public class Main {
 		System.setProperty("apple.awt.application.name", "SnowHex");
         System.setProperty("com.apple.mrj.application.apple.menu.about.name", "SnowHex");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
-		
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ReflectiveOperationException | UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 		try {
 			Class<?> c = Class.forName("java.awt.Taskbar", false, null);
 			if (Taskbar.isTaskbarSupported()) {
@@ -20,19 +25,15 @@ public class Main {
 			}
 		} catch (ReflectiveOperationException | SecurityException | IllegalArgumentException | UnsupportedOperationException e) {
 			/* Java 8 */
+			e.printStackTrace();
 			try {
 				Class<?> c = Class.forName("com.apple.eawt.Application", false, null);
 				c.getMethod("setDockIconImage", Image.class).invoke(c.getMethod("getApplication").invoke(null),
 						new ImageIcon(HexFrame.class.getResource("/img/icon.png")).getImage());
 			} catch (ReflectiveOperationException | SecurityException | IllegalArgumentException e1) {
 				/* Not on mac */
+				e1.printStackTrace();
 			}
-		}
-		
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ReflectiveOperationException | UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
 		}
 		HexFrame.main(args);
 	}

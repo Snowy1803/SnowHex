@@ -21,6 +21,11 @@ public class PreviewFrame extends JDialog implements ActionListener {
 		this.parent = parent;
 		setContentPane(new PreviewPanel());
 		img = parent.getEditor().getPreviewImage();
+		// utility style on macos
+		rootPane.putClientProperty("Window.style", "small");
+		rootPane.putClientProperty("apple.awt.draggableWindowBackground", true);
+		if (System.getProperty("os.name").contains("Mac"))
+			setAlwaysOnTop(true);
 		setSize(300, 300);
 		setLocationRelativeTo(parent);
 		setVisible(true);

@@ -1,6 +1,9 @@
 package st.infos.elementalcube.snowhex;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dialog.ModalityType;
+import java.awt.FileDialog;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -43,6 +46,7 @@ public class HexFrame extends JFrame {
 	private static final long serialVersionUID = 125057354483869125L;
 	public static final File APPDATA = new File((System.getenv("APPDATA") == null ? FileSystemView.getFileSystemView().getDefaultDirectory().getPath()
 		: System.getenv("APPDATA") + "/") + "ElementalCube/snowhex");
+	public static final boolean USE_NATIVE_FILE_DIALOG = System.getProperty("os.name", "").contains("Mac");
 	private File file;
 	private HexPanel editor;
 	private PreviewFrame preview;
@@ -135,30 +139,53 @@ public class HexFrame extends JFrame {
 		
 		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, getToolkit().getMenuShortcutKeyMask()));
 		open.addActionListener(e -> {
-			JFileChooser fc = new JFileChooser();
-			fc.setCurrentDirectory(this.file == null ? null : this.file.getParentFile());
-			for (String ext : tokenmakers) {
-				fc.addChoosableFileFilter(new FileNameExtensionFilter(Lang.getString("parser." + ext), ext));
-			}
-			fc.addChoosableFileFilter(null);
-			fc.showOpenDialog(HexFrame.this);
-			if (fc.getSelectedFile() != null) {
-				open(fc.getSelectedFile());
+			if (USE_NATIVE_FILE_DIALOG) {
+				FileDialog fc = new FileDialog(HexFrame.this, "", FileDialog.LOAD);
+				fc.setDirectory(this.file == null ? null : this.file.getParentFile().getAbsolutePath());
+				fc.setVisible(true);
+				if (fc.getFile() != null)
+					open(fc.getFiles()[0]);
+			} else {
+				JFileChooser fc = new JFileChooser();
+				fc.setCurrentDirectory(this.file == null ? null : this.file.getParentFile());
+				for (String ext : tokenmakers) {
+					fc.addChoosableFileFilter(new FileNameExtensionFilter(Lang.getString("parser." + ext), ext));
+				}
+				fc.addChoosableFileFilter(null);
+				fc.showOpenDialog(HexFrame.this);
+				if (fc.getSelectedFile() != null) {
+					open(fc.getSelectedFile());
+				}
 			}
 		});
 		
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, getToolkit().getMenuShortcutKeyMask()));
 		save.addActionListener(e -> {
-			JFileChooser fc = new JFileChooser();
-			fc.setSelectedFile(this.file);
-			fc.showSaveDialog(HexFrame.this);
-			if (fc.getSelectedFile() != null) {
-				this.file = fc.getSelectedFile();
-				try {
-					FileUtils.writeByteArrayToFile(this.file, editor.getBytes());
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+			File saveFile;
+			if (USE_NATIVE_FILE_DIALOG) {
+				FileDialog fc = new FileDialog(HexFrame.this, "", FileDialog.SAVE);
+				fc.setModalityType(ModalityType.DOCUMENT_MODAL);
+				fc.setFile(this.file.getAbsolutePath());
+				fc.setVisible(true);
+				if (fc.getFile() != null)
+					saveFile = fc.getFiles()[0];
+				else
+					return;
+			} else {
+				JFileChooser fc = new JFileChooser();
+				fc.setSelectedFile(this.file);
+				fc.showSaveDialog(HexFrame.this);
+				if (fc.getSelectedFile() != null)
+					saveFile = fc.getSelectedFile();
+				else
+					return;
+			}
+			this.setFile(saveFile);
+			try {
+				FileUtils.writeByteArrayToFile(this.file, editor.getBytes());
+				getRootPane().putClientProperty("Window.documentModified", false);
+			} catch (Exception e1) {
+				e1.printStackTrace();
 			}
 		});
 		
@@ -209,7 +236,7 @@ public class HexFrame extends JFrame {
 			f.editor.setColorer(getColorer(file));
 			f.editor.repaint();
 		} else {
-			this.file = file;
+			this.setFile(file);
 			setTitle(Lang.getString("frame.title.file", file.getAbsolutePath()));
 			try {
 				editor.setBytes(FileUtils.readFileToByteArray(file));
@@ -219,6 +246,12 @@ public class HexFrame extends JFrame {
 			}
 			editor.repaint();
 		}
+	}
+	
+	private void setFile(File file) {
+		this.file = file;
+		// macOS draggable icon
+		rootPane.putClientProperty("Window.documentFile", file);
 	}
 	
 	public static TokenMaker getColorer(File f) {

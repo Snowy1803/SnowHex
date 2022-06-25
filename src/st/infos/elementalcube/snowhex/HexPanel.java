@@ -91,6 +91,7 @@ public class HexPanel extends JPanel {
 						cs[caretAfter ? 0 : 1] = e.getKeyChar();
 						bytes[i] = (byte) Integer.parseInt(new String(cs), 16);
 					}
+					setDocumentModified();
 					moveCaretRight();
 					reloadColors();
 					if (listener != null) listener.actionPerformed(new ActionEvent(bytes, ActionEvent.ACTION_PERFORMED, null));
@@ -148,6 +149,10 @@ public class HexPanel extends JPanel {
 		}));
 	}
 	
+	protected void setDocumentModified() {
+		getRootPane().putClientProperty("Window.documentModified", true);
+	}
+
 	protected void moveCaretUp() {
 		if (caretIndex > 15) {
 			caretIndex -= 16;
