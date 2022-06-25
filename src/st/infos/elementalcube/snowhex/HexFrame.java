@@ -69,7 +69,7 @@ public class HexFrame extends JFrame {
 		}
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setSize(920, 480);
-		setLocationRelativeTo(null);
+		setLocationByPlatform(true);
 		setVisible(true);
 	}
 	
@@ -204,14 +204,13 @@ public class HexFrame extends JFrame {
 					@Override
 					public void windowClosing(WindowEvent e) {
 						showResult.setSelected(false);
-						preview = null;
 					}
 				});
 				editor.addChangeListener(preview);
 			} else {
-				showResult.setSelected(false);
-				preview.dispose();
-				preview = null;
+				boolean value = !preview.isVisible();
+				showResult.setSelected(value);
+				preview.setVisible(value);
 			}
 		});
 		

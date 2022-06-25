@@ -27,7 +27,8 @@ public class PreviewFrame extends JDialog implements ActionListener {
 		if (System.getProperty("os.name").contains("Mac"))
 			setAlwaysOnTop(true);
 		setSize(300, 300);
-		setLocationRelativeTo(parent);
+		setLocation(parent.getX() + parent.getWidth() + 5, parent.getY());
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setVisible(true);
 	}
 	
