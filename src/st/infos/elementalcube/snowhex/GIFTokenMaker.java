@@ -143,6 +143,9 @@ public class GIFTokenMaker extends TokenMaker {
 			break;
 		case 0x3b:
 			list.add(createToken(TOKEN_CHUNK_HEADER, i - 1, 1));
+			if (i < array.length) {
+				list.add(createToken(TOKEN_ERRORED, i, array.length - i, "Trailing data", Level.WARNING));
+			}
 			return;
 		default:
 			list.add(createToken(TOKEN_ERRORED, i - 1, 1, notice("block.unknown"), Level.ERROR));
