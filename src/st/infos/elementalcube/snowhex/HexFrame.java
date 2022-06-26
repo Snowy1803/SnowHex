@@ -1,7 +1,6 @@
 package st.infos.elementalcube.snowhex;
 
 import java.awt.BorderLayout;
-import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dialog.ModalityType;
 import java.awt.FileDialog;
 import java.awt.datatransfer.DataFlavor;
@@ -49,6 +48,7 @@ public class HexFrame extends JFrame {
 	private File file;
 	private HexPanel editor;
 	private PreviewFrame preview;
+	private PropertiesFrame props;
 	
 	public HexFrame(HexPanel panel) {
 		super(Lang.getString("frame.title"));
@@ -87,9 +87,12 @@ public class HexFrame extends JFrame {
 		JMenu file = new JMenu(Lang.getString("menu.file")), view = new JMenu(Lang.getString("menu.view")), coloring = new JMenu(Lang.getString(
 				"menu.view.coloring")), lang = new JMenu(Lang.getString("menu.view.lang"));
 		
-		JMenuItem create = new JMenuItem(Lang.getString("menu.file.new")), open = new JMenuItem(Lang.getString("menu.file.open")),
-				save = new JMenuItem(Lang.getString("menu.file.save")), showDump = new JCheckBoxMenuItem(Lang.getString("menu.view.showDump")),
-				showResult = new JCheckBoxMenuItem(Lang.getString("menu.view.showResult"));
+		JMenuItem create = new JMenuItem(Lang.getString("menu.file.new")),
+				open = new JMenuItem(Lang.getString("menu.file.open")),
+				save = new JMenuItem(Lang.getString("menu.file.save")),
+				showDump = new JCheckBoxMenuItem(Lang.getString("menu.view.showDump")),
+				showResult = new JCheckBoxMenuItem(Lang.getString("menu.view.showResult")),
+				showProps = new JCheckBoxMenuItem(Lang.getString("menu.view.showProps"));
 		
 		ArrayList<String> tokenmakers = new ArrayList<>(TokenMaker.getParsers());
 		tokenmakers.sort(null);
@@ -214,6 +217,25 @@ public class HexFrame extends JFrame {
 			}
 		});
 		
+		showProps.setSelected(false);
+		showProps.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, getToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
+		showProps.addActionListener(e -> {
+			if (props == null) {
+				props = new PropertiesFrame(this);
+				props.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosing(WindowEvent e) {
+						showProps.setSelected(false);
+					}
+				});
+				editor.addChangeListener(props);
+			} else {
+				boolean value = !props.isVisible();
+				showProps.setSelected(value);
+				props.setVisible(value);
+			}
+		});
+		
 		file.add(create);
 		file.add(open);
 		file.add(save);
@@ -222,6 +244,7 @@ public class HexFrame extends JFrame {
 		view.add(lang);
 		view.add(showDump);
 		view.add(showResult);
+		view.add(showProps);
 		
 		bar.add(file);
 		bar.add(view);

@@ -43,12 +43,21 @@ public class HexPanel extends JPanel {
 	private double length0, lineH;
 	private int caretIndex = -1;
 	private boolean caretAfter;
+	private Token closestToken;
 	
 	// Config
 	private int addressCols;
 	private boolean showDump = true;
 	private boolean insert;
 	
+	/**
+	 * Called with sources:
+	 * - A byte [] (bytes) when the bytes change
+	 * - HexPanel.this when mode changes
+	 * - A MouseEvent when a click changes the caret position
+	 * - An ActionEvent when a keyboard shortcut changes the caret position
+	 * - A TokenMaker when the colorer changes
+	 */
 	private ActionListener listener;
 	
 	public HexPanel(byte[] initialBytes) {
@@ -95,8 +104,7 @@ public class HexPanel extends JPanel {
 					}
 					setDocumentModified();
 					moveCaretRight();
-					reloadColors();
-					if (listener != null) listener.actionPerformed(new ActionEvent(bytes, ActionEvent.ACTION_PERFORMED, null));
+					bytesDidChange();
 					repaint(getVisibleRect());
 				}
 			}
@@ -136,15 +144,13 @@ public class HexPanel extends JPanel {
 			cs[caretAfter ? 1 : 0] = '0';
 			bytes[i] = (byte) Integer.parseInt(new String(cs), 16);
 			moveCaretLeft();
-			reloadColors();
-			if (listener != null) listener.actionPerformed(new ActionEvent(bytes, ActionEvent.ACTION_PERFORMED, null));
+			bytesDidChange();
 		}));
 		getActionMap().put("delByte", new LambdaAction(() -> {
 			if (caretAfter && caretIndex >= 0) {
 				bytes = ArrayUtils.remove(bytes, caretIndex);
 				caretIndex--;
-				reloadColors();
-				if (listener != null) listener.actionPerformed(new ActionEvent(bytes, ActionEvent.ACTION_PERFORMED, null));
+				bytesDidChange();
 				repaint(getVisibleRect());
 			}
 		}));
@@ -152,14 +158,27 @@ public class HexPanel extends JPanel {
 			insert = !insert;
 		}));
 	}
-	
+
 	protected void setDocumentModified() {
 		getRootPane().putClientProperty("Window.documentModified", true);
 	}
 	
+	private void updateClosestToken() {
+		closestToken = colorer == null ? null : colorer.getClosestToken(bytes, tokens, caretIndex);
+	}
+	
+	protected void bytesDidChange() {
+		reloadColors();
+		if (listener != null)
+			listener.actionPerformed(new ActionEvent(bytes, ActionEvent.ACTION_PERFORMED, null));
+	}
+	
 	protected void caretDidMove() {
-		if (!validIndex())
+		if (!validIndex()) {
+			closestToken = null;
 			return;
+		}
+		updateClosestToken();
 		int x1 = (int) (startX() + ((caretIndex % 16) * 3 + (caretAfter ? 2 : 1)) * length0);
 		int y = (int) (((caretIndex / 16) + 2) * lineH);
 		scrollRectToVisible(new Rectangle(x1, y - (int) lineH + 2, 2, (int) lineH + 7));
@@ -254,8 +273,7 @@ public class HexPanel extends JPanel {
 		if (bytes != null) {
 			calculateAddressCols();
 		}
-		reloadColors();
-		if (listener != null) listener.actionPerformed(new ActionEvent(bytes, ActionEvent.ACTION_PERFORMED, null));
+		bytesDidChange();
 	}
 	
 	private void calculateAddressCols() {
@@ -274,10 +292,15 @@ public class HexPanel extends JPanel {
 	
 	public void reloadColors() {
 		tokens = colorer == null ? null : colorer.generateTokens(bytes);
+		updateClosestToken();
 	}
 	
 	public byte[] getBytes() {
 		return bytes;
+	}
+	
+	public Token getClosestToken() {
+		return closestToken;
 	}
 	
 	public boolean isShowingDump() {
@@ -326,6 +349,10 @@ public class HexPanel extends JPanel {
 	
 	public TokenMaker getColorer() {
 		return colorer;
+	}
+	
+	public List<Token> getTokens() {
+		return tokens;
 	}
 	
 	@Override

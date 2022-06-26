@@ -6,6 +6,7 @@ frame.title.file=%s - SnowHex
 frame.empty=No open file
 frame.preview=Preview
 frame.preview.null=An error occurred:
+frame.properties=Properties
 frame.overwrite=Overwrite
 frame.insert=Insert
 frame.caretPos=Line: %d Column: %d
@@ -24,6 +25,7 @@ menu.view.coloring=Highlighting
 menu.view.lang=Language
 menu.view.showDump=Show dump
 menu.view.showResult=Show preview
+menu.view.showProps=Show properties
 
 parser.none=No highlighting
 parser.multipleNotices=Multiple notices:
@@ -85,7 +87,7 @@ parser.gif.ext.gce.delay=Wait after the generation of the next image: %.2f secon
 parser.gif.ext.app=Application '%s'
 parser.gif.ext.app.version=Version '%s'
 parser.gif.ext.text.fore=Position of the foreground in the palette: %d
-parser.gif.ext.text.back=Position of the background in the palette : %d
+parser.gif.ext.text.back=Position of the background in the palette: %d
 parser.gif.interlace.true=<span style="color: green">✓</span> Interlaced
 parser.gif.interlace.false=<span style="color: red">✗</span> Not interlaced
 
