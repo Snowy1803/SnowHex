@@ -12,6 +12,10 @@ import javax.swing.ImageIcon;
 import st.infos.elementalcube.snowhex.Token.Level;
 
 public class GIFTokenMaker extends TokenMaker {
+	public int gcd(int a, int b) {
+	   if (b == 0) return a;
+	   return gcd(b, a % b);
+	}
 	
 	@Override
 	public List<Token> generateTokens(byte[] array) {
@@ -40,7 +44,8 @@ public class GIFTokenMaker extends TokenMaker {
 			list.add(createToken(TOKEN_IMAGE_COLOR, i - 1, 1, notice("bci", bci, globalColorTableFlag ? getHexString(Integer.toHexString(getBCI(array,
 					i + 2, bci)), 6) : "No GCT"), Level.INFO));
 			int par = array[i++];// Pixel Aspect Ratio
-			list.add(createToken(TOKEN_METADATA, i - 1, 1, par == 0 ? notice("par.false") : notice("par", (par + 15) / 64), Level.INFO));
+			int gcd = par == 0 ? 0 : gcd(par + 15, 64);
+			list.add(createToken(TOKEN_METADATA, i - 1, 1, par == 0 ? notice("par.false") : notice("par", (par + 15) / gcd, 64 / gcd), Level.INFO));
 			if (globalColorTableFlag) {
 				for (int j = 0; j < numGCTEntries; j++) {
 					list.add(createToken(TOKEN_IMAGE_COLOR, i + j * 3, 3, notice("color", parseColor(array, i + j * 3)), Level.INFO));
