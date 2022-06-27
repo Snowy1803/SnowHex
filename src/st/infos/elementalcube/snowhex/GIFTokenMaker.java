@@ -61,103 +61,108 @@ public class GIFTokenMaker extends TokenMaker {
 	}
 	
 	private void readBlocks(ArrayList<Token> list, byte[] array, int i) {
-		int intro = array[i++];
-		switch (intro) {
-		case 0x21:
-			// Ext
-			byte ext = array[i++];
-			switch (ext) {
-			case 1:
-				int extStart = i - 2;
-				list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("ext.header", "Plain Text"), Level.INFO));
-				list.add(createToken(TOKEN_LENGTH, i, 1, notice("block.length", array[i++]), Level.INFO));
-				list.add(createToken(TOKEN_IMAGE_SIZE, i, 4, notice("pos", toShort(array[i++], array[i++]), toShort(array[i++], array[i++])),
-						Level.INFO));
-				list.add(createToken(TOKEN_IMAGE_SIZE, i, 4, notice("size", toShort(array[i++], array[i++]), toShort(array[i++], array[i++])),
-						Level.INFO));
-				list.add(createToken(TOKEN_IMAGE_SIZE, i, 2, notice("charSize", array[i++], array[i++]), Level.INFO));
-				list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.text.fore", array[i++] & 0xFF), Level.INFO));
-				list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.text.back", array[i++] & 0xFF), Level.INFO));
-				i = readSubBlocks(list, array, i, -1);
-				list.add(createToken(TOKEN_CHUNK, extStart, i - extStart));
-				break;
-			case -7:
-				list.add(createToken(TOKEN_CHUNK, i - 2, 8));
-				list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("ext.header", "Graphic Control"), Level.INFO));
-				list.add(createToken(TOKEN_LENGTH, i, 1, notice("block.length", array[i++]), Level.INFO));
-				int packedFields = array[i++];
-				list.add(createToken(TOKEN_METADATA, i - 1, 1, notice("ext.gce.disposal." + ((packedFields >> 2) & 0x3)) + "<br/>" + notice(
-						"ext.gce.userInput." + ((packedFields & 0x2) != 0)) + "<br/>" + notice("ext.gce.transparentColor." + ((packedFields
-								& 0x1) != 0)), Level.INFO));
-				list.add(createToken(TOKEN_METADATA, i, 2, notice("ext.gce.delay", toShort(array[i++], array[i++]) / 100F), Level.INFO));
-				list.add(createToken(TOKEN_METADATA, i, 1, notice("ext.gce.transparentColor", Byte.toUnsignedInt(array[i++])), Level.INFO));
-				byte terminator = array[i++];
-				if (terminator != 0) {
-					list.add(createToken(TOKEN_ERRORED, i - 1, 1, notice("block.noterminator"), Level.ERROR));
-				} else list.add(createToken(TOKEN_RESERVED, i - 1, 1));
-				break;
-			case -2:
-				extStart = i - 2;
-				list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("ext.header", "Comment"), Level.INFO));
-				i = readSubBlocks(list, array, i, TOKEN_COMMENT);
-				list.add(createToken(TOKEN_CHUNK, extStart, i - extStart));
-				break;
-			case -1:
-				extStart = i - 2;
-				list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("ext.header", "Application"), Level.INFO));
-				list.add(createToken(TOKEN_LENGTH, i, 1, notice("block.length", array[i++]), Level.INFO));
-				list.add(createToken(TOKEN_METADATA, i, 8, notice("ext.app", new String(new char[] { (char) array[i++], (char) array[i++],
-						(char) array[i++], (char) array[i++], (char) array[i++], (char) array[i++], (char) array[i++], (char) array[i++] })),
-						Level.INFO));
-				list.add(createToken(TOKEN_METADATA, i, 3, notice("ext.app.version", new String(new char[] { (char) array[i++], (char) array[i++],
-						(char) array[i++] })), Level.INFO));
-				i = readSubBlocks(list, array, i, -1);
-				list.add(createToken(TOKEN_CHUNK, extStart, i - extStart));
-				break;
-			default:
-				list.add(createToken(TOKEN_ERRORED, i - 2, 2, notice("block.unknown"), Level.ERROR));
-				break;
-			}
-			break;
-		case 0x2C:
-			// Img
-			int imgStart = i - 1;
-			list.add(createToken(TOKEN_CHUNK_HEADER, i - 1, 1, notice("block.img"), Level.INFO));
-			int x = toShort(array[i++], array[i++]);
-			int y = toShort(array[i++], array[i++]);
-			list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("pos", x, y), Level.INFO));
-			int w = toShort(array[i++], array[i++]);
-			int h = toShort(array[i++], array[i++]);
-			list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("size", w, h), Level.INFO));
-			int packedFields = array[i++];
-			boolean lct = (packedFields & 0x80) != 0;
-			int numLCTEntries = 1 << ((packedFields & 0x7) + 1);
-			list.add(createToken(TOKEN_METADATA, i - 1, 1, notice("localColorTable." + lct) + "<br/>" + notice("interlace." + ((packedFields
-					& 0x40) != 0)) + "<br/>" + notice("sort." + ((packedFields & 0x20) != 0)) + "<br/>" + notice("lctSize", lct ? numLCTEntries : 0),
-					Level.INFO));
-			if (lct) {
-				for (int j = 0; j < numLCTEntries; j++) {
-					list.add(createToken(TOKEN_IMAGE_COLOR, i + j * 3, 3, notice("color", parseColor(array, i + j * 3)), Level.INFO));
+		while (true) {
+			int intro = array[i++];
+			switch (intro) {
+			case 0x21:
+				// Ext
+				byte ext = array[i++];
+				switch (ext) {
+				case 1:
+					int extStart = i - 2;
+					list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("ext.header", "Plain Text"), Level.INFO));
+					list.add(createToken(TOKEN_LENGTH, i, 1, notice("block.length", array[i++]), Level.INFO));
+					list.add(createToken(TOKEN_IMAGE_SIZE, i, 4, notice("pos", toShort(array[i++], array[i++]), toShort(array[i++], array[i++])),
+							Level.INFO));
+					list.add(createToken(TOKEN_IMAGE_SIZE, i, 4, notice("size", toShort(array[i++], array[i++]), toShort(array[i++], array[i++])),
+							Level.INFO));
+					list.add(createToken(TOKEN_IMAGE_SIZE, i, 2, notice("charSize", array[i++], array[i++]), Level.INFO));
+					list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.text.fore", array[i++] & 0xFF), Level.INFO));
+					list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.text.back", array[i++] & 0xFF), Level.INFO));
+					i = readSubBlocks(list, array, i, -1);
+					list.add(createToken(TOKEN_CHUNK, extStart, i - extStart));
+					break;
+				case -7:
+					list.add(createToken(TOKEN_CHUNK, i - 2, 8));
+					list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("ext.header", "Graphic Control"), Level.INFO));
+					list.add(createToken(TOKEN_LENGTH, i, 1, notice("block.length", array[i++]), Level.INFO));
+					int packedFields = array[i++];
+					list.add(createToken(TOKEN_METADATA, i - 1, 1, notice("ext.gce.disposal." + ((packedFields >> 2) & 0x3)) + "<br/>" + notice(
+							"ext.gce.userInput." + ((packedFields & 0x2) != 0)) + "<br/>" + notice("ext.gce.transparentColor." + ((packedFields
+									& 0x1) != 0)), Level.INFO));
+					list.add(createToken(TOKEN_METADATA, i, 2, notice("ext.gce.delay", toShort(array[i++], array[i++]) / 100F), Level.INFO));
+					if ((packedFields & 0x1) != 0) {
+						list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.gce.transparentColor", Byte.toUnsignedInt(array[i++])), Level.INFO));
+					} else {
+						list.add(createToken(TOKEN_RESERVED, i, 1));
+						i++;
+					}
+					byte terminator = array[i++];
+					if (terminator != 0) {
+						list.add(createToken(TOKEN_ERRORED, i - 1, 1, notice("block.noterminator"), Level.ERROR));
+					} else list.add(createToken(TOKEN_RESERVED, i - 1, 1));
+					break;
+				case -2:
+					extStart = i - 2;
+					list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("ext.header", "Comment"), Level.INFO));
+					i = readSubBlocks(list, array, i, TOKEN_COMMENT);
+					list.add(createToken(TOKEN_CHUNK, extStart, i - extStart));
+					break;
+				case -1:
+					extStart = i - 2;
+					list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("ext.header", "Application"), Level.INFO));
+					list.add(createToken(TOKEN_LENGTH, i, 1, notice("block.length", array[i++]), Level.INFO));
+					list.add(createToken(TOKEN_METADATA, i, 8, notice("ext.app", new String(new char[] { (char) array[i++], (char) array[i++],
+							(char) array[i++], (char) array[i++], (char) array[i++], (char) array[i++], (char) array[i++], (char) array[i++] })),
+							Level.INFO));
+					// its supposed to be an auth code but everyone uses it as a version
+					list.add(createToken(TOKEN_METADATA, i, 3, notice("ext.app.version", new String(new char[] { (char) array[i++], (char) array[i++],
+							(char) array[i++] })), Level.INFO));
+					i = readSubBlocks(list, array, i, -1);
+					list.add(createToken(TOKEN_CHUNK, extStart, i - extStart));
+					break;
+				default:
+					list.add(createToken(TOKEN_ERRORED, i - 2, 2, notice("block.unknown"), Level.ERROR));
+					break;
 				}
-				list.add(createToken(TOKEN_IMAGE_PALETTE, i, numLCTEntries * 3));
-				i += numLCTEntries * 3;
+				break;
+			case 0x2C:
+				// Img
+				int imgStart = i - 1;
+				list.add(createToken(TOKEN_CHUNK_HEADER, i - 1, 1, notice("block.img"), Level.INFO));
+				int x = toShort(array[i++], array[i++]);
+				int y = toShort(array[i++], array[i++]);
+				list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("pos", x, y), Level.INFO));
+				int w = toShort(array[i++], array[i++]);
+				int h = toShort(array[i++], array[i++]);
+				list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("size", w, h), Level.INFO));
+				int packedFields = array[i++];
+				boolean lct = (packedFields & 0x80) != 0;
+				int numLCTEntries = 1 << ((packedFields & 0x7) + 1);
+				list.add(createToken(TOKEN_METADATA, i - 1, 1, notice("localColorTable." + lct) + "<br/>" + notice("interlace." + ((packedFields
+						& 0x40) != 0)) + "<br/>" + notice("sort." + ((packedFields & 0x20) != 0)) + "<br/>" + notice("lctSize", lct ? numLCTEntries : 0),
+						Level.INFO));
+				if (lct) {
+					for (int j = 0; j < numLCTEntries; j++) {
+						list.add(createToken(TOKEN_IMAGE_COLOR, i + j * 3, 3, notice("color", parseColor(array, i + j * 3)), Level.INFO));
+					}
+					list.add(createToken(TOKEN_IMAGE_PALETTE, i, numLCTEntries * 3));
+					i += numLCTEntries * 3;
+				}
+				list.add(createToken(TOKEN_METADATA, i++, 1));
+				i = readSubBlocks(list, array, i, TOKEN_IMAGE_COLOR);
+				list.add(createToken(TOKEN_IMAGE_DATA, imgStart, i - imgStart));
+				break;
+			case 0x3b:
+				list.add(createToken(TOKEN_CHUNK_HEADER, i - 1, 1));
+				if (i < array.length) {
+					list.add(createToken(TOKEN_ERRORED, i, array.length - i, "Trailing data", Level.WARNING));
+				}
+				return;
+			default:
+				list.add(createToken(TOKEN_ERRORED, i - 1, 1, notice("block.unknown"), Level.ERROR));
+				break;
 			}
-			list.add(createToken(TOKEN_METADATA, i++, 1));
-			i = readSubBlocks(list, array, i, TOKEN_IMAGE_COLOR);
-			list.add(createToken(TOKEN_IMAGE_DATA, imgStart, i - imgStart));
-			break;
-		case 0x3b:
-			list.add(createToken(TOKEN_CHUNK_HEADER, i - 1, 1));
-			if (i < array.length) {
-				list.add(createToken(TOKEN_ERRORED, i, array.length - i, "Trailing data", Level.WARNING));
-			}
-			return;
-		default:
-			list.add(createToken(TOKEN_ERRORED, i - 1, 1, notice("block.unknown"), Level.ERROR));
-			break;
-		}
-		if (array.length != i) {// Missing trailer?
-			readBlocks(list, array, i);
 		}
 	}
 	
@@ -195,5 +200,19 @@ public class GIFTokenMaker extends TokenMaker {
 	@Override
 	public Object getDump(byte[] array) {
 		return new ImageIcon(array).getImage();
+	}
+	
+	@Override
+	public Token allocToken() {
+		return new GIFToken();
+	}
+	
+	class GIFToken extends TokenImpl {
+		
+		@Override
+		public void init(int type, int offset, int length, String tooltip, Level tooltipLevel) {
+			super.init(type, offset, length, tooltip, tooltipLevel);
+			
+		}
 	}
 }
