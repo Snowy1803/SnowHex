@@ -12,6 +12,7 @@ public class Main {
 		System.setProperty("apple.awt.application.name", "SnowHex");
         System.setProperty("com.apple.mrj.application.apple.menu.about.name", "SnowHex");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		// System.setProperty("apple.awt.application.appearance", "system");
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

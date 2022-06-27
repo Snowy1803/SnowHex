@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.swing.JComponent;
@@ -160,7 +159,7 @@ public abstract class TokenMaker implements TokenTypes {
 		}
 		return null;
 	}
-	
+
 	public static Set<String> getParsers() {
 		return subclasses.keySet();
 	}

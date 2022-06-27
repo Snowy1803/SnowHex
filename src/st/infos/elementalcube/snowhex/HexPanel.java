@@ -69,7 +69,6 @@ public class HexPanel extends JPanel {
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				Point pt = getLocationForIndex(caretIndex);
 				caretIndex = getTokenAt(e.getX(), e.getY());
 				int startX = (int) ((addressCols + 2) * length0);
 				caretAfter = caretIndex == -1 ? false : Math.round((e.getX() - startX) / length0 % 3) >= 2;
@@ -251,15 +250,6 @@ public class HexPanel extends JPanel {
 	
 	private int startX() {
 		return (int) ((addressCols + 2) * length0);
-	}
-	
-	private Point getLocationForIndex(int index) {
-		if (length0 == 0 || lineH == 0 || index < 0) return new Point();
-		int startX = startX();
-		int startY = (int) (2 * lineH);
-		int rx = index % 16;
-		int ry = index / 16;
-		return new Point(rx * (int) (length0 * 3) + startX, (int) (ry * lineH + startY));
 	}
 	
 	public void setBytes(byte[] bytes) {

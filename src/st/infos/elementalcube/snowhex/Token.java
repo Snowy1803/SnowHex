@@ -1,7 +1,5 @@
 package st.infos.elementalcube.snowhex;
 
-import st.infos.elementalcube.snowhex.Token.Level;
-
 public interface Token {
 	int getType();
 	
