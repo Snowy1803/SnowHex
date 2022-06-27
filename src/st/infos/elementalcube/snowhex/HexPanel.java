@@ -291,7 +291,12 @@ public class HexPanel extends JPanel {
 	}
 	
 	public void reloadColors() {
-		tokens = colorer == null ? null : colorer.generateTokens(bytes);
+		if (colorer == null) {
+			tokens = null;
+		} else {
+			colorer.invalidateTokenPool();
+			tokens = colorer.generateTokens(bytes);
+		}
 		updateClosestToken();
 	}
 	

@@ -15,8 +15,11 @@ import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowylangapi.Lang;
 
 public abstract class TokenMaker implements TokenTypes {
-	private static ArrayList<Token> cache = new ArrayList<>();
 	private static HashMap<String, Class<? extends TokenMaker>> subclasses = new HashMap<>();
+	
+	// token pooling
+	private ArrayList<Token> cache = new ArrayList<>();
+	private int nextAvailableToken = 0;
 	
 	static {
 		subclasses.put("sni", SNITokenMaker.class);
@@ -37,24 +40,31 @@ public abstract class TokenMaker implements TokenTypes {
 	 */
 	public abstract List<Token> generateTokens(byte[] array);
 	
+	/**
+	 * Create a Token instance. If you use a custom Token class, override this method.
+	 * @return an uninitialized token
+	 */
+	public Token allocToken() {
+		return new TokenImpl();
+	}
+	
 	public Token createToken(int type, int offset, int length) {
-		Optional<Token> t = cache.stream().filter(o -> o.is(type, offset, length)).findAny();
-		if (t.isPresent()) {
-			return t.get();
-		}
-		Token c = new Token(type, offset, length);
-		cache.add(c);
-		return c;
+		return createToken(type, offset, length, null, null);
 	}
 	
 	public Token createToken(int type, int offset, int length, String desc, Level lvl) {
-		Optional<Token> t = cache.stream().filter(o -> o.is(type, offset, length, desc, lvl)).findAny();
-		if (t.isPresent()) {
-			return t.get();
+		assert nextAvailableToken <= cache.size();
+		if (nextAvailableToken == cache.size()) {
+			cache.add(allocToken());
 		}
-		Token c = new Token(type, offset, length, desc, lvl);
-		cache.add(c);
+		Token c = cache.get(nextAvailableToken);
+		c.init(type, offset, length, desc, lvl);
+		nextAvailableToken++;
 		return c;
+	}
+	
+	public void invalidateTokenPool() {
+		nextAvailableToken = 0;
 	}
 	
 	/**

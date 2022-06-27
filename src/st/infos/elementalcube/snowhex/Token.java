@@ -1,81 +1,26 @@
 package st.infos.elementalcube.snowhex;
 
-public class Token {
-	private final int type;
-	private final int offset;
-	private final int length;
-	private String tooltip;
-	private Level level;
+import st.infos.elementalcube.snowhex.Token.Level;
+
+public interface Token {
+	int getType();
 	
-	public Token(int type, int offset, int length, String tooltip, Level tooltipLevel) {
-		this.type = type;
-		this.offset = offset;
-		this.length = length;
-		this.tooltip = tooltip;
-		this.level = tooltipLevel;
+	int getOffset();
+	
+	int getLength();
+	
+	default boolean hasToolTip() {
+		return getToolTip() != null;
 	}
 	
-	public Token(int type, int offset, int length) {
-		this(type, offset, length, null, null);
-	}
+	String getToolTip();
 	
-	public int getType() {
-		return type;
-	}
+	Level getToolTipLevel();
+
+	void init(int type, int offset, int length, String tooltip, Level tooltipLevel);
 	
-	public int getOffset() {
-		return offset;
-	}
-	
-	public int getLength() {
-		return length;
-	}
-	
-	public boolean hasToolTip() {
-		return tooltip != null;
-	}
-	
-	public String getToolTip() {
-		return tooltip;
-	}
-	
-	public Level getToolTipLevel() {
-		return level;
-	}
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + length;
-		result = prime * result + offset;
-		result = prime * result + type;
-		result = prime * result + (tooltip == null ? 0 : tooltip.hashCode());
-		result = prime * result + (level == null ? 0 : level.ordinal());
-		return result;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof Token)) return false;
-		Token other = (Token) obj;
-		if (!(tooltip == null ^ other.tooltip == null)) return false;
-		return type == other.type && offset == other.offset && length == other.length
-				&& (tooltip != null ? level.equals(other.level) && tooltip.equals(other.tooltip) : true);
-	}
-	
-	public boolean is(int type, int offset, int length) {
-		return this.tooltip == null && this.type == type && this.offset == offset && this.length == length;
-	}
-	
-	public boolean is(int type, int offset, int length, String desc, Level lvl) {
-		return this.tooltip != null && this.type == type && this.offset == offset && this.length == length && this.tooltip.equals(desc)
-				&& level.equals(lvl);
-	}
-	
-	public boolean at(int offset) {
-		return this.offset <= offset && offset < this.offset + this.length;
+	default boolean at(int offset) {
+		return getOffset() <= offset && offset < getOffset() + getLength();
 	}
 	
 	public enum Level {
