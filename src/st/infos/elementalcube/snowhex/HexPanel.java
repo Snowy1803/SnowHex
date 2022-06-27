@@ -74,13 +74,7 @@ public class HexPanel extends JPanel {
 				int startX = (int) ((addressCols + 2) * length0);
 				caretAfter = caretIndex == -1 ? false : Math.round((e.getX() - startX) / length0 % 3) >= 2;
 				caretDidMove();
-				repaint(pt.x - (int) (length0 * 3), pt.y - (int) (lineH * 2), (int) (length0 * 8), (int) (lineH * 4));
-				repaint(e.getX() - (int) (length0 * 3), e.getY() - (int) (lineH * 2), (int) (length0 * 8), (int) (lineH * 4));
-				if (showDump) {
-					int dx = startX() + (int) ((48 + 0) * length0);
-					repaint(dx, pt.y - (int) (lineH * 1), (int) (length0 * 16), (int) (lineH * 2));
-					repaint(dx, e.getY() - (int) (lineH * 1), (int) (length0 * 16), (int) (lineH * 2));
-				}
+				repaint(getVisibleRect());
 				if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
 				requestFocus();
 			}
@@ -370,72 +364,76 @@ public class HexPanel extends JPanel {
 			String s = Lang.getString("frame.empty");
 			Rectangle2D r2d = FONT.getStringBounds(s, g2d.getFontRenderContext());
 			g2d.drawString(s, (int) (getWidth() - r2d.getWidth()) / 2, (int) (getHeight() - r2d.getHeight()) / 2);
-		} else {
-			int count = (int) Math.ceil(bytes.length / 16F);
-			Rectangle2D r2d = FONT.getStringBounds("0", g2d.getFontRenderContext());
-			length0 = r2d.getWidth();
-			lineH = r2d.getHeight();
-			setPreferredSize(new Dimension((int) ((addressCols + (showDump ? 66 : 50)) * length0), (int) (Math.ceil(bytes.length / 16F + 1) * lineH)
-					+ 5));
-			if (g2d.getClip().intersects((int) ((addressCols + 2.5) * length0), 0, 54 * length0, lineH)) {
-				g2d.drawString("0", (int) ((addressCols + 2.5) * length0), (int) lineH);
-				g2d.drawString("1", (int) ((addressCols + 5.5) * length0), (int) lineH);
-				g2d.drawString("2", (int) ((addressCols + 8.5) * length0), (int) lineH);
-				g2d.drawString("3", (int) ((addressCols + 11.5) * length0), (int) lineH);
-				g2d.drawString("4", (int) ((addressCols + 14.5) * length0), (int) lineH);
-				g2d.drawString("5", (int) ((addressCols + 17.5) * length0), (int) lineH);
-				g2d.drawString("6", (int) ((addressCols + 20.5) * length0), (int) lineH);
-				g2d.drawString("7", (int) ((addressCols + 23.5) * length0), (int) lineH);
-				g2d.drawString("8", (int) ((addressCols + 26.5) * length0), (int) lineH);
-				g2d.drawString("9", (int) ((addressCols + 29.5) * length0), (int) lineH);
-				g2d.drawString("a", (int) ((addressCols + 32.5) * length0), (int) lineH);
-				g2d.drawString("b", (int) ((addressCols + 35.5) * length0), (int) lineH);
-				g2d.drawString("c", (int) ((addressCols + 38.5) * length0), (int) lineH);
-				g2d.drawString("d", (int) ((addressCols + 41.5) * length0), (int) lineH);
-				g2d.drawString("e", (int) ((addressCols + 44.5) * length0), (int) lineH);
-				g2d.drawString("f", (int) ((addressCols + 47.5) * length0), (int) lineH);
-				if (showDump) g2d.drawString("Dump", (int) ((addressCols + 50) * length0), (int) lineH);
-			}
-			int ix = startX();
-			for (int a = 0; a < count; a++) {
-				int y = (int) ((a + 2) * lineH);
-				int x = ix;
-				if (g2d.getClip().intersects(x, y - lineH, 64 * length0, lineH + 2)) {
-					String address = Integer.toHexString(a) + "X";
-					g2d.setColor(Color.BLACK);
-					g2d.drawString(address, (int) ((addressCols - address.length() + 1) * length0), y);
-					for (int i = 0; i < 16; i++) {
-						int index = a * 16 + i;
-						if (bytes.length <= index) break;
-						byte b = bytes[index];
-						Format f = getFormatAt(index);
-						g2d.setColor(f.getBackground());
-						g2d.fillRect(x - (int) (length0 / 2), y - (int) lineH + 3, (int) (length0 * 3), (int) lineH);
-						g2d.setColor(f.getForeground());
-						if (f.isUnderlined()) g2d.drawLine(x - (int) (length0 / 2), y + 2, x + (int) (length0 * 2.5), y + 2);
-						g2d.drawString(twoCharsHexByte(b), x, y);
-						x += 3 * length0;
-						if (showDump) {
-							int dx = ix + (int) ((48 + i) * length0);
-							g2d.setColor(f.getBackground());
-							g2d.fillRect(dx, y - (int) lineH + 3, (int) (length0), (int) lineH);
-							g2d.setColor(f.getForeground());
-							String s = b >= 32 && b <= 127 ? "" + ((char) b) : ".";
-							g2d.drawString(s, dx, y);
-							if (index == caretIndex) {
-								g2d.drawLine(dx, y + 2, dx + (int) (length0), y + 2);
-							}
-						}
-					}
-					
-					if (validIndex() && caretIndex / 16 == a) {
-						g2d.setStroke(new BasicStroke(2));
-						g2d.setColor(Color.BLACK);
-						int x1 = (int) (ix + ((caretIndex % 16) * 3 + (caretAfter ? 2 : 1)) * length0);
-						g2d.drawLine(x1, y + 5, x1, y - (int) lineH + 2);
-						g2d.setStroke(new BasicStroke(1));
+			return;
+		}
+		int count = (int) Math.ceil(bytes.length / 16F);
+		Rectangle2D r2d = FONT.getStringBounds("0", g2d.getFontRenderContext());
+		length0 = Math.ceil(r2d.getWidth());
+		lineH = Math.ceil(r2d.getHeight());
+		System.out.println(length0 + "," + lineH);
+		setPreferredSize(new Dimension((int) ((addressCols + (showDump ? 66 : 50)) * length0), (int) (Math.ceil(bytes.length / 16F + 1) * lineH)
+				+ 5));
+		if (g2d.getClip().intersects((int) ((addressCols + 2.5) * length0), 0, 54 * length0, lineH)) {
+			g2d.drawString("0", (int) ((addressCols + 2.5) * length0), (int) lineH);
+			g2d.drawString("1", (int) ((addressCols + 5.5) * length0), (int) lineH);
+			g2d.drawString("2", (int) ((addressCols + 8.5) * length0), (int) lineH);
+			g2d.drawString("3", (int) ((addressCols + 11.5) * length0), (int) lineH);
+			g2d.drawString("4", (int) ((addressCols + 14.5) * length0), (int) lineH);
+			g2d.drawString("5", (int) ((addressCols + 17.5) * length0), (int) lineH);
+			g2d.drawString("6", (int) ((addressCols + 20.5) * length0), (int) lineH);
+			g2d.drawString("7", (int) ((addressCols + 23.5) * length0), (int) lineH);
+			g2d.drawString("8", (int) ((addressCols + 26.5) * length0), (int) lineH);
+			g2d.drawString("9", (int) ((addressCols + 29.5) * length0), (int) lineH);
+			g2d.drawString("a", (int) ((addressCols + 32.5) * length0), (int) lineH);
+			g2d.drawString("b", (int) ((addressCols + 35.5) * length0), (int) lineH);
+			g2d.drawString("c", (int) ((addressCols + 38.5) * length0), (int) lineH);
+			g2d.drawString("d", (int) ((addressCols + 41.5) * length0), (int) lineH);
+			g2d.drawString("e", (int) ((addressCols + 44.5) * length0), (int) lineH);
+			g2d.drawString("f", (int) ((addressCols + 47.5) * length0), (int) lineH);
+			if (showDump) g2d.drawString("Dump", (int) ((addressCols + 50) * length0), (int) lineH);
+		}
+		int ix = startX();
+		for (int a = 0; a < count; a++) {
+			int y = (int) ((a + 2) * lineH);
+			int x = ix;
+			
+			if (!g2d.getClip().intersects(0, y - lineH + 3, ix + 64 * length0, lineH))
+				continue;
+			
+			String address = Integer.toHexString(a) + "X";
+			g2d.setColor(Color.BLACK);
+			g2d.drawString(address, (int) ((addressCols - address.length() + 1) * length0), y);
+			for (int i = 0; i < 16; i++) {
+				int index = a * 16 + i;
+				if (bytes.length <= index) break;
+				byte b = bytes[index];
+				Format f = getFormatAt(index);
+				g2d.setColor(f.getBackground());
+				g2d.fillRect(x - (int) (length0 / 2), y - (int) lineH + 3, (int) (length0 * 3), (int) lineH);
+				g2d.setColor(f.getForeground());
+				if (f.isUnderlined() || (closestToken != null && closestToken.at(index)))
+					g2d.drawLine(x - (int) (length0 / 2), y + 2, x + (int) (length0 * 2.5), y + 2);
+				g2d.drawString(twoCharsHexByte(b), x, y);
+				x += 3 * length0;
+				if (showDump) {
+					int dx = ix + (int) ((48 + i) * length0);
+					g2d.setColor(f.getBackground());
+					g2d.fillRect(dx, y - (int) lineH + 3, (int) (length0), (int) lineH);
+					g2d.setColor(f.getForeground());
+					String s = b >= 32 && b <= 127 ? "" + ((char) b) : ".";
+					g2d.drawString(s, dx, y);
+					if (index == caretIndex) {
+						g2d.drawLine(dx, y + 2, dx + (int) (length0), y + 2);
 					}
 				}
+			}
+			
+			if (validIndex() && caretIndex / 16 == a) {
+				g2d.setStroke(new BasicStroke(2));
+				g2d.setColor(Color.BLACK);
+				int x1 = (int) (ix + ((caretIndex % 16) * 3 + (caretAfter ? 2 : 1)) * length0);
+				g2d.drawLine(x1, y + 5, x1, y - (int) lineH + 2);
+				g2d.setStroke(new BasicStroke(1));
 			}
 		}
 	}
@@ -521,16 +519,8 @@ public class HexPanel extends JPanel {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Point pt1 = getLocationForIndex(caretIndex);
 			r.run();
-			Point pt2 = getLocationForIndex(caretIndex);
-			repaint(pt1.x - (int) (length0 * 3), pt1.y - (int) (lineH * 2), (int) (length0 * 10), (int) (lineH * 4));
-			repaint(pt2.x - (int) (length0 * 3), pt2.y - (int) (lineH * 2), (int) (length0 * 10), (int) (lineH * 4));
-			if (showDump) {
-				int dx = startX() + (int) ((48 + 0) * length0);
-				repaint(dx, pt1.y - (int) (lineH * 1), (int) (length0 * 16), (int) (lineH * 2));
-				repaint(dx, pt2.y - (int) (lineH * 1), (int) (length0 * 16), (int) (lineH * 2));
-			}
+			repaint(getVisibleRect());
 			if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
 		}
 		
