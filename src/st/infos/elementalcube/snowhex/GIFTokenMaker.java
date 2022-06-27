@@ -1,12 +1,9 @@
 package st.infos.elementalcube.snowhex;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import st.infos.elementalcube.snowhex.Token.Level;
@@ -33,22 +30,24 @@ public class GIFTokenMaker extends TokenMaker {
 			}
 			int w = toShort(array[i++], array[i++]);
 			int h = toShort(array[i++], array[i++]);
-			list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("size", w, h), Level.INFO));
+			list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("size", w, h), Level.INFO).withSubtype(GIFToken.SUBTY_GLOBAL_SIZE));
 			byte packedFields = array[i++];
 			boolean globalColorTableFlag = (packedFields & 0x80) != 0;
 			int numGCTEntries = 1 << ((packedFields & 0x7) + 1);
 			list.add(createToken(TOKEN_METADATA, i - 1, 1, notice("globalColorTable." + globalColorTableFlag) + "<br/>" + notice("colorRes",
 					((packedFields >> 4) & 0x7) + 1) + "<br/>" + notice("sort." + ((packedFields & 0x8) != 0)) + "<br/>" + notice("gctSize",
-							numGCTEntries), Level.INFO));
+							numGCTEntries), Level.INFO).withSubtype(GIFToken.SUBTY_LSD_PACKED));
 			int bci = array[i++];// Background Color Index
 			list.add(createToken(TOKEN_IMAGE_COLOR, i - 1, 1, notice("bci", bci, globalColorTableFlag ? getHexString(Integer.toHexString(getBCI(array,
-					i + 2, bci)), 6) : "No GCT"), Level.INFO));
+					i + 2, bci)), 6) : "No GCT"), Level.INFO).withSubtype(GIFToken.SUBTY_LSD_BG));
 			int par = array[i++];// Pixel Aspect Ratio
 			int gcd = par == 0 ? 0 : gcd(par + 15, 64);
-			list.add(createToken(TOKEN_METADATA, i - 1, 1, par == 0 ? notice("par.false") : notice("par", (par + 15) / gcd, 64 / gcd), Level.INFO));
+			list.add(createToken(TOKEN_METADATA, i - 1, 1, par == 0 ? notice("par.false") : notice("par", (par + 15) / gcd, 64 / gcd), Level.INFO)
+					.withSubtype(GIFToken.SUBTY_PAR));
 			if (globalColorTableFlag) {
 				for (int j = 0; j < numGCTEntries; j++) {
-					list.add(createToken(TOKEN_IMAGE_COLOR, i + j * 3, 3, notice("color", parseColor(array, i + j * 3)), Level.INFO));
+					list.add(createToken(TOKEN_IMAGE_COLOR, i + j * 3, 3, notice("color", parseColor(array, i + j * 3)), Level.INFO)
+							.withSubtype(GIFToken.SUBTY_PALETTE_RGB));
 				}
 				list.add(createToken(TOKEN_IMAGE_PALETTE, i, numGCTEntries * 3));
 				i += numGCTEntries * 3;
@@ -73,12 +72,15 @@ public class GIFTokenMaker extends TokenMaker {
 					list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("ext.header", "Plain Text"), Level.INFO));
 					list.add(createToken(TOKEN_LENGTH, i, 1, notice("block.length", array[i++]), Level.INFO));
 					list.add(createToken(TOKEN_IMAGE_SIZE, i, 4, notice("pos", toShort(array[i++], array[i++]), toShort(array[i++], array[i++])),
-							Level.INFO));
+							Level.INFO).withSubtype(GIFToken.SUBTY_SUB_POS));
 					list.add(createToken(TOKEN_IMAGE_SIZE, i, 4, notice("size", toShort(array[i++], array[i++]), toShort(array[i++], array[i++])),
-							Level.INFO));
-					list.add(createToken(TOKEN_IMAGE_SIZE, i, 2, notice("charSize", array[i++], array[i++]), Level.INFO));
-					list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.text.fore", array[i++] & 0xFF), Level.INFO));
-					list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.text.back", array[i++] & 0xFF), Level.INFO));
+							Level.INFO).withSubtype(GIFToken.SUBTY_SUB_SIZE));
+					list.add(createToken(TOKEN_IMAGE_SIZE, i, 2, notice("charSize", array[i++], array[i++]), Level.INFO)
+							.withSubtype(GIFToken.SUBTY_CHAR_SIZE));
+					list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.text.fore", array[i++] & 0xFF), Level.INFO)
+							.withSubtype(GIFToken.SUBTY_INDEX_PALETTE));
+					list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.text.back", array[i++] & 0xFF), Level.INFO)
+							.withSubtype(GIFToken.SUBTY_INDEX_PALETTE));
 					i = readSubBlocks(list, array, i, -1);
 					list.add(createToken(TOKEN_CHUNK, extStart, i - extStart));
 					break;
@@ -89,10 +91,12 @@ public class GIFTokenMaker extends TokenMaker {
 					int packedFields = array[i++];
 					list.add(createToken(TOKEN_METADATA, i - 1, 1, notice("ext.gce.disposal." + ((packedFields >> 2) & 0x3)) + "<br/>" + notice(
 							"ext.gce.userInput." + ((packedFields & 0x2) != 0)) + "<br/>" + notice("ext.gce.transparentColor." + ((packedFields
-									& 0x1) != 0)), Level.INFO));
-					list.add(createToken(TOKEN_METADATA, i, 2, notice("ext.gce.delay", toShort(array[i++], array[i++]) / 100F), Level.INFO));
+									& 0x1) != 0)), Level.INFO).withSubtype(GIFToken.SUBTY_GCE_PACKED));
+					list.add(createToken(TOKEN_METADATA, i, 2, notice("ext.gce.delay", toShort(array[i++], array[i++]) / 100F), Level.INFO)
+							.withSubtype(GIFToken.SUBTY_GCE_DELAY));
 					if ((packedFields & 0x1) != 0) {
-						list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.gce.transparentColor", Byte.toUnsignedInt(array[i++])), Level.INFO));
+						list.add(createToken(TOKEN_IMAGE_COLOR, i, 1, notice("ext.gce.transparentColor", Byte.toUnsignedInt(array[i++])), Level.INFO)
+								.withSubtype(GIFToken.SUBTY_INDEX_PALETTE));
 					} else {
 						list.add(createToken(TOKEN_RESERVED, i, 1));
 						i++;
@@ -114,10 +118,10 @@ public class GIFTokenMaker extends TokenMaker {
 					list.add(createToken(TOKEN_LENGTH, i, 1, notice("block.length", array[i++]), Level.INFO));
 					list.add(createToken(TOKEN_METADATA, i, 8, notice("ext.app", new String(new char[] { (char) array[i++], (char) array[i++],
 							(char) array[i++], (char) array[i++], (char) array[i++], (char) array[i++], (char) array[i++], (char) array[i++] })),
-							Level.INFO));
+							Level.INFO).withSubtype(GIFToken.SUBTY_APP));
 					// its supposed to be an auth code but everyone uses it as a version
 					list.add(createToken(TOKEN_METADATA, i, 3, notice("ext.app.version", new String(new char[] { (char) array[i++], (char) array[i++],
-							(char) array[i++] })), Level.INFO));
+							(char) array[i++] })), Level.INFO).withSubtype(GIFToken.SUBTY_APP));
 					i = readSubBlocks(list, array, i, -1);
 					list.add(createToken(TOKEN_CHUNK, extStart, i - extStart));
 					break;
@@ -132,24 +136,25 @@ public class GIFTokenMaker extends TokenMaker {
 				list.add(createToken(TOKEN_CHUNK_HEADER, i - 1, 1, notice("block.img"), Level.INFO));
 				int x = toShort(array[i++], array[i++]);
 				int y = toShort(array[i++], array[i++]);
-				list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("pos", x, y), Level.INFO));
+				list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("pos", x, y), Level.INFO).withSubtype(GIFToken.SUBTY_SUB_POS));
 				int w = toShort(array[i++], array[i++]);
 				int h = toShort(array[i++], array[i++]);
-				list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("size", w, h), Level.INFO));
+				list.add(createToken(TOKEN_IMAGE_SIZE, i - 4, 4, notice("size", w, h), Level.INFO).withSubtype(GIFToken.SUBTY_SUB_SIZE));
 				int packedFields = array[i++];
 				boolean lct = (packedFields & 0x80) != 0;
 				int numLCTEntries = 1 << ((packedFields & 0x7) + 1);
 				list.add(createToken(TOKEN_METADATA, i - 1, 1, notice("localColorTable." + lct) + "<br/>" + notice("interlace." + ((packedFields
 						& 0x40) != 0)) + "<br/>" + notice("sort." + ((packedFields & 0x20) != 0)) + "<br/>" + notice("lctSize", lct ? numLCTEntries : 0),
-						Level.INFO));
+						Level.INFO).withSubtype(GIFToken.SUBTY_IMG_PACKED));
 				if (lct) {
 					for (int j = 0; j < numLCTEntries; j++) {
-						list.add(createToken(TOKEN_IMAGE_COLOR, i + j * 3, 3, notice("color", parseColor(array, i + j * 3)), Level.INFO));
+						list.add(createToken(TOKEN_IMAGE_COLOR, i + j * 3, 3, notice("color", parseColor(array, i + j * 3)), Level.INFO)
+								.withSubtype(GIFToken.SUBTY_PALETTE_RGB));
 					}
 					list.add(createToken(TOKEN_IMAGE_PALETTE, i, numLCTEntries * 3));
 					i += numLCTEntries * 3;
 				}
-				list.add(createToken(TOKEN_METADATA, i++, 1));
+				list.add(((GIFToken) createToken(TOKEN_METADATA, i++, 1)).withSubtype(GIFToken.SUBTY_LZW));
 				i = readSubBlocks(list, array, i, TOKEN_IMAGE_COLOR);
 				list.add(createToken(TOKEN_IMAGE_DATA, imgStart, i - imgStart));
 				break;
@@ -207,12 +212,35 @@ public class GIFTokenMaker extends TokenMaker {
 		return new GIFToken();
 	}
 	
+	@Override
+	public GIFToken createToken(int type, int offset, int length, String desc, Level lvl) {
+		return (GIFToken) super.createToken(type, offset, length, desc, lvl);
+	}
+	
 	class GIFToken extends TokenImpl {
+		
+		private int subtype;
+		
+		// IMAGE_SIZE
+		static final int SUBTY_GLOBAL_SIZE = 1, SUBTY_SUB_POS = 2, SUBTY_SUB_SIZE = 3, SUBTY_CHAR_SIZE = 4;
+		// METADATA
+		static final int SUBTY_LSD_PACKED = 1, SUBTY_PAR = 2, SUBTY_GCE_PACKED = 3, SUBTY_GCE_DELAY = 4, SUBTY_APP = 5, SUBTY_IMG_PACKED = 6, SUBTY_LZW = 7;
+		// IMAGE_COLOR
+		static final int SUBTY_LSD_BG = 1, SUBTY_PALETTE_RGB = 2, SUBTY_INDEX_PALETTE = 3;
 		
 		@Override
 		public void init(int type, int offset, int length, String tooltip, Level tooltipLevel) {
 			super.init(type, offset, length, tooltip, tooltipLevel);
-			
+			subtype = 0;
+		}
+		
+		public GIFToken withSubtype(int subtype) {
+			this.subtype = subtype;
+			return this;
+		}
+		
+		public int getSubtype() {
+			return subtype;
 		}
 	}
 }
