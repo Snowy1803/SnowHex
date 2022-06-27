@@ -278,7 +278,7 @@ public class HexFrame extends JFrame {
 	
 	public static TokenMaker getColorer(File f) {
 		String ext = f.getName();
-		ext = (ext.contains(".") ? ext.substring(ext.indexOf('.') + 1) : null);
+		ext = (ext.contains(".") ? ext.substring(ext.lastIndexOf('.') + 1) : null);
 		return TokenMaker.getTokenMaker(ext);
 	}
 	
