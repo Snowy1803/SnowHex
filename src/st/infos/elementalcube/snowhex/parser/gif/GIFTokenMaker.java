@@ -50,7 +50,7 @@ public class GIFTokenMaker extends TokenMaker {
 			if (globalColorTableFlag) {
 				for (int j = 0; j < numGCTEntries; j++) {
 					list.add(createToken(TOKEN_IMAGE_COLOR, i + j * 3, 3, notice("color", parseColor(array, i + j * 3)), Level.INFO)
-							.withSubtype(GIFToken.SUBTY_PALETTE_RGB));
+							.withSubtype(GIFToken.SUBTY_PALETTE_RGB).withIndex(j));
 				}
 				list.add(createToken(TOKEN_IMAGE_PALETTE, i, numGCTEntries * 3));
 				i += numGCTEntries * 3;
@@ -152,7 +152,7 @@ public class GIFTokenMaker extends TokenMaker {
 				if (lct) {
 					for (int j = 0; j < numLCTEntries; j++) {
 						list.add(createToken(TOKEN_IMAGE_COLOR, i + j * 3, 3, notice("color", parseColor(array, i + j * 3)), Level.INFO)
-								.withSubtype(GIFToken.SUBTY_PALETTE_RGB));
+								.withSubtype(GIFToken.SUBTY_PALETTE_RGB).withIndex(j));
 					}
 					list.add(createToken(TOKEN_IMAGE_PALETTE, i, numLCTEntries * 3));
 					i += numLCTEntries * 3;
@@ -230,6 +230,14 @@ public class GIFTokenMaker extends TokenMaker {
 		versionEditor.updateValues(panel);
 		return versionEditor;
 	}
+	private PaletteColorEditor paletteColorEditor;
+	private PaletteColorEditor getPaletteColorEditor(HexPanel panel) {
+		if (paletteColorEditor == null) {
+			paletteColorEditor = new PaletteColorEditor(panel);
+		}
+		paletteColorEditor.updateValues(panel);
+		return paletteColorEditor;
+	}
 	
 	@Override
 	public JComponent getTokenProperties(HexPanel panel) {
@@ -238,6 +246,11 @@ public class GIFTokenMaker extends TokenMaker {
 		switch (panel.getClosestToken().getType()) {
 		case TOKEN_FILE_HEADER:
 			return getVersionEditor(panel);
+		case TOKEN_IMAGE_COLOR:
+			switch (((GIFToken) panel.getClosestToken()).getSubtype()) {
+			case GIFToken.SUBTY_PALETTE_RGB:
+				return getPaletteColorEditor(panel);
+			}
 		}
 		return null;
 	}

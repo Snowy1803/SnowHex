@@ -22,7 +22,6 @@ public class PropertiesFrame extends JDialog implements ActionListener {
 		this.parent = parent;
 		// utility style on macos
 		rootPane.putClientProperty("Window.style", "small");
-		rootPane.putClientProperty("apple.awt.draggableWindowBackground", true);
 		if (System.getProperty("os.name").contains("Mac"))
 			setAlwaysOnTop(true);
 		setSize(300, 300);

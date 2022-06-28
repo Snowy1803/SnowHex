@@ -5,6 +5,7 @@ import st.infos.elementalcube.snowhex.TokenImpl;
 class GIFToken extends TokenImpl {
 	
 	private int subtype;
+	private int index;
 	
 	// IMAGE_SIZE
 	static final int SUBTY_GLOBAL_SIZE = 1, SUBTY_SUB_POS = 2, SUBTY_SUB_SIZE = 3, SUBTY_CHAR_SIZE = 4;
@@ -24,7 +25,16 @@ class GIFToken extends TokenImpl {
 		return this;
 	}
 	
+	public GIFToken withIndex(int index) {
+		this.index = index;
+		return this;
+	}
+	
 	public int getSubtype() {
 		return subtype;
+	}
+	
+	public int getIndex() {
+		return index;
 	}
 }
