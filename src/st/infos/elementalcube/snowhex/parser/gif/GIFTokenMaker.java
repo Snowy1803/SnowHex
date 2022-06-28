@@ -187,7 +187,7 @@ public class GIFTokenMaker extends TokenMaker {
 		}
 	}
 	
-	private static String parseColor(byte[] array, int i) {
+	static String parseColor(byte[] array, int i) {
 		return getHexString(Integer.toHexString(((array[i++] & 0xFF) << 16) | ((array[i++] & 0xFF) << 8) | ((array[i++] & 0xFF) << 0)), 6);
 	}
 	
