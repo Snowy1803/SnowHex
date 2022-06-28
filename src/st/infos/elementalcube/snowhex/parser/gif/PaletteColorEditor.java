@@ -71,7 +71,7 @@ public class PaletteColorEditor extends JPanel {
 	private void commitColor(HexPanel panel, Color color) {
 		GIFToken token = ((GIFToken) panel.getClosestToken());
 		// as the color chooser dialog stays open, it can 'commit' when a color isn't selected
-		if (token.getType() != TokenTypes.TOKEN_IMAGE_COLOR || token.getSubtype() != GIFToken.SUBTY_PALETTE_RGB)
+		if (token == null || token.getType() != TokenTypes.TOKEN_IMAGE_COLOR || token.getSubtype() != GIFToken.SUBTY_PALETTE_RGB)
 			return;
 		panel.getBytes()[token.getOffset()] = (byte) color.getRed();
 		panel.getBytes()[token.getOffset() + 1] = (byte) color.getGreen();

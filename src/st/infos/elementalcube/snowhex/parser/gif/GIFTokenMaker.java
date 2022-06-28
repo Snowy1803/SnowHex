@@ -41,8 +41,12 @@ public class GIFTokenMaker extends TokenMaker {
 					((packedFields >> 4) & 0x7) + 1) + "<br/>" + notice("sort." + ((packedFields & 0x8) != 0)) + "<br/>" + notice("gctSize",
 							numGCTEntries), Level.INFO).withSubtype(GIFToken.SUBTY_LSD_PACKED));
 			int bci = array[i++];// Background Color Index
-			list.add(createToken(TOKEN_IMAGE_COLOR, i - 1, 1, notice("bci", bci, globalColorTableFlag ? getHexString(Integer.toHexString(getBCI(array,
-					i + 2, bci)), 6) : "No GCT"), Level.INFO).withSubtype(GIFToken.SUBTY_LSD_BG));
+			if (globalColorTableFlag) {
+				list.add(createToken(TOKEN_IMAGE_COLOR, i - 1, 1, notice("bci", bci, parseColor(array, i + 1 + 3 * bci)), Level.INFO)
+						.withSubtype(GIFToken.SUBTY_LSD_BG));
+			} else {
+				list.add(createToken(TOKEN_RESERVED, i - 1, 1));
+			}
 			int par = array[i++];// Pixel Aspect Ratio
 			int gcd = par == 0 ? 0 : gcd(par + 15, 64);
 			list.add(createToken(TOKEN_METADATA, i - 1, 1, par == 0 ? notice("par.false") : notice("par", (par + 15) / gcd, 64 / gcd), Level.INFO)
