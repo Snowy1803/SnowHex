@@ -1,21 +1,12 @@
 package st.infos.elementalcube.snowhex.parser.gif;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import st.infos.elementalcube.snowhex.Token;
-import st.infos.elementalcube.snowhex.TokenImpl;
 import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
@@ -231,28 +222,12 @@ public class GIFTokenMaker extends TokenMaker {
 	
 	// MARK: - Properties Components
 	
-	private JPanel versionEditor;
-	private JComboBox<String> versionEditorCombo;
-	private JPanel getVersionEditor(HexPanel panel) {
+	private VersionEditor versionEditor;
+	private VersionEditor getVersionEditor(HexPanel panel) {
 		if (versionEditor == null) {
-			versionEditor = new JPanel(new BorderLayout());
-			JPanel content = new JPanel();
-			content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
-			JLabel text = new JLabel("GIF File Header");
-			text.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
-			text.setAlignmentX(Component.LEFT_ALIGNMENT);
-			content.add(text);
-			versionEditorCombo = new JComboBox<>(new String[] { "Version 87a (May 1987)", "Version 89a (July 1989)" });
-			versionEditorCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
-			versionEditorCombo.addActionListener(e -> {
-				panel.getBytes()[panel.getClosestToken().getOffset() + 4] = (byte) (versionEditorCombo.getSelectedIndex() == 1 ? '9' : '7');
-				panel.bytesDidChange();
-			});
-			content.add(versionEditorCombo);
-			versionEditor.add(content, BorderLayout.PAGE_START);
+			versionEditor = new VersionEditor(panel);
 		}
-		// only have 87a and 89a
-		versionEditorCombo.setSelectedIndex(panel.getBytes()[panel.getClosestToken().getOffset() + 4] == '9' ? 1 : 0);
+		versionEditor.updateValues(panel);
 		return versionEditor;
 	}
 	
@@ -265,32 +240,5 @@ public class GIFTokenMaker extends TokenMaker {
 			return getVersionEditor(panel);
 		}
 		return null;
-	}
-	
-	class GIFToken extends TokenImpl {
-		
-		private int subtype;
-		
-		// IMAGE_SIZE
-		static final int SUBTY_GLOBAL_SIZE = 1, SUBTY_SUB_POS = 2, SUBTY_SUB_SIZE = 3, SUBTY_CHAR_SIZE = 4;
-		// METADATA
-		static final int SUBTY_LSD_PACKED = 1, SUBTY_PAR = 2, SUBTY_GCE_PACKED = 3, SUBTY_GCE_DELAY = 4, SUBTY_APP = 5, SUBTY_IMG_PACKED = 6, SUBTY_LZW = 7;
-		// IMAGE_COLOR
-		static final int SUBTY_LSD_BG = 1, SUBTY_PALETTE_RGB = 2, SUBTY_INDEX_PALETTE = 3;
-		
-		@Override
-		public void init(int type, int offset, int length, String tooltip, Level tooltipLevel) {
-			super.init(type, offset, length, tooltip, tooltipLevel);
-			subtype = 0;
-		}
-		
-		public GIFToken withSubtype(int subtype) {
-			this.subtype = subtype;
-			return this;
-		}
-		
-		public int getSubtype() {
-			return subtype;
-		}
 	}
 }
