@@ -86,6 +86,8 @@ public class PaletteColorEditor extends JPanel {
 				panel.getBytes()[token.getOffset() + 2] & 0xff);
 		
 		indexText.setText("Palette color #" + token.getIndex());
+		if (chooserDialog != null)
+			chooserDialog.setTitle(indexText.getText());
 		hexText.setText("#" + GIFTokenMaker.parseColor(panel.getBytes(), token.getOffset()));
 		preview.setBackground(color);
 		chooser.setColor(color);
