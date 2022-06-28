@@ -33,8 +33,7 @@ public class PropertiesFrame extends JDialog implements ActionListener {
 	
 	private void updateContent() {
 		HexPanel editor = parent.getEditor();
-		JComponent comp = editor.getColorer() == null ? null : editor.getColorer().getTokenProperties(editor.getBytes(), editor.getTokens(),
-				editor.getCaretPosition(), editor.getClosestToken());
+		JComponent comp = editor.getColorer() == null ? null : editor.getColorer().getTokenProperties(editor);
 		if (comp == null) {
 			if (fallback == null) {
 				fallback = new JLabel("No data", SwingConstants.CENTER);
@@ -46,6 +45,7 @@ public class PropertiesFrame extends JDialog implements ActionListener {
 		} else {
 			setContentPane(comp);
 		}
+		revalidate();
 	}
 	
 	@Override

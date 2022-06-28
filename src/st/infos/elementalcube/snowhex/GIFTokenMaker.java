@@ -1,10 +1,23 @@
 package st.infos.elementalcube.snowhex;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import st.infos.elementalcube.snowhex.Token.Level;
 
@@ -215,6 +228,44 @@ public class GIFTokenMaker extends TokenMaker {
 	@Override
 	public GIFToken createToken(int type, int offset, int length, String desc, Level lvl) {
 		return (GIFToken) super.createToken(type, offset, length, desc, lvl);
+	}
+	
+	// MARK: - Properties Components
+	
+	private JPanel versionEditor;
+	private JComboBox<String> versionEditorCombo;
+	private JPanel getVersionEditor(HexPanel panel) {
+		if (versionEditor == null) {
+			versionEditor = new JPanel(new BorderLayout());
+			JPanel content = new JPanel();
+			content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
+			JLabel text = new JLabel("GIF File Header");
+			text.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
+			text.setAlignmentX(Component.LEFT_ALIGNMENT);
+			content.add(text);
+			versionEditorCombo = new JComboBox<>(new String[] { "Version 87a (May 1987)", "Version 89a (July 1989)" });
+			versionEditorCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
+			versionEditorCombo.addActionListener(e -> {
+				panel.getBytes()[panel.getClosestToken().getOffset() + 4] = (byte) (versionEditorCombo.getSelectedIndex() == 1 ? '9' : '7');
+				panel.bytesDidChange();
+			});
+			content.add(versionEditorCombo);
+			versionEditor.add(content, BorderLayout.PAGE_START);
+		}
+		// only have 87a and 89a
+		versionEditorCombo.setSelectedIndex(panel.getBytes()[panel.getClosestToken().getOffset() + 4] == '9' ? 1 : 0);
+		return versionEditor;
+	}
+	
+	@Override
+	public JComponent getTokenProperties(HexPanel panel) {
+		if (panel.getClosestToken() == null)
+			return null;
+		switch (panel.getClosestToken().getType()) {
+		case TOKEN_FILE_HEADER:
+			return getVersionEditor(panel);
+		}
+		return null;
 	}
 	
 	class GIFToken extends TokenImpl {

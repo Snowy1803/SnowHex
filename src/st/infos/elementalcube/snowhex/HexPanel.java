@@ -144,7 +144,6 @@ public class HexPanel extends JPanel {
 				bytes = ArrayUtils.remove(bytes, caretIndex);
 				caretIndex--;
 				bytesDidChange();
-				repaint(getVisibleRect());
 			}
 		}));
 		getActionMap().put("insert", new LambdaAction(() -> {
@@ -160,8 +159,10 @@ public class HexPanel extends JPanel {
 		closestToken = colorer == null ? null : colorer.getClosestToken(bytes, tokens, caretIndex);
 	}
 	
-	protected void bytesDidChange() {
+	// public because can be changed from `getBytes()[...] = ...`
+	public void bytesDidChange() {
 		reloadColors();
+		repaint(getVisibleRect());
 		if (listener != null)
 			listener.actionPerformed(new ActionEvent(bytes, ActionEvent.ACTION_PERFORMED, null));
 	}
@@ -360,7 +361,6 @@ public class HexPanel extends JPanel {
 		Rectangle2D r2d = FONT.getStringBounds("0", g2d.getFontRenderContext());
 		length0 = Math.ceil(r2d.getWidth());
 		lineH = Math.ceil(r2d.getHeight());
-		System.out.println(length0 + "," + lineH);
 		setPreferredSize(new Dimension((int) ((addressCols + (showDump ? 66 : 50)) * length0), (int) (Math.ceil(bytes.length / 16F + 1) * lineH)
 				+ 5));
 		if (g2d.getClip().intersects((int) ((addressCols + 2.5) * length0), 0, 54 * length0, lineH)) {
