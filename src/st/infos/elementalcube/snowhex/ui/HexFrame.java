@@ -1,4 +1,4 @@
-package st.infos.elementalcube.snowhex;
+package st.infos.elementalcube.snowhex.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
@@ -35,6 +35,7 @@ import javax.swing.filechooser.FileSystemView;
 
 import org.apache.commons.io.FileUtils;
 
+import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowylangapi.Lang;
 import st.infos.elementalcube.snowylangapi.LangLoader;
 import st.infos.elementalcube.snowymage.SnowImageReaderSpi;

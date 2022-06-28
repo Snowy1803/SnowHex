@@ -1,10 +1,12 @@
-package st.infos.elementalcube.snowhex;
+package st.infos.elementalcube.snowhex.parser;
 
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import st.infos.elementalcube.snowhex.Token;
+import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
 
 public class SERTokenMaker extends TokenMaker {

@@ -7,6 +7,8 @@ import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import st.infos.elementalcube.snowhex.ui.HexFrame;
+
 public class Main {
 	public static void main(String[] args) {
 		System.setProperty("apple.awt.application.name", "SnowHex");

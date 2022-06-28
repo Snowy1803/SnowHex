@@ -1,4 +1,4 @@
-package st.infos.elementalcube.snowhex;
+package st.infos.elementalcube.snowhex.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +9,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowylangapi.Lang;
 
 public class PropertiesFrame extends JDialog implements ActionListener {

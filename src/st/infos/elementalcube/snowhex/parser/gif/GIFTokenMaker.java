@@ -1,25 +1,24 @@
-package st.infos.elementalcube.snowhex;
+package st.infos.elementalcube.snowhex.parser.gif;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionListener;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
+import st.infos.elementalcube.snowhex.Token;
+import st.infos.elementalcube.snowhex.TokenImpl;
+import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class GIFTokenMaker extends TokenMaker {
 	public int gcd(int a, int b) {

@@ -1,4 +1,4 @@
-package st.infos.elementalcube.snowhex;
+package st.infos.elementalcube.snowhex.parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import st.infos.elementalcube.snowhex.Token;
+import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
 
 public class SNITokenMaker extends TokenMaker {

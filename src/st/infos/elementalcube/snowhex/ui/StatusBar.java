@@ -1,4 +1,4 @@
-package st.infos.elementalcube.snowhex;
+package st.infos.elementalcube.snowhex.ui;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;

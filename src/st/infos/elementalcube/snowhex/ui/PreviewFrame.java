@@ -1,4 +1,4 @@
-package st.infos.elementalcube.snowhex;
+package st.infos.elementalcube.snowhex.ui;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;

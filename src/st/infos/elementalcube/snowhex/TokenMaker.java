@@ -11,6 +11,12 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.parser.Ant1TokenMaker;
+import st.infos.elementalcube.snowhex.parser.Ant3TokenMaker;
+import st.infos.elementalcube.snowhex.parser.CORTokenMaker;
+import st.infos.elementalcube.snowhex.parser.SNITokenMaker;
+import st.infos.elementalcube.snowhex.parser.gif.GIFTokenMaker;
+import st.infos.elementalcube.snowhex.ui.HexPanel;
 import st.infos.elementalcube.snowylangapi.Lang;
 
 public abstract class TokenMaker implements TokenTypes {

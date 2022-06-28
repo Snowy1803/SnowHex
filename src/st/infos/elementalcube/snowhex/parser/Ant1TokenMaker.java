@@ -1,7 +1,10 @@
-package st.infos.elementalcube.snowhex;
+package st.infos.elementalcube.snowhex.parser;
 
 import java.util.Arrays;
 import java.util.List;
+
+import st.infos.elementalcube.snowhex.Token;
+import st.infos.elementalcube.snowhex.TokenMaker;
 
 public class Ant1TokenMaker extends TokenMaker {
 

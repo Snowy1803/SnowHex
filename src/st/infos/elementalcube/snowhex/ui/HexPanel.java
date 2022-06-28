@@ -1,4 +1,4 @@
-package st.infos.elementalcube.snowhex;
+package st.infos.elementalcube.snowhex.ui;
 
 import java.awt.AWTEventMulticaster;
 import java.awt.BasicStroke;
@@ -31,6 +31,10 @@ import javax.swing.ToolTipManager;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import st.infos.elementalcube.snowhex.Format;
+import st.infos.elementalcube.snowhex.Theme;
+import st.infos.elementalcube.snowhex.Token;
+import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowylangapi.Lang;
 
