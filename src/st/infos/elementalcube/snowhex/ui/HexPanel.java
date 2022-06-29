@@ -27,9 +27,14 @@ import java.util.Optional;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.InputMap;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.text.DefaultEditorKit;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -41,7 +46,7 @@ import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowylangapi.Lang;
 
-public class HexPanel extends JPanel {
+public class HexPanel extends JPanel implements Scrollable {
 	private static final long serialVersionUID = 8016191606233812054L;
 	private static final Font FONT = new Font(Font.MONOSPACED, Font.PLAIN, 20);
 	private byte[] bytes;
@@ -133,30 +138,32 @@ public class HexPanel extends JPanel {
 			}
 		});
 		caret.addChangeListener(e -> caretDidMove());
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "down");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), "lineStart");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0), "lineEnd");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, getToolkit().getMenuShortcutKeyMask()), "start");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_END, getToolkit().getMenuShortcutKeyMask()), "end");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "back");
+		// use the system input map for text editors. this will not auto update this UIResource on L&F change
+		getInputMap().setParent((InputMap) UIManager.get("EditorPane.focusInputMap"));
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0), "insert"); // Windows / Linux
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, getToolkit().getMenuShortcutKeyMask()), "delByte");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0), "insert"); // Windows / Linux
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0), "insert"); // macOS with non-Mac keyboards
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_C, getToolkit().getMenuShortcutKeyMask()), "copy");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_X, getToolkit().getMenuShortcutKeyMask()), "cut");
 		
-		getActionMap().put("left", new LambdaAction(caret::moveCaretLeft));
-		getActionMap().put("right", new LambdaAction(caret::moveCaretRight));
-		getActionMap().put("up", new LambdaAction(() -> caret.setCaretPosition(caret.getDot() - 16, caret.isDotAfter())));
-		getActionMap().put("down", new LambdaAction(() -> caret.setCaretPosition(caret.getDot() + 16, caret.isDotAfter())));
-		getActionMap().put("lineStart", new LambdaAction(() -> caret.setCaretPosition(caret.getDot() / 16 * 16, false)));
-		getActionMap().put("lineEnd", new LambdaAction(() -> caret.setCaretPosition((caret.getDot() / 16 + 1) * 16 - 1, true)));
-		getActionMap().put("start", new LambdaAction(() -> caret.setCaretPosition(-1, true)));
-		getActionMap().put("end", new LambdaAction(() -> caret.setCaretPosition(bytes.length - 1, true)));
-		getActionMap().put("back", new LambdaAction(() -> {
+		getActionMap().put(DefaultEditorKit.backwardAction, new LambdaAction(caret::moveCaretLeft));
+		getActionMap().put(DefaultEditorKit.forwardAction, new LambdaAction(caret::moveCaretRight));
+		getActionMap().put(DefaultEditorKit.selectionBackwardAction, new LambdaAction(() -> caret.moveDot(caret.getDot() - 1)));
+		getActionMap().put(DefaultEditorKit.selectionForwardAction, new LambdaAction(() -> caret.moveDot(caret.getDot() + 1)));
+		
+		Action up = new LambdaAction(() -> caret.setCaretPosition(caret.getDot() - 16, caret.isDotAfter()));
+		Action down = new LambdaAction(() -> caret.setCaretPosition(caret.getDot() + 16, caret.isDotAfter()));
+		getActionMap().put(DefaultEditorKit.upAction, up);
+		getActionMap().put(DefaultEditorKit.downAction, down);
+		getActionMap().put("aqua-move-up", up); // macOS
+		getActionMap().put("aqua-move-down", down);
+		getActionMap().put(DefaultEditorKit.selectionUpAction, new LambdaAction(() -> caret.moveDot(caret.getDot() - 16)));
+		getActionMap().put(DefaultEditorKit.selectionDownAction, new LambdaAction(() -> caret.moveDot(caret.getDot() + 16)));
+		
+		getActionMap().put(DefaultEditorKit.beginLineAction, new LambdaAction(() -> caret.setCaretPosition(caret.getDot() / 16 * 16, false)));
+		getActionMap().put(DefaultEditorKit.endLineAction, new LambdaAction(() -> caret.setCaretPosition((caret.getDot() / 16 + 1) * 16 - 1, true)));
+		getActionMap().put(DefaultEditorKit.beginAction, new LambdaAction(() -> caret.setCaretPosition(-1, true)));
+		getActionMap().put(DefaultEditorKit.endAction, new LambdaAction(() -> caret.setCaretPosition(bytes.length - 1, true)));
+		getActionMap().put(DefaultEditorKit.deletePrevCharAction, new LambdaAction(() -> {
 			int i = caret.getDot();
 			bytes[i] = (byte) (bytes[i] & (caret.isDotAfter() ? 0xf0 : 0x0f));
 			caret.moveCaretLeft();
@@ -172,12 +179,12 @@ public class HexPanel extends JPanel {
 			}
 		}));
 		getActionMap().put("insert", new LambdaAction(() -> insert = !insert));
-		getActionMap().put("copy", new LambdaAction(() -> {
-			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+		getActionMap().put(DefaultEditorKit.copyAction, new LambdaAction(() -> {
+			getToolkit().getSystemClipboard().setContents(
 					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
 		}));
-		getActionMap().put("cut", new LambdaAction(() -> {
-			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+		getActionMap().put(DefaultEditorKit.cutAction, new LambdaAction(() -> {
+			getToolkit().getSystemClipboard().setContents(
 					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
 			deleteSelectedBytes();
 		}));
@@ -517,5 +524,30 @@ public class HexPanel extends JPanel {
 			repaint(getVisibleRect());
 			if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
 		}
+	}
+
+	@Override
+	public Dimension getPreferredScrollableViewportSize() {
+		return new Dimension((int) length0 * 64, (int) (lineH * bytes.length / 16));
+	}
+
+	@Override
+	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+		return direction == SwingConstants.HORIZONTAL ? (int) length0 * 3 : (int) lineH;
+	}
+
+	@Override
+	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+		return direction == SwingConstants.HORIZONTAL ? (int) length0 * 3 : (int) (visibleRect.height / lineH * lineH);
+	}
+
+	@Override
+	public boolean getScrollableTracksViewportWidth() {
+		return false;
+	}
+
+	@Override
+	public boolean getScrollableTracksViewportHeight() {
+		return false;
 	}
 }

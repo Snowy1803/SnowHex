@@ -32,7 +32,6 @@ import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-
 import org.apache.commons.io.FileUtils;
 
 import st.infos.elementalcube.snowhex.TokenMaker;
@@ -54,7 +53,6 @@ public class HexFrame extends JFrame {
 	public HexFrame(HexPanel panel) {
 		super(Lang.getString("frame.title"));
 		JScrollPane pane = new JScrollPane(editor = panel);
-		pane.getVerticalScrollBar().setUnitIncrement(16);
 		JPanel border = new JPanel(new BorderLayout());
 		border.add(pane);
 		StatusBar bar = new StatusBar(panel);
