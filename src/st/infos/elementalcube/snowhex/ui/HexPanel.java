@@ -76,14 +76,26 @@ public class HexPanel extends JPanel {
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				int caretIndex = getTokenAt(e.getX(), e.getY());
-				int startX = (int) ((addressCols + 2) * length0);
+				int caretIndex = getCoordsOffset(e.getX(), e.getY(), false);
 				if (caretIndex == -1) {
 					caret.removeCaretPosition();
 				} else {
+					int startX = (int) ((addressCols + 2) * length0);
 					boolean caretAfter = Math.round((e.getX() - startX) / length0 % 3) >= 2;
 					caret.setCaretPosition(caretIndex, caretAfter);
 				}
+				repaint(getVisibleRect());
+				if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
+				requestFocus();
+			}
+		});
+		addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				if (!caret.hasValidPosition())
+					return;
+				int caretIndex = getCoordsOffset(e.getX(), e.getY(), true);
+				caret.moveDot(caretIndex);
 				repaint(getVisibleRect());
 				if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
 				requestFocus();
@@ -145,9 +157,9 @@ public class HexPanel extends JPanel {
 		}));
 		getActionMap().put("delByte", new LambdaAction(() -> {
 			if (caret.hasSelection()) { // delete it all
-				byte[] copy = new byte[bytes.length - (caret.getLastByte() - caret.getFirstByte())];
+				byte[] copy = new byte[bytes.length - (caret.getLastByte() - caret.getFirstByte() + 1)];
 				System.arraycopy(bytes, 0, copy, 0, caret.getFirstByte());
-				System.arraycopy(bytes, caret.getLastByte() + 1, copy, caret.getFirstByte(), bytes.length - caret.getLastByte());
+				System.arraycopy(bytes, caret.getLastByte() + 1, copy, caret.getFirstByte(), bytes.length - (caret.getLastByte() + 1));
 				bytes = copy;
 				caret.setCaretPosition(caret.getFirstByte() - 1, true);
 				bytesDidChange();
@@ -195,17 +207,27 @@ public class HexPanel extends JPanel {
 		scrollRectToVisible(new Rectangle(x1, y - (int) lineH + 2, 2, (int) lineH + 7));
 	}
 	
-	private int getTokenAt(int x, int y) {
+	private int getCoordsOffset(int x, int y, boolean closest) {
 		if (length0 == 0 || lineH == 0) return -1;
 		int startX = startX();
 		int startY = (int) (2 * lineH);
 		x -= startX;
 		y -= startY;
-		int rx = x / (int) (length0 * 3);
+		int rx = (int) Math.floor(x / (length0 * 3));
 		int ry = (int) Math.ceil(y / lineH);
-		if (rx < 0 || ry < 0 || rx > 15) return -1;
+		if (rx < 0 || ry < 0 || rx > 15) {
+			if (!closest)
+				return -1;
+			if (rx < 0) rx = -1;
+			if (ry < 0) ry = 0;
+			if (rx > 15) rx = 15;
+		}
 		int i = ry * 16 + rx;
-		if (i >= bytes.length) return -1;
+		if (i >= bytes.length) {
+			if (!closest)
+				return -1;
+			return bytes.length - 1;
+		}
 		return i;
 	}
 	
@@ -355,9 +377,20 @@ public class HexPanel extends JPanel {
 				g2d.setColor(f.getBackground());
 				g2d.fillRect(x - (int) (length0 / 2), y - (int) lineH + 3, (int) (length0 * 3), (int) lineH);
 				g2d.setColor(f.getForeground());
-				if (f.isUnderlined() || (closestToken != null && closestToken.at(index)))
+				if (f.isUnderlined() || (closestToken != null && closestToken.at(index) && !caret.hasSelection()))
 					g2d.drawLine(x - (int) (length0 / 2), y + 2, x + (int) (length0 * 2.5), y + 2);
 				g2d.drawString(twoCharsHexByte(b), x, y);
+				if (caret.hasSelection() && caret.intersects(index)) {
+					g2d.setColor(getForeground());
+					if (i == 0 || index == caret.getFirstByte())
+						g2d.drawLine(x - (int) (length0 / 2), y - (int) lineH + 3, x - (int) (length0 / 2), y + 3);
+					if (i == 15 || index == caret.getLastByte())
+						g2d.drawLine(x + (int) (length0 * 2.5) - 1, y - (int) lineH + 3, x + (int) (length0 * 2.5) - 1, y + 3);
+					if (!caret.intersects(index + 16))
+						g2d.drawLine(x - (int) (length0 / 2), y + 2, x + (int) (length0 * 2.5) - 1, y + 2);
+					if (!caret.intersects(index - 16))
+						g2d.drawLine(x - (int) (length0 / 2), y - (int) lineH + 3, x + (int) (length0 * 2.5) - 1, y - (int) lineH + 3);
+				}
 				x += 3 * length0;
 				if (showDump) {
 					int dx = ix + (int) ((48 + i) * length0);
@@ -421,7 +454,7 @@ public class HexPanel extends JPanel {
 	@Override
 	public String getToolTipText(MouseEvent e) {
 		if (tokens == null) return null;
-		int index = getTokenAt(e.getX(), e.getY());
+		int index = getCoordsOffset(e.getX(), e.getY(), false);
 		if (index >= 0) {
 			Iterator<Token> i = getTokensAt(index);
 			ArrayList<String> desc = new ArrayList<>(1);
