@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -32,6 +33,7 @@ import javax.swing.ToolTipManager;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import st.infos.elementalcube.snowhex.ByteSelection;
 import st.infos.elementalcube.snowhex.Format;
 import st.infos.elementalcube.snowhex.Theme;
 import st.infos.elementalcube.snowhex.Token;
@@ -83,6 +85,9 @@ public class HexPanel extends JPanel {
 					int startX = (int) ((addressCols + 2) * length0);
 					boolean caretAfter = Math.round((e.getX() - startX) / length0 % 3) >= 2;
 					caret.setCaretPosition(caretIndex, caretAfter);
+				}
+				if (e.getClickCount() >= 2 && closestToken != null) {
+					caret.setSelection(closestToken.getOffset(), closestToken.getLength());
 				}
 				repaint(getVisibleRect());
 				if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
@@ -140,6 +145,8 @@ public class HexPanel extends JPanel {
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, getToolkit().getMenuShortcutKeyMask()), "delByte");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0), "insert"); // Windows / Linux
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0), "insert"); // macOS with non-Mac keyboards
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_C, getToolkit().getMenuShortcutKeyMask()), "copy");
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_X, getToolkit().getMenuShortcutKeyMask()), "cut");
 		
 		getActionMap().put("left", new LambdaAction(caret::moveCaretLeft));
 		getActionMap().put("right", new LambdaAction(caret::moveCaretRight));
@@ -157,12 +164,7 @@ public class HexPanel extends JPanel {
 		}));
 		getActionMap().put("delByte", new LambdaAction(() -> {
 			if (caret.hasSelection()) { // delete it all
-				byte[] copy = new byte[bytes.length - (caret.getLastByte() - caret.getFirstByte() + 1)];
-				System.arraycopy(bytes, 0, copy, 0, caret.getFirstByte());
-				System.arraycopy(bytes, caret.getLastByte() + 1, copy, caret.getFirstByte(), bytes.length - (caret.getLastByte() + 1));
-				bytes = copy;
-				caret.setCaretPosition(caret.getFirstByte() - 1, true);
-				bytesDidChange();
+				deleteSelectedBytes();
 			} else if (caret.isDotAfter() && caret.getDot() >= 0) {
 				bytes = ArrayUtils.remove(bytes, caret.getDot());
 				caret.setCaretPosition(caret.getDot() - 1, true);
@@ -170,6 +172,24 @@ public class HexPanel extends JPanel {
 			}
 		}));
 		getActionMap().put("insert", new LambdaAction(() -> insert = !insert));
+		getActionMap().put("copy", new LambdaAction(() -> {
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
+		}));
+		getActionMap().put("cut", new LambdaAction(() -> {
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
+			deleteSelectedBytes();
+		}));
+	}
+	
+	private void deleteSelectedBytes() {
+		byte[] copy = new byte[bytes.length - (caret.getLastByte() - caret.getFirstByte() + 1)];
+		System.arraycopy(bytes, 0, copy, 0, caret.getFirstByte());
+		System.arraycopy(bytes, caret.getLastByte() + 1, copy, caret.getFirstByte(), bytes.length - (caret.getLastByte() + 1));
+		bytes = copy;
+		caret.setCaretPosition(caret.getFirstByte() - 1, true);
+		bytesDidChange();
 	}
 
 	protected void setDocumentModified() {
@@ -415,7 +435,7 @@ public class HexPanel extends JPanel {
 		}
 	}
 	
-	private static String twoCharsHexByte(byte b) {
+	public static String twoCharsHexByte(byte b) {
 		String s = Integer.toHexString(Byte.toUnsignedInt(b));
 		return s.length() == 1 ? "0" + s : s;
 	}

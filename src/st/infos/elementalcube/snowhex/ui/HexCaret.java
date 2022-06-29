@@ -72,6 +72,16 @@ public class HexCaret {
 		listener.actionPerformed(sharedEvent);
 	}
 	
+	/**
+	 * Selects a word, at the given position and with the given length
+	 * @param start the mark byte offset
+	 * @param length the length of the selection
+	 */
+	public void setSelection(int start, int length) {
+		setCaretPosition(start, false);
+		moveDot(start + length - 1);
+	}
+	
 	public int normalizePos(int pos) {
 		if (pos >= component.getBytes().length) {
 			return component.getBytes().length - 1;
