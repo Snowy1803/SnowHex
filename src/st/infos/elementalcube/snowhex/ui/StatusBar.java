@@ -23,12 +23,12 @@ public class StatusBar extends JPanel implements ActionListener {
 	public StatusBar(HexPanel panel) {
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		this.panel = panel;
-		add(colorer = new JLabel(panel.getColorer() == null ? Lang.getString("parser.none") : panel.getColorer().getLocalizedName()));
+		add(colorer = new JLabel());
 		add(Box.createHorizontalGlue());
-		add(caret = new JLabel(Lang.getString("frame.caretPos", panel.getCaretPosition() / 16, panel.getCaretPosition() % 16)));
+		add(caret = new JLabel());
 		caret.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 		add(newJSeparator(JSeparator.VERTICAL));
-		add(mode = new JLabel(Lang.getString("frame." + (panel.isInsertMode() ? "insert" : "overwrite"))));
+		add(mode = new JLabel());
 		mode.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -50,7 +50,7 @@ public class StatusBar extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		colorer.setText(panel.getColorer() == null ? Lang.getString("parser.none") : panel.getColorer().getLocalizedName());
-		caret.setText(Lang.getString("frame.caretPos", panel.getCaretPosition() / 16 + 1, panel.getCaretPosition() % 16));
+		caret.setText(Lang.getString("frame.caretPos", panel.getCaret().getDot() / 16 + 1, panel.getCaret().getDot() % 16));
 		mode.setText(Lang.getString("frame." + (panel.isInsertMode() ? "insert" : "overwrite")));
 	}
 }

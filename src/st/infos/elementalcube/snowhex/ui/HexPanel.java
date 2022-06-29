@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
@@ -45,8 +46,9 @@ public class HexPanel extends JPanel {
 	private TokenMaker colorer;
 	private List<Token> tokens;
 	private double length0, lineH;
-	private int caretIndex = -1;
-	private boolean caretAfter;
+	
+	// Caret
+	private HexCaret caret;
 	private Token closestToken;
 	
 	// Config
@@ -65,6 +67,7 @@ public class HexPanel extends JPanel {
 	private ActionListener listener;
 	
 	public HexPanel(byte[] initialBytes) {
+		this.caret = new HexCaret(this);
 		setBytes(initialBytes);
 		setBackground(Color.WHITE);
 		setForeground(Color.BLACK);
@@ -73,10 +76,14 @@ public class HexPanel extends JPanel {
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				caretIndex = getTokenAt(e.getX(), e.getY());
+				int caretIndex = getTokenAt(e.getX(), e.getY());
 				int startX = (int) ((addressCols + 2) * length0);
-				caretAfter = caretIndex == -1 ? false : Math.round((e.getX() - startX) / length0 % 3) >= 2;
-				caretDidMove();
+				if (caretIndex == -1) {
+					caret.removeCaretPosition();
+				} else {
+					boolean caretAfter = Math.round((e.getX() - startX) / length0 % 3) >= 2;
+					caret.setCaretPosition(caretIndex, caretAfter);
+				}
 				repaint(getVisibleRect());
 				if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
 				requestFocus();
@@ -87,6 +94,8 @@ public class HexPanel extends JPanel {
 			public void keyTyped(KeyEvent e) {
 				if (e.getKeyChar() >= '0' && e.getKeyChar() <= '9' || e.getKeyChar() >= 'a' && e.getKeyChar() <= 'f' || e.getKeyChar() >= 'A' && e
 						.getKeyChar() <= 'F') {
+					int caretIndex = caret.getDot();
+					boolean caretAfter = caret.isDotAfter();
 					if (insert && caretAfter) {
 						bytes = ArrayUtils.insert(caretIndex + 1, bytes, (byte) Integer.parseInt(e.getKeyChar() + "0", 16));
 					} else {
@@ -100,12 +109,13 @@ public class HexPanel extends JPanel {
 						bytes[i] = (byte) Integer.parseInt(new String(cs), 16);
 					}
 					setDocumentModified();
-					moveCaretRight();
+					caret.moveCaretRight();
 					bytesDidChange();
 					repaint(getVisibleRect());
 				}
 			}
 		});
+		caret.addChangeListener(e -> caretDidMove());
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up");
@@ -119,40 +129,35 @@ public class HexPanel extends JPanel {
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0), "insert"); // Windows / Linux
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0), "insert"); // macOS with non-Mac keyboards
 		
-		getActionMap().put("left", new LambdaAction(this::moveCaretLeft));
-		getActionMap().put("right", new LambdaAction(this::moveCaretRight));
-		getActionMap().put("up", new LambdaAction(this::moveCaretUp));
-		getActionMap().put("down", new LambdaAction(this::moveCaretDown));
-		getActionMap().put("lineStart", new LambdaAction(this::moveCaretLineStart));
-		getActionMap().put("lineEnd", new LambdaAction(this::moveCaretLineEnd));
-		getActionMap().put("start", new LambdaAction(() -> {
-			caretIndex = -1;
-			caretAfter = true;
-			caretDidMove();
-		}));
-		getActionMap().put("end", new LambdaAction(() -> {
-			caretIndex = bytes.length - 1;
-			caretAfter = true;
-			caretDidMove();
-		}));
+		getActionMap().put("left", new LambdaAction(caret::moveCaretLeft));
+		getActionMap().put("right", new LambdaAction(caret::moveCaretRight));
+		getActionMap().put("up", new LambdaAction(() -> caret.setCaretPosition(caret.getDot() - 16, caret.isDotAfter())));
+		getActionMap().put("down", new LambdaAction(() -> caret.setCaretPosition(caret.getDot() + 16, caret.isDotAfter())));
+		getActionMap().put("lineStart", new LambdaAction(() -> caret.setCaretPosition(caret.getDot() / 16 * 16, false)));
+		getActionMap().put("lineEnd", new LambdaAction(() -> caret.setCaretPosition((caret.getDot() / 16 + 1) * 16 - 1, true)));
+		getActionMap().put("start", new LambdaAction(() -> caret.setCaretPosition(-1, true)));
+		getActionMap().put("end", new LambdaAction(() -> caret.setCaretPosition(bytes.length - 1, true)));
 		getActionMap().put("back", new LambdaAction(() -> {
-			int i = caretIndex;
-			char[] cs = twoCharsHexByte(bytes[i]).toCharArray();
-			cs[caretAfter ? 1 : 0] = '0';
-			bytes[i] = (byte) Integer.parseInt(new String(cs), 16);
-			moveCaretLeft();
+			int i = caret.getDot();
+			bytes[i] = (byte) (bytes[i] & (caret.isDotAfter() ? 0xf0 : 0x0f));
+			caret.moveCaretLeft();
 			bytesDidChange();
 		}));
 		getActionMap().put("delByte", new LambdaAction(() -> {
-			if (caretAfter && caretIndex >= 0) {
-				bytes = ArrayUtils.remove(bytes, caretIndex);
-				caretIndex--;
+			if (caret.hasSelection()) { // delete it all
+				byte[] copy = new byte[bytes.length - (caret.getLastByte() - caret.getFirstByte())];
+				System.arraycopy(bytes, 0, copy, 0, caret.getFirstByte());
+				System.arraycopy(bytes, caret.getLastByte() + 1, copy, caret.getFirstByte(), bytes.length - caret.getLastByte());
+				bytes = copy;
+				caret.setCaretPosition(caret.getFirstByte() - 1, true);
+				bytesDidChange();
+			} else if (caret.isDotAfter() && caret.getDot() >= 0) {
+				bytes = ArrayUtils.remove(bytes, caret.getDot());
+				caret.setCaretPosition(caret.getDot() - 1, true);
 				bytesDidChange();
 			}
 		}));
-		getActionMap().put("insert", new LambdaAction(() -> {
-			insert = !insert;
-		}));
+		getActionMap().put("insert", new LambdaAction(() -> insert = !insert));
 	}
 
 	protected void setDocumentModified() {
@@ -160,7 +165,14 @@ public class HexPanel extends JPanel {
 	}
 	
 	private void updateClosestToken() {
-		closestToken = colorer == null ? null : colorer.getClosestToken(bytes, tokens, caretIndex);
+		if (colorer == null) {
+			closestToken = null;
+			return;
+		}
+		closestToken = colorer.getClosestToken(bytes, tokens, caret.getFirstByte());
+		if (caret.hasSelection() && closestToken != colorer.getClosestToken(bytes, tokens, caret.getLastByte())) {
+			closestToken = null;
+		}
 	}
 	
 	// public because can be changed from `getBytes()[...] = ...`
@@ -171,72 +183,16 @@ public class HexPanel extends JPanel {
 			listener.actionPerformed(new ActionEvent(bytes, ActionEvent.ACTION_PERFORMED, null));
 	}
 	
-	protected void caretDidMove() {
-		if (!validIndex()) {
+	// our caret listener
+	private void caretDidMove() {
+		if (!caret.hasValidPosition()) {
 			closestToken = null;
 			return;
 		}
 		updateClosestToken();
-		int x1 = (int) (startX() + ((caretIndex % 16) * 3 + (caretAfter ? 2 : 1)) * length0);
-		int y = (int) (((caretIndex / 16) + 2) * lineH);
+		int x1 = (int) (startX() + ((caret.getDot() % 16) * 3 + (caret.isDotAfter() ? 2 : 1)) * length0);
+		int y = (int) (((caret.getDot() / 16) + 2) * lineH);
 		scrollRectToVisible(new Rectangle(x1, y - (int) lineH + 2, 2, (int) lineH + 7));
-	}
-
-	protected void moveCaretUp() {
-		if (caretIndex > 15) {
-			caretIndex -= 16;
-		} else {
-			caretIndex = -1;
-			caretAfter = true;
-		}
-		caretDidMove();
-	}
-	
-	protected void moveCaretDown() {
-		caretIndex += 16;
-		if (caretIndex >= bytes.length) {
-			caretIndex = bytes.length - 1;
-			caretAfter = true;
-		}
-		caretDidMove();
-	}
-	
-	protected void moveCaretRight() {
-		if (caretAfter) {
-			caretIndex++;
-			caretAfter = false;
-		} else {
-			caretAfter = true;
-		}
-		if (caretIndex >= bytes.length) {
-			caretIndex = bytes.length - 1;
-			caretAfter = true;
-		}
-		caretDidMove();
-	}
-	
-	protected void moveCaretLeft() {
-		if (caretAfter) {
-			caretAfter = false;
-		} else {
-			caretIndex--;
-			caretAfter = true;
-		}
-		if (caretIndex < 0) {
-			caretIndex = -1;
-			caretAfter = true;
-		}
-		caretDidMove();
-	}
-	
-	protected void moveCaretLineStart() {
-		caretIndex = caretIndex / 16 * 16;
-		caretAfter = false;
-	}
-	
-	protected void moveCaretLineEnd() {
-		caretIndex = (caretIndex / 16 + 1) * 16 - 1;
-		caretAfter = true;
 	}
 	
 	private int getTokenAt(int x, int y) {
@@ -306,16 +262,10 @@ public class HexPanel extends JPanel {
 	}
 	
 	public void addChangeListener(ActionListener l) {
-		if (l == null) {
-			return;
-		}
 		listener = AWTEventMulticaster.add(listener, l);
 	}
 	
 	public void removeChangeListener(ActionListener l) {
-		if (l == null) {
-			return;
-		}
 		listener = AWTEventMulticaster.remove(listener, l);
 	}
 	
@@ -337,8 +287,8 @@ public class HexPanel extends JPanel {
 		if (listener != null) listener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null));
 	}
 	
-	public int getCaretPosition() {
-		return caretIndex;
+	public HexCaret getCaret() {
+		return caret;
 	}
 	
 	public TokenMaker getColorer() {
@@ -416,24 +366,20 @@ public class HexPanel extends JPanel {
 					g2d.setColor(f.getForeground());
 					String s = b >= 32 && b <= 127 ? "" + ((char) b) : ".";
 					g2d.drawString(s, dx, y);
-					if (index == caretIndex) {
+					if (caret.intersects(index)) {
 						g2d.drawLine(dx, y + 2, dx + (int) (length0), y + 2);
 					}
 				}
 			}
 			
-			if (validIndex() && caretIndex / 16 == a) {
+			if (!caret.hasSelection() && caret.hasValidPosition() && caret.getDot() / 16 == a) {
 				g2d.setStroke(new BasicStroke(2));
 				g2d.setColor(Color.BLACK);
-				int x1 = (int) (ix + ((caretIndex % 16) * 3 + (caretAfter ? 2 : 1)) * length0);
+				int x1 = (int) (ix + ((caret.getDot() % 16) * 3 + (caret.isDotAfter() ? 2 : 1)) * length0);
 				g2d.drawLine(x1, y + 5, x1, y - (int) lineH + 2);
 				g2d.setStroke(new BasicStroke(1));
 			}
 		}
-	}
-	
-	private boolean validIndex() {
-		return caretIndex >= 0 || caretIndex == -1 && caretAfter;
 	}
 	
 	private static String twoCharsHexByte(byte b) {
@@ -504,7 +450,8 @@ public class HexPanel extends JPanel {
 		return null;
 	}
 	
-	private class LambdaAction implements Action {
+	private class LambdaAction extends AbstractAction {
+		private static final long serialVersionUID = 3266426527475612562L;
 		Runnable r;
 		
 		public LambdaAction(Runnable r) {
@@ -517,27 +464,5 @@ public class HexPanel extends JPanel {
 			repaint(getVisibleRect());
 			if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
 		}
-		
-		@Override
-		public Object getValue(String key) {
-			return null;
-		}
-		
-		@Override
-		public void putValue(String key, Object value) {}
-		
-		@Override
-		public void setEnabled(boolean b) {}
-		
-		@Override
-		public boolean isEnabled() {
-			return true;
-		}
-		
-		@Override
-		public void addPropertyChangeListener(PropertyChangeListener listener) {}
-		
-		@Override
-		public void removePropertyChangeListener(PropertyChangeListener listener) {}
 	}
 }
