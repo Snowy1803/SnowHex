@@ -145,6 +145,11 @@ public class HexPanel extends JPanel implements Scrollable {
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0), "insert"); // Windows / Linux
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0), "insert"); // macOS with non-Mac keyboards
 		
+		// character (1 position) = digit, or byte if selection
+		// word = closest token
+		// line = shown line, 16 bytes
+		// paragraph = N/A
+		
 		getActionMap().put(DefaultEditorKit.backwardAction, new LambdaAction(caret::moveCaretLeft));
 		getActionMap().put(DefaultEditorKit.forwardAction, new LambdaAction(caret::moveCaretRight));
 		getActionMap().put(DefaultEditorKit.selectionBackwardAction, new LambdaAction(() -> caret.moveDot(caret.getDot() - 1)));
@@ -159,10 +164,19 @@ public class HexPanel extends JPanel implements Scrollable {
 		getActionMap().put(DefaultEditorKit.selectionUpAction, new LambdaAction(() -> caret.moveDot(caret.getDot() - 16)));
 		getActionMap().put(DefaultEditorKit.selectionDownAction, new LambdaAction(() -> caret.moveDot(caret.getDot() + 16)));
 		
+		getActionMap().put(DefaultEditorKit.selectAllAction, new LambdaAction(() -> caret.setSelection(0, bytes.length)));
+		getActionMap().put("unselect", new LambdaAction(() -> caret.setCaretPosition(caret.getDot(), caret.isDotAfter())));
+		
 		getActionMap().put(DefaultEditorKit.beginLineAction, new LambdaAction(() -> caret.setCaretPosition(caret.getDot() / 16 * 16, false)));
 		getActionMap().put(DefaultEditorKit.endLineAction, new LambdaAction(() -> caret.setCaretPosition((caret.getDot() / 16 + 1) * 16 - 1, true)));
+		getActionMap().put(DefaultEditorKit.selectionBeginLineAction, new LambdaAction(() -> caret.moveDot(caret.getDot() / 16 * 16 - 1)));
+		getActionMap().put(DefaultEditorKit.selectionEndLineAction, new LambdaAction(() -> caret.moveDot(((caret.getDot() + 1) / 16 + 1) * 16 - 1)));
+		
 		getActionMap().put(DefaultEditorKit.beginAction, new LambdaAction(() -> caret.setCaretPosition(-1, true)));
 		getActionMap().put(DefaultEditorKit.endAction, new LambdaAction(() -> caret.setCaretPosition(bytes.length - 1, true)));
+		getActionMap().put(DefaultEditorKit.selectionBeginAction, new LambdaAction(() -> caret.moveDot(-1)));
+		getActionMap().put(DefaultEditorKit.selectionEndAction, new LambdaAction(() -> caret.moveDot(bytes.length - 1)));
+		
 		getActionMap().put(DefaultEditorKit.deletePrevCharAction, new LambdaAction(() -> {
 			int i = caret.getDot();
 			bytes[i] = (byte) (bytes[i] & (caret.isDotAfter() ? 0xf0 : 0x0f));

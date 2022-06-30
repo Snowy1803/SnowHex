@@ -29,6 +29,7 @@ public class PreviewFrame extends JDialog implements ActionListener {
 		setSize(300, 300);
 		setLocation(parent.getX() + parent.getWidth() + 5, parent.getY());
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setFocusableWindowState(false);
 		setVisible(true);
 	}
 	

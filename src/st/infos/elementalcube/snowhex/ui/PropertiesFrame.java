@@ -28,6 +28,7 @@ public class PropertiesFrame extends JDialog implements ActionListener {
 		setLocation(parent.getX() + parent.getWidth() + 5, parent.getY() + parent.getHeight() - 300);
 		updateContent();
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setFocusableWindowState(false);
 		setVisible(true);
 	}
 	

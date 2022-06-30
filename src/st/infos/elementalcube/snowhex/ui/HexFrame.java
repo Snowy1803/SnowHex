@@ -198,7 +198,7 @@ public class HexFrame extends JFrame {
 		});
 		
 		showResult.setSelected(false);
-		showResult.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, getToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
+		showResult.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0));
 		showResult.addActionListener(e -> {
 			if (preview == null) {
 				preview = new PreviewFrame(this);
@@ -217,7 +217,7 @@ public class HexFrame extends JFrame {
 		});
 		
 		showProps.setSelected(false);
-		showProps.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, getToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
+		showProps.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 		showProps.addActionListener(e -> {
 			if (props == null) {
 				props = new PropertiesFrame(this);
