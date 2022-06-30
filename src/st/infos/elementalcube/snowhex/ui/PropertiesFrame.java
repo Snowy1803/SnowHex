@@ -1,5 +1,6 @@
 package st.infos.elementalcube.snowhex.ui;
 
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -28,13 +29,13 @@ public class PropertiesFrame extends JDialog implements ActionListener {
 		setLocation(parent.getX() + parent.getWidth() + 5, parent.getY() + parent.getHeight() - 300);
 		updateContent();
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setFocusableWindowState(false);
 		setVisible(true);
 	}
 	
 	private void updateContent() {
 		HexPanel editor = parent.getEditor();
 		JComponent comp = editor.getColorer() == null ? null : editor.getColorer().getTokenProperties(editor);
+		Container old = getContentPane();
 		if (comp == null) {
 			if (fallback == null) {
 				fallback = new JLabel("No data", SwingConstants.CENTER);
@@ -42,11 +43,12 @@ public class PropertiesFrame extends JDialog implements ActionListener {
 			}
 			Token t = editor.getClosestToken();
 			fallback.setText(t == null || t.getToolTip() == null ? "No data" : "<html>" + t.getToolTip());
-			setContentPane(fallback);
-		} else {
-			setContentPane(comp);
+			comp = fallback;
 		}
-		revalidate();
+		if (old != comp) {
+			setContentPane(comp);
+			revalidate();
+		}
 	}
 	
 	@Override

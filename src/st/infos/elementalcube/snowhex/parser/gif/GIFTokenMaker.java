@@ -242,6 +242,14 @@ public class GIFTokenMaker extends TokenMaker {
 		paletteColorEditor.updateValues(panel);
 		return paletteColorEditor;
 	}
+	private DelayEditor delayEditor;
+	private DelayEditor getDelayEditor(HexPanel panel) {
+		if (delayEditor == null) {
+			delayEditor = new DelayEditor(panel);
+		}
+		delayEditor.updateValues(panel);
+		return delayEditor;
+	}
 	
 	@Override
 	public JComponent getTokenProperties(HexPanel panel) {
@@ -255,6 +263,13 @@ public class GIFTokenMaker extends TokenMaker {
 			case GIFToken.SUBTY_PALETTE_RGB:
 				return getPaletteColorEditor(panel);
 			}
+			break;
+		case TOKEN_METADATA:
+			switch (((GIFToken) panel.getClosestToken()).getSubtype()) {
+			case GIFToken.SUBTY_GCE_DELAY:
+				return getDelayEditor(panel);
+			}
+			break;
 		}
 		return null;
 	}
