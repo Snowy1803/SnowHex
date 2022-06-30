@@ -8,11 +8,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -20,7 +16,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -34,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
@@ -65,6 +61,8 @@ public class HexPanel extends JPanel implements Scrollable {
 	private boolean showDump = true;
 	private boolean insert;
 	
+	private Timer recolorTimer;
+	
 	/**
 	 * Called with sources:
 	 * - A byte [] (bytes) when the bytes change
@@ -77,6 +75,8 @@ public class HexPanel extends JPanel implements Scrollable {
 	
 	public HexPanel(byte[] initialBytes) {
 		this.caret = new HexCaret(this);
+		recolorTimer = new Timer(200, e -> reloadColorsNow());
+		recolorTimer.setRepeats(false);
 		setBytes(initialBytes);
 		setBackground(Color.WHITE);
 		setForeground(Color.BLACK);
@@ -295,12 +295,16 @@ public class HexPanel extends JPanel implements Scrollable {
 		if (this.colorer != colorer) {
 			TokenMaker old = this.colorer;
 			this.colorer = colorer;
-			reloadColors();
+			reloadColorsNow();
 			if (listener != null) listener.actionPerformed(new ActionEvent(colorer == null ? old : colorer, ActionEvent.ACTION_PERFORMED, null));
 		}
 	}
 	
 	public void reloadColors() {
+		recolorTimer.restart();
+	}
+	
+	public void reloadColorsNow() {
 		if (colorer == null) {
 			tokens = null;
 		} else {
@@ -308,6 +312,7 @@ public class HexPanel extends JPanel implements Scrollable {
 			tokens = colorer.generateTokens(bytes);
 		}
 		updateClosestToken();
+		repaint(getVisibleRect());
 	}
 	
 	public byte[] getBytes() {

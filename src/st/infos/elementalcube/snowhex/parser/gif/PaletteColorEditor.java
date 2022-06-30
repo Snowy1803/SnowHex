@@ -62,7 +62,6 @@ public class PaletteColorEditor extends JPanel {
 		
 		chooser = new JColorChooser();
 		chooser.setAlignmentX(Component.LEFT_ALIGNMENT);
-		chooser.setBorder(null);
 		chooser.getSelectionModel().addChangeListener(e -> commitColor(panel, chooser.getColor()));
 		
 		add(content, BorderLayout.PAGE_START);
