@@ -20,6 +20,15 @@ menu.file=Fil
 menu.file.new=Ny
 menu.file.open=Åbn
 menu.file.save=Gem
+
+menu.edit=Rediger
+menu.edit.cut=Klip
+menu.edit.copy=Kopier
+menu.edit.paste=Sæt ind
+menu.edit.delByte=Slet byte
+menu.edit.delBytes=Slet valgte bytes
+menu.edit.selectAll=Vælg alt
+
 menu.view=Vis
 menu.view.coloring=Farvning
 menu.view.lang=Sprog

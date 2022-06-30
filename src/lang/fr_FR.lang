@@ -20,6 +20,15 @@ menu.file=Fichier
 menu.file.new=Nouveau
 menu.file.open=Ouvrir
 menu.file.save=Enregistrer
+
+menu.edit=Édition
+menu.edit.cut=Couper
+menu.edit.copy=Copier
+menu.edit.paste=Coller
+menu.edit.delByte=Supprimer l'octet
+menu.edit.delBytes=Supprimer les octets sélectionnés
+menu.edit.selectAll=Tout sélectionner
+
 menu.view=Affichage
 menu.view.coloring=Coloration
 menu.view.lang=Langue

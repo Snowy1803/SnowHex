@@ -185,7 +185,7 @@ public class HexPanel extends JPanel implements Scrollable {
 			caret.moveCaretLeft();
 			bytesDidChange();
 		}));
-		getActionMap().put("delByte", new LambdaAction(() -> {
+		Action delByte = new LambdaAction(() -> {
 			if (caret.hasSelection()) { // delete it all
 				deleteSelectedBytes();
 			} else if (caret.isDotAfter() && caret.getDot() >= 0) {
@@ -193,17 +193,20 @@ public class HexPanel extends JPanel implements Scrollable {
 				caret.setCaretPosition(caret.getDot() - 1, true);
 				bytesDidChange();
 			}
-		}));
+		});
+		getActionMap().put("delByte", delByte);
 		getActionMap().put("insert", new LambdaAction(() -> insert = !insert));
-		getActionMap().put(DefaultEditorKit.copyAction, new LambdaAction(() -> {
+		Action copy = new LambdaAction(() -> {
 			getToolkit().getSystemClipboard().setContents(
 					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
-		}));
-		getActionMap().put(DefaultEditorKit.cutAction, new LambdaAction(() -> {
+		});
+		getActionMap().put(DefaultEditorKit.copyAction, copy);
+		Action cut = new LambdaAction(() -> {
 			getToolkit().getSystemClipboard().setContents(
 					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
 			deleteSelectedBytes();
-		}));
+		});
+		getActionMap().put(DefaultEditorKit.cutAction, cut);
 		getActionMap().put(DefaultEditorKit.pasteAction, new LambdaAction(() -> {
 			try {
 				byte[] b = (byte[]) getToolkit().getSystemClipboard().getContents(this).getTransferData(ByteSelection.BYTE_ARRAY);
@@ -216,6 +219,14 @@ public class HexPanel extends JPanel implements Scrollable {
 				ex.printStackTrace();
 			}
 		}));
+		addChangeListener(e -> {
+			if (e.getSource() == caret) {
+				delByte.putValue(Action.NAME, caret.hasSelection() ? Lang.getString("menu.edit.delBytes") : Lang.getString("menu.edit.delByte"));
+				delByte.setEnabled(caret.hasValidPosition() && (caret.hasSelection() || (caret.isDotAfter() && caret.getDot() >= 0)));
+				copy.setEnabled(caret.hasSelection());
+				cut.setEnabled(caret.hasSelection());
+			}
+		});
 	}
 	
 	private void deleteSelectedBytes() {

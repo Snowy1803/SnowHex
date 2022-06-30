@@ -20,12 +20,21 @@ menu.file=File
 menu.file.new=New
 menu.file.open=Open
 menu.file.save=Save
+
+menu.edit=Edit
+menu.edit.cut=Cut
+menu.edit.copy=Copy
+menu.edit.paste=Paste
+menu.edit.delByte=Delete Byte
+menu.edit.delBytes=Delete Selected Bytes
+menu.edit.selectAll=Select All
+
 menu.view=View
 menu.view.coloring=Highlighting
 menu.view.lang=Language
-menu.view.showDump=Show dump
-menu.view.showResult=Show preview
-menu.view.showProps=Show properties
+menu.view.showDump=Show Dump
+menu.view.showResult=Show Preview
+menu.view.showProps=Show Properties
 
 parser.none=No highlighting
 parser.multipleNotices=Multiple notices:

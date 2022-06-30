@@ -32,6 +32,8 @@ import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.text.DefaultEditorKit;
+
 import org.apache.commons.io.FileUtils;
 
 import st.infos.elementalcube.snowhex.TokenMaker;
@@ -83,8 +85,11 @@ public class HexFrame extends JFrame {
 	
 	private void createJMenuBar() {
 		JMenuBar bar = new JMenuBar();
-		JMenu file = new JMenu(Lang.getString("menu.file")), view = new JMenu(Lang.getString("menu.view")), coloring = new JMenu(Lang.getString(
-				"menu.view.coloring")), lang = new JMenu(Lang.getString("menu.view.lang"));
+		JMenu file = new JMenu(Lang.getString("menu.file")),
+				edit = new JMenu(Lang.getString("menu.edit")),
+				view = new JMenu(Lang.getString("menu.view")),
+				coloring = new JMenu(Lang.getString("menu.view.coloring")),
+				lang = new JMenu(Lang.getString("menu.view.lang"));
 		
 		JMenuItem create = new JMenuItem(Lang.getString("menu.file.new")),
 				open = new JMenuItem(Lang.getString("menu.file.open")),
@@ -191,6 +196,21 @@ public class HexFrame extends JFrame {
 			}
 		});
 		
+		JMenuItem cut = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.cutAction));
+		cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, getToolkit().getMenuShortcutKeyMask()));
+		cut.setText(Lang.getString("menu.edit.cut"));
+		JMenuItem copy = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.copyAction));
+		copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, getToolkit().getMenuShortcutKeyMask()));
+		copy.setText(Lang.getString("menu.edit.copy"));
+		JMenuItem paste = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.pasteAction));
+		paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, getToolkit().getMenuShortcutKeyMask()));
+		paste.setText(Lang.getString("menu.edit.paste"));
+		JMenuItem delByte = new JMenuItem(editor.getActionMap().get("delByte"));
+		delByte.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, getToolkit().getMenuShortcutKeyMask()));
+		JMenuItem selectAll = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.selectAllAction));
+		selectAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, getToolkit().getMenuShortcutKeyMask()));
+		selectAll.setText(Lang.getString("menu.edit.selectAll"));
+		
 		showDump.setSelected(true);
 		showDump.addActionListener(e -> {
 			editor.setShowDump(!editor.isShowingDump());
@@ -239,6 +259,12 @@ public class HexFrame extends JFrame {
 		file.add(open);
 		file.add(save);
 		
+		edit.add(cut);
+		edit.add(copy);
+		edit.add(paste);
+		edit.add(delByte);
+		edit.add(selectAll);
+		
 		view.add(coloring);
 		view.add(lang);
 		view.add(showDump);
@@ -246,6 +272,7 @@ public class HexFrame extends JFrame {
 		view.add(showProps);
 		
 		bar.add(file);
+		bar.add(edit);
 		bar.add(view);
 		
 		setJMenuBar(bar);
