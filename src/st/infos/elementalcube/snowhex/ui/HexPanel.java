@@ -7,8 +7,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -16,6 +18,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -67,8 +70,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	 * Called with sources:
 	 * - A byte [] (bytes) when the bytes change
 	 * - HexPanel.this when mode changes
-	 * - A MouseEvent when a click changes the caret position
-	 * - An ActionEvent when a keyboard shortcut changes the caret position
+	 * - A HexCaret when the caret position changes
 	 * - A TokenMaker when the colorer changes
 	 */
 	private ActionListener listener;
@@ -97,7 +99,6 @@ public class HexPanel extends JPanel implements Scrollable {
 					caret.setSelection(closestToken.getOffset(), closestToken.getLength());
 				}
 				repaint(getVisibleRect());
-				if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
 				requestFocus();
 			}
 		});
@@ -109,7 +110,6 @@ public class HexPanel extends JPanel implements Scrollable {
 				int caretIndex = getCoordsOffset(e.getX(), e.getY(), true);
 				caret.moveDot(caretIndex);
 				repaint(getVisibleRect());
-				if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
 				requestFocus();
 			}
 		});
@@ -204,6 +204,18 @@ public class HexPanel extends JPanel implements Scrollable {
 					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
 			deleteSelectedBytes();
 		}));
+		getActionMap().put(DefaultEditorKit.pasteAction, new LambdaAction(() -> {
+			try {
+				byte[] b = (byte[]) getToolkit().getSystemClipboard().getContents(this).getTransferData(ByteSelection.BYTE_ARRAY);
+				if (b == null)
+					return;
+				if (caret.hasSelection())
+					deleteSelectedBytes();
+				insertBytes(b);
+			} catch (HeadlessException | UnsupportedFlavorException | IOException ex) {
+				ex.printStackTrace();
+			}
+		}));
 	}
 	
 	private void deleteSelectedBytes() {
@@ -212,6 +224,12 @@ public class HexPanel extends JPanel implements Scrollable {
 		System.arraycopy(bytes, caret.getLastByte() + 1, copy, caret.getFirstByte(), bytes.length - (caret.getLastByte() + 1));
 		bytes = copy;
 		caret.setCaretPosition(caret.getFirstByte() - 1, true);
+		bytesDidChange();
+	}
+	
+	private void insertBytes(byte[] insert) {
+		bytes = ArrayUtils.insert(caret.getDot() + 1, bytes, insert);
+		caret.setSelection(caret.getDot() + 1, insert.length);
 		bytesDidChange();
 	}
 
@@ -240,6 +258,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	
 	// our caret listener
 	private void caretDidMove() {
+		repaint(getVisibleRect());
 		if (!caret.hasValidPosition()) {
 			closestToken = null;
 			return;
@@ -248,6 +267,8 @@ public class HexPanel extends JPanel implements Scrollable {
 		int x1 = (int) (startX() + ((caret.getDot() % 16) * 3 + (caret.isDotAfter() ? 2 : 1)) * length0);
 		int y = (int) (((caret.getDot() / 16) + 2) * lineH);
 		scrollRectToVisible(new Rectangle(x1, y - (int) lineH + 2, 2, (int) lineH + 7));
+		if (listener != null)
+			listener.actionPerformed(new ActionEvent(caret, ActionEvent.ACTION_PERFORMED, null));
 	}
 	
 	private int getCoordsOffset(int x, int y, boolean closest) {
@@ -542,8 +563,6 @@ public class HexPanel extends JPanel implements Scrollable {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			r.run();
-			repaint(getVisibleRect());
-			if (listener != null) listener.actionPerformed(new ActionEvent(e, ActionEvent.ACTION_PERFORMED, null));
 		}
 	}
 

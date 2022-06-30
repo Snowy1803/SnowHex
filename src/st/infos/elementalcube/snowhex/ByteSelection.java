@@ -10,7 +10,8 @@ import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class ByteSelection implements Transferable {
 	
-	private static final DataFlavor[] FLAVORS = { new DataFlavor(byte[].class, "Byte array"), DataFlavor.stringFlavor };
+	public static final DataFlavor BYTE_ARRAY = new DataFlavor(byte[].class, "Byte array");
+	private static final DataFlavor[] FLAVORS = { BYTE_ARRAY, DataFlavor.stringFlavor };
 	
 	private byte[] array;
 
