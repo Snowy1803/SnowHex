@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -417,33 +418,23 @@ public class HexPanel extends JPanel implements Scrollable {
 			g2d.drawString(s, (int) (getWidth() - r2d.getWidth()) / 2, (int) (getHeight() - r2d.getHeight()) / 2);
 			return;
 		}
-		int count = (int) Math.ceil(bytes.length / 16F);
+		char[] buf = new char[2];
 		Rectangle2D r2d = FONT.getStringBounds("0", g2d.getFontRenderContext());
 		length0 = Math.ceil(r2d.getWidth());
 		lineH = Math.ceil(r2d.getHeight());
-		setPreferredSize(new Dimension((int) ((addressCols + (showDump ? 66 : 50)) * length0), (int) (Math.ceil(bytes.length / 16F + 1) * lineH)
-				+ 5));
+		setPreferredSize(new Dimension(
+				(int) ((addressCols + (showDump ? 66 : 50)) * length0), 
+				(int) (Math.ceil(bytes.length / 16F + 1) * lineH) + 5));
 		if (g2d.getClip().intersects((int) ((addressCols + 2.5) * length0), 0, 54 * length0, lineH)) {
-			g2d.drawString("0", (int) ((addressCols + 2.5) * length0), (int) lineH);
-			g2d.drawString("1", (int) ((addressCols + 5.5) * length0), (int) lineH);
-			g2d.drawString("2", (int) ((addressCols + 8.5) * length0), (int) lineH);
-			g2d.drawString("3", (int) ((addressCols + 11.5) * length0), (int) lineH);
-			g2d.drawString("4", (int) ((addressCols + 14.5) * length0), (int) lineH);
-			g2d.drawString("5", (int) ((addressCols + 17.5) * length0), (int) lineH);
-			g2d.drawString("6", (int) ((addressCols + 20.5) * length0), (int) lineH);
-			g2d.drawString("7", (int) ((addressCols + 23.5) * length0), (int) lineH);
-			g2d.drawString("8", (int) ((addressCols + 26.5) * length0), (int) lineH);
-			g2d.drawString("9", (int) ((addressCols + 29.5) * length0), (int) lineH);
-			g2d.drawString("a", (int) ((addressCols + 32.5) * length0), (int) lineH);
-			g2d.drawString("b", (int) ((addressCols + 35.5) * length0), (int) lineH);
-			g2d.drawString("c", (int) ((addressCols + 38.5) * length0), (int) lineH);
-			g2d.drawString("d", (int) ((addressCols + 41.5) * length0), (int) lineH);
-			g2d.drawString("e", (int) ((addressCols + 44.5) * length0), (int) lineH);
-			g2d.drawString("f", (int) ((addressCols + 47.5) * length0), (int) lineH);
-			if (showDump) g2d.drawString("Dump", (int) ((addressCols + 50) * length0), (int) lineH);
+			g2d.drawString("0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f", (int) ((addressCols + 2.5) * length0), (int) lineH);
+			if (showDump)
+				g2d.drawString("Dump", (int) ((addressCols + 50) * length0), (int) lineH);
 		}
 		int ix = startX();
-		for (int a = 0; a < count; a++) {
+		int a = Math.max(0, (int) (g2d.getClipBounds().getMinY() / lineH - 2));
+		int count = Math.min((int) Math.ceil(bytes.length / 16F), (int) (g2d.getClipBounds().getMaxY() / lineH));
+		List<Token> formats = getTokensAt(tokens, a * 16, count * 16);
+		for (; a < count; a++) {
 			int y = (int) ((a + 2) * lineH);
 			int x = ix;
 			
@@ -457,13 +448,14 @@ public class HexPanel extends JPanel implements Scrollable {
 				int index = a * 16 + i;
 				if (bytes.length <= index) break;
 				byte b = bytes[index];
-				Format f = getFormatAt(index);
+				Format f = getFormatAt(formats, index);
 				g2d.setColor(f.getBackground());
 				g2d.fillRect(x - (int) (length0 / 2), y - (int) lineH + 3, (int) (length0 * 3), (int) lineH);
 				g2d.setColor(f.getForeground());
 				if (f.isUnderlined() || (closestToken != null && closestToken.at(index) && !caret.hasSelection()))
 					g2d.drawLine(x - (int) (length0 / 2), y + 2, x + (int) (length0 * 2.5), y + 2);
-				g2d.drawString(twoCharsHexByte(b), x, y);
+				getDigitsInByte(b, buf);
+				g2d.drawChars(buf, 0, 2, x, y);
 				if (caret.hasSelection() && caret.intersects(index)) {
 					g2d.setColor(getForeground());
 					if (i == 0 || index == caret.getFirstByte())
@@ -481,8 +473,8 @@ public class HexPanel extends JPanel implements Scrollable {
 					g2d.setColor(f.getBackground());
 					g2d.fillRect(dx, y - (int) lineH + 3, (int) (length0), (int) lineH);
 					g2d.setColor(f.getForeground());
-					String s = b >= 32 && b <= 127 ? "" + ((char) b) : ".";
-					g2d.drawString(s, dx, y);
+					char[] s = {b >= 32 && b <= 127 ? (char) b : '.'};
+					g2d.drawChars(s, 0, 1, dx, y);
 					if (caret.intersects(index)) {
 						g2d.drawLine(dx, y + 2, dx + (int) (length0), y + 2);
 					}
@@ -497,6 +489,15 @@ public class HexPanel extends JPanel implements Scrollable {
 				g2d.setStroke(new BasicStroke(1));
 			}
 		}
+	}
+	
+	public static void getDigitsInByte(byte b, char[] arr) {
+		arr[0] = (char) (((b >>> 4) & 0xf) + '0');
+		if (arr[0] > '9')
+			arr[0] += 'a' - '0' - 10;
+		arr[1] = (char) ((b & 0xf) + '0');
+		if (arr[1] > '9')
+			arr[1] += 'a' - '0' - 10;
 	}
 	
 	public static String twoCharsHexByte(byte b) {
@@ -521,14 +522,19 @@ public class HexPanel extends JPanel implements Scrollable {
 		return null;
 	}
 	
-	private Iterator<Token> getTokensAt(int index) {
+	private List<Token> getTokensAt(List<Token> tokens, int start, int end) {
+		if (tokens == null) return null;
+		return tokens.stream().filter(t -> start <= t.getOffset() + t.getLength() && t.getOffset() <= end).collect(Collectors.toList());
+	}
+	
+	private Iterator<Token> getTokensAt(List<Token> tokens, int index) {
 		return tokens.stream().filter(t -> t.at(index)).iterator();
 	}
 	
-	private Format getFormatAt(int index) {
+	private Format getFormatAt(List<Token> tokens, int index) {
 		Format f = Format.DEFAULT;
 		if (tokens == null) return f;
-		Iterator<Token> i = getTokensAt(index);
+		Iterator<Token> i = getTokensAt(tokens, index);
 		while (i.hasNext()) {
 			f = f.combine(Theme.DEFAULT.get(i.next().getType()));
 		}
@@ -540,7 +546,7 @@ public class HexPanel extends JPanel implements Scrollable {
 		if (tokens == null) return null;
 		int index = getCoordsOffset(e.getX(), e.getY(), false);
 		if (index >= 0) {
-			Iterator<Token> i = getTokensAt(index);
+			Iterator<Token> i = getTokensAt(tokens, index);
 			ArrayList<String> desc = new ArrayList<>(1);
 			while (i.hasNext()) {
 				Token t = i.next();
