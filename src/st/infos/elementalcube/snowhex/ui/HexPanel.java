@@ -338,6 +338,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	}
 	
 	public void reloadColorsNow() {
+		List<Token> old = tokens;
 		if (colorer == null) {
 			tokens = null;
 		} else {
@@ -346,7 +347,8 @@ public class HexPanel extends JPanel implements Scrollable {
 		}
 		updateClosestToken();
 		repaint(getVisibleRect());
-		if (listener != null) listener.actionPerformed(new ActionEvent(tokens, ActionEvent.ACTION_PERFORMED, null));
+		if (listener != null && (tokens != null || old != null))
+			listener.actionPerformed(new ActionEvent(tokens == null ? old : tokens, ActionEvent.ACTION_PERFORMED, null));
 	}
 	
 	public byte[] getBytes() {

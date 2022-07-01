@@ -245,6 +245,14 @@ public class GIFTokenMaker extends TokenMaker {
 		delayEditor.updateValues(panel);
 		return delayEditor;
 	}
+	private LSDPackedEditor lsdPackedEditor;
+	private LSDPackedEditor getLSDPackedEditor(HexPanel panel) {
+		if (lsdPackedEditor == null) {
+			lsdPackedEditor = new LSDPackedEditor(panel);
+		}
+		lsdPackedEditor.updateValues(panel);
+		return lsdPackedEditor;
+	}
 	
 	@Override
 	public JComponent getTokenProperties(HexPanel panel) {
@@ -263,6 +271,8 @@ public class GIFTokenMaker extends TokenMaker {
 			switch (((GIFToken) panel.getClosestToken()).getSubtype()) {
 			case GIFToken.SUBTY_GCE_DELAY:
 				return getDelayEditor(panel);
+			case GIFToken.SUBTY_LSD_PACKED:
+				return getLSDPackedEditor(panel);
 			}
 			break;
 		}
