@@ -3,7 +3,6 @@ package st.infos.elementalcube.snowhex;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
 import java.util.Arrays;
 
 import st.infos.elementalcube.snowhex.ui.HexPanel;

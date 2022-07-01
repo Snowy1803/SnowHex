@@ -195,11 +195,6 @@ public class GIFTokenMaker extends TokenMaker {
 		return getHexString(Integer.toHexString(((array[i++] & 0xFF) << 16) | ((array[i++] & 0xFF) << 8) | ((array[i++] & 0xFF) << 0)), 6);
 	}
 	
-	private static int getBCI(byte[] array, int i, int bci) {
-		return (Byte.toUnsignedInt(array[i + (bci * 3)]) << 16) | (Byte.toUnsignedInt(array[i + (bci * 3 + 1)]) << 8) | Byte.toUnsignedInt(array[i
-				+ (bci * 3 + 2)]);
-	}
-	
 	private static short toShort(byte b, byte c) {
 		return toShort(b, c, ByteOrder.LITTLE_ENDIAN);
 	}
