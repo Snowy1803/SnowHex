@@ -71,6 +71,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	 * - A byte [] (bytes) when the bytes change
 	 * - HexPanel.this when mode changes
 	 * - A HexCaret when the caret position changes
+	 * - A List of Tokens when the token list changes
 	 * - A TokenMaker when the colorer changes
 	 */
 	private ActionListener listener;
@@ -345,6 +346,7 @@ public class HexPanel extends JPanel implements Scrollable {
 		}
 		updateClosestToken();
 		repaint(getVisibleRect());
+		if (listener != null) listener.actionPerformed(new ActionEvent(tokens, ActionEvent.ACTION_PERFORMED, null));
 	}
 	
 	public byte[] getBytes() {
