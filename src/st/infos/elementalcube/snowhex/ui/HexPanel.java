@@ -126,7 +126,6 @@ public class HexPanel extends JPanel implements Scrollable {
 						int i = caretAfter ? caretIndex + 1 : caretIndex;
 						if (bytes.length == i) {
 							bytes = Arrays.copyOf(bytes, bytes.length + 1);
-							calculateAddressCols();
 						}
 						char[] cs = twoCharsHexByte(bytes[i]).toCharArray();
 						cs[caretAfter ? 0 : 1] = e.getKeyChar();
@@ -195,7 +194,7 @@ public class HexPanel extends JPanel implements Scrollable {
 			}
 		});
 		getActionMap().put("delByte", delByte);
-		getActionMap().put("insert", new LambdaAction(() -> insert = !insert));
+		getActionMap().put("insert", new LambdaAction(this::toggleInsertMode));
 		Action copy = new LambdaAction(() -> {
 			getToolkit().getSystemClipboard().setContents(
 					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
@@ -261,6 +260,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	
 	// public because can be changed from `getBytes()[...] = ...`
 	public void bytesDidChange() {
+		calculateAddressCols();
 		reloadColors();
 		repaint(getVisibleRect());
 		if (listener != null)
@@ -312,13 +312,13 @@ public class HexPanel extends JPanel implements Scrollable {
 	
 	public void setBytes(byte[] bytes) {
 		this.bytes = bytes;
-		if (bytes != null) {
-			calculateAddressCols();
-		}
 		bytesDidChange();
 	}
 	
 	private void calculateAddressCols() {
+		if (bytes == null) {
+			return;
+		}
 		addressCols = (int) Math.ceil(Math.log(bytes.length) / Math.log(16));
 		if (addressCols == 0) addressCols = 1;
 	}
