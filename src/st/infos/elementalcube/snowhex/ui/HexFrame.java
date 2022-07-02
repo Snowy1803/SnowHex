@@ -51,6 +51,7 @@ public class HexFrame extends JFrame {
 	private HexPanel editor;
 	private PreviewFrame preview;
 	private PropertiesFrame props;
+	private FindFrame findDialog;
 	
 	public HexFrame(HexPanel panel) {
 		super(Lang.getString("frame.title"));
@@ -94,6 +95,7 @@ public class HexFrame extends JFrame {
 		JMenuItem create = new JMenuItem(Lang.getString("menu.file.new")),
 				open = new JMenuItem(Lang.getString("menu.file.open")),
 				save = new JMenuItem(Lang.getString("menu.file.save")),
+				find = new JMenuItem(Lang.getString("menu.edit.find")),
 				showDump = new JCheckBoxMenuItem(Lang.getString("menu.view.showDump")),
 				showResult = new JCheckBoxMenuItem(Lang.getString("menu.view.showResult")),
 				showProps = new JCheckBoxMenuItem(Lang.getString("menu.view.showProps"));
@@ -211,6 +213,16 @@ public class HexFrame extends JFrame {
 		selectAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, getToolkit().getMenuShortcutKeyMask()));
 		selectAll.setText(Lang.getString("menu.edit.selectAll"));
 		
+		find.setSelected(false);
+		find.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, getToolkit().getMenuShortcutKeyMask()));
+		find.addActionListener(e -> {
+			if (findDialog == null || !findDialog.isVisible()) {
+				findDialog = new FindFrame(this);
+			} else {
+				findDialog.requestFocus();
+			}
+		});
+		
 		showDump.setSelected(true);
 		showDump.addActionListener(e -> {
 			editor.setShowDump(!editor.isShowingDump());
@@ -264,6 +276,8 @@ public class HexFrame extends JFrame {
 		edit.add(paste);
 		edit.add(delByte);
 		edit.add(selectAll);
+		edit.addSeparator();
+		edit.add(find);
 		
 		view.add(coloring);
 		view.add(lang);

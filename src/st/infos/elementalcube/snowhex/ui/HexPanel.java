@@ -1,6 +1,7 @@
 package st.infos.elementalcube.snowhex.ui;
 
 import java.awt.AWTEventMulticaster;
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -538,6 +539,12 @@ public class HexPanel extends JPanel implements Scrollable {
 		while (i.hasNext()) {
 			f = f.combine(Theme.DEFAULT.get(i.next().getType()));
 		}
+		// have < alpha on non-'selected' bytes in find/replace
+//		if (caret.hasSelection() && !caret.intersects(index)) {
+//			Color bg = f.getBackground();
+//			Color fg = f.getForeground();
+//			f = new Format(new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 127), new Color(bg.getRed(), bg.getGreen(), bg.getBlue(), 127), false);
+//		}
 		return f;
 	}
 	
