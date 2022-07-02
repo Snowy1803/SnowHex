@@ -58,7 +58,7 @@ public class SearchEngine {
 				return i;
 			}
 		}
-		if (wrap && offset != start) {
+		if (wrap && offset != end - needle.length) {
 			offset = end - needle.length + 1;
 			return previousOccurrence(false);
 		}

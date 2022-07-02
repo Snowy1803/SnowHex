@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import javax.swing.Box;
@@ -17,6 +18,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -40,7 +42,7 @@ public class FindFrame extends JDialog {
 		
 		JPanel center = new JPanel(new BorderLayout());
 		
-		SearchProvider[] providers = { new SearchBytes() };
+		SearchProvider[] providers = { new SearchBytes(), new SearchString() };
 		JTabbedPane tabs = new JTabbedPane();
 		
 		for (SearchProvider provider : providers) {
@@ -148,6 +150,31 @@ public class FindFrame extends JDialog {
 		@Override
 		public byte[] getNeedle() {
 			return ArrayUtils.toPrimitive(((ArrayList<Byte>) text.getValue()).toArray(new Byte[0]));
+		}
+	}
+	
+	class SearchString extends JPanel implements SearchProvider {
+		private static final long serialVersionUID = 2583361921577801618L;
+		private JTextField text;
+
+		public SearchString() {
+			setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+			JLabel lab = new JLabel("Enter an ASCII string to search:");
+			add(lab);
+			text = new JTextField();
+			lab.setLabelFor(text);
+			add(text);
+			add(Box.createVerticalGlue());
+		}
+		
+		@Override
+		public String getTabName() {
+			return "String";
+		}
+
+		@Override
+		public byte[] getNeedle() {
+			return text.getText().getBytes(StandardCharsets.UTF_8);
 		}
 	}
 }
