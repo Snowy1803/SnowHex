@@ -78,7 +78,7 @@ public class HexCaret {
 	 * @param length the length of the selection
 	 */
 	public void setSelection(int start, int length) {
-		setCaretPosition(start, false);
+		setCaretPosition(start - 1, true);
 		moveDot(start + length - 1);
 	}
 	

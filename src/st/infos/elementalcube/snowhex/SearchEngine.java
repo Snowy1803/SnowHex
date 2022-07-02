@@ -38,7 +38,7 @@ public class SearchEngine {
 	}
 	
 	public int nextOccurrence(boolean wrap) {
-		for (int i = offset + 1; i < end - needle.length; i++) {
+		for (int i = offset + 1; i <= end - needle.length; i++) {
 			if (Arrays.equals(haystack, i, i + needle.length, needle, 0, needle.length)) {
 				offset = i;
 				return i;

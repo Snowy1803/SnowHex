@@ -3,6 +3,8 @@ package st.infos.elementalcube.snowhex.ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
 import javax.swing.Box;
@@ -18,6 +20,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import st.infos.elementalcube.snowhex.SearchEngine;
 import st.infos.elementalcube.snowylangapi.Lang;
 
@@ -54,10 +58,14 @@ public class FindFrame extends JDialog {
 			if (selection.isSelected()) {
 				engine.start = parent.getEditor().getCaret().getFirstByte();
 				engine.end = parent.getEditor().getCaret().getLastByte() + 1;
+				parent.getEditor().setFindRange(new ImmutablePair<>(engine.start, engine.end - 1));
 			} else {
 				engine.start = 0;
 				engine.end = parent.getEditor().getBytes().length;
+				parent.getEditor().setFindRange(null);
 			}
+			engine.offset = engine.start;
+			parent.getEditor().repaint(parent.getEditor().getVisibleRect());
 		});
 		boxes.add(selection);
 
@@ -93,6 +101,13 @@ public class FindFrame extends JDialog {
 		content.add(buttons, BorderLayout.PAGE_END);
 		
 		setContentPane(content);
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				parent.getEditor().setFindRange(null);
+			}
+		});
 		
 		// utility style on macos
 		rootPane.putClientProperty("Window.style", "small");

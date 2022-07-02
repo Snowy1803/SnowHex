@@ -1,7 +1,6 @@
 package st.infos.elementalcube.snowhex.ui;
 
 import java.awt.AWTEventMulticaster;
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -40,6 +39,7 @@ import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import st.infos.elementalcube.snowhex.ByteSelection;
 import st.infos.elementalcube.snowhex.Format;
@@ -60,6 +60,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	// Caret
 	private HexCaret caret;
 	private Token closestToken;
+	private Pair<Integer, Integer> findRange;
 	
 	// Config
 	private int addressCols;
@@ -407,6 +408,11 @@ public class HexPanel extends JPanel implements Scrollable {
 		return tokens;
 	}
 	
+	public void setFindRange(Pair<Integer, Integer> findRange) {
+		this.findRange = findRange;
+		repaint(getVisibleRect());
+	}
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -540,11 +546,11 @@ public class HexPanel extends JPanel implements Scrollable {
 			f = f.combine(Theme.DEFAULT.get(i.next().getType()));
 		}
 		// have < alpha on non-'selected' bytes in find/replace
-//		if (caret.hasSelection() && !caret.intersects(index)) {
-//			Color bg = f.getBackground();
-//			Color fg = f.getForeground();
-//			f = new Format(new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 127), new Color(bg.getRed(), bg.getGreen(), bg.getBlue(), 127), false);
-//		}
+		if (findRange != null && !(findRange.getLeft() <= index && index <= findRange.getRight())) {
+			Color bg = f.getBackground().darker();
+			Color fg = f.getForeground();
+			f = new Format(new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 127), new Color(bg.getRed(), bg.getGreen(), bg.getBlue(), 127), false);
+		}
 		return f;
 	}
 	
