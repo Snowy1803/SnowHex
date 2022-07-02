@@ -174,7 +174,8 @@ public class HexFrame extends JFrame {
 			if (USE_NATIVE_FILE_DIALOG) {
 				FileDialog fc = new FileDialog(HexFrame.this, "", FileDialog.SAVE);
 				fc.setModalityType(ModalityType.DOCUMENT_MODAL);
-				fc.setFile(this.file.getAbsolutePath());
+				fc.setDirectory(this.file.getParent());
+				fc.setFile(this.file.getName());
 				fc.setVisible(true);
 				if (fc.getFile() != null)
 					saveFile = fc.getFiles()[0];
@@ -299,7 +300,6 @@ public class HexFrame extends JFrame {
 			f.editor.repaint();
 		} else {
 			this.setFile(file);
-			setTitle(Lang.getString("frame.title.file", file.getAbsolutePath()));
 			try {
 				editor.setBytes(FileUtils.readFileToByteArray(file));
 				editor.setColorer(getColorer(file));
@@ -312,6 +312,7 @@ public class HexFrame extends JFrame {
 	
 	private void setFile(File file) {
 		this.file = file;
+		setTitle(Lang.getString("frame.title.file", file.getAbsolutePath()));
 		// macOS draggable icon
 		rootPane.putClientProperty("Window.documentFile", file);
 	}
