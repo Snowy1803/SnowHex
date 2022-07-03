@@ -3,13 +3,18 @@ package st.infos.elementalcube.snowhex.ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
 import java.util.ArrayList;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -17,9 +22,13 @@ import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.NumberFormatter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -42,7 +51,7 @@ public class FindFrame extends JDialog {
 		
 		JPanel center = new JPanel(new BorderLayout());
 		
-		SearchProvider[] providers = { new SearchBytes(), new SearchString() };
+		SearchProvider[] providers = { new SearchBytes(), new SearchString(), new SearchNumber() };
 		JTabbedPane tabs = new JTabbedPane();
 		
 		for (SearchProvider provider : providers) {
@@ -175,6 +184,123 @@ public class FindFrame extends JDialog {
 		@Override
 		public byte[] getNeedle() {
 			return text.getText().getBytes(StandardCharsets.UTF_8);
+		}
+	}
+	
+	class SearchNumber extends JPanel implements SearchProvider {
+		private static final long serialVersionUID = 2583361921577801618L;
+		private JFormattedTextField text;
+		ButtonGroup sizes, endians;
+		JRadioButton int8, int16, int32, int64, f32, f64, be, le;
+
+		public SearchNumber() {
+			setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+			JLabel lab = new JLabel("Enter a decimal number to search:");
+			lab.setAlignmentX(0);
+			add(lab);
+			text = new JFormattedTextField(NumberFormat.getIntegerInstance());
+			text.setAlignmentX(0);
+			lab.setLabelFor(text);
+			add(text);
+			
+			sizes = new ButtonGroup();
+			int8 = new JRadioButton("8-bit integer");
+			int8.addActionListener(this::switchToInt);
+			sizes.add(int8);
+			int16 = new JRadioButton("16-bit integer");
+			int8.addActionListener(this::switchToInt);
+			sizes.add(int16);
+			int32 = new JRadioButton("32-bit integer", true);
+			int8.addActionListener(this::switchToInt);
+			sizes.add(int32);
+			int64 = new JRadioButton("64-bit integer");
+			int8.addActionListener(this::switchToInt);
+			sizes.add(int64);
+			f32 = new JRadioButton("32-bit float");
+			f32.addActionListener(this::switchToFloating);
+			sizes.add(f32);
+			f64 = new JRadioButton("64-bit float");
+			f64.addActionListener(this::switchToFloating);
+			sizes.add(f64);
+			JPanel psizes = new JPanel(new GridLayout(0, 2));
+			psizes.setAlignmentX(0);
+			psizes.add(int8);
+			psizes.add(int16);
+			psizes.add(int32);
+			psizes.add(int64);
+			psizes.add(f32);
+			psizes.add(f64);
+			add(psizes);
+			
+			add(new JSeparator());
+			
+			endians = new ButtonGroup();
+			be = new JRadioButton("Big Endian", ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN));
+			endians.add(be);
+			le = new JRadioButton("Little Endian", ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN));
+			endians.add(le);
+			JPanel pend = new JPanel(new GridLayout(0, 2));
+			pend.setAlignmentX(0);
+			pend.add(be);
+			pend.add(le);
+			add(pend);
+			
+			add(Box.createVerticalGlue());
+		}
+		
+		public void switchToInt(ActionEvent e) {
+			NumberFormatter f = new NumberFormatter(NumberFormat.getIntegerInstance());
+			int w = getNumberWidth();
+			if (w != 64) {
+				f.setMinimum(-(1L << (w - 1)));
+				f.setMaximum((1L << (w - 1)) + 1);
+			}
+			text.setFormatterFactory(new DefaultFormatterFactory(f));
+		}
+		
+		public void switchToFloating(ActionEvent e) {
+			NumberFormatter f = new NumberFormatter(NumberFormat.getNumberInstance());
+			text.setFormatterFactory(new DefaultFormatterFactory(f));
+		}
+		
+		@Override
+		public String getTabName() {
+			return "Number";
+		}
+		
+		public int getNumberWidth() {
+			ButtonModel model = sizes.getSelection();
+			if (model == int8.getModel()) {
+				return 1;
+			} else if (model == int16.getModel()) {
+				return 2;
+			} else if (model == int32.getModel() || model == f32.getModel()) {
+				return 4;
+			} else if (model == int64.getModel() || model == f64.getModel()) {
+				return 8;
+			}
+			return 0;
+		}
+
+		@Override
+		public byte[] getNeedle() {
+			ByteBuffer bb = ByteBuffer.allocate(getNumberWidth());
+			bb.order(be.isSelected() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
+			ButtonModel model = sizes.getSelection();
+			if (model == int8.getModel()) {
+				bb.put(((Number) text.getValue()).byteValue());
+			} else if (model == int16.getModel()) {
+				bb.putShort(((Number) text.getValue()).shortValue());
+			} else if (model == int32.getModel()) {
+				bb.putInt(((Number) text.getValue()).intValue());
+			} else if (model == int64.getModel()) {
+				bb.putLong(((Number) text.getValue()).longValue());
+			} else if (model == f32.getModel()) {
+				bb.putFloat(((Number) text.getValue()).floatValue());
+			} else if (model == f64.getModel()) {
+				bb.putDouble(((Number) text.getValue()).doubleValue());
+			}
+			return bb.array();
 		}
 	}
 }
