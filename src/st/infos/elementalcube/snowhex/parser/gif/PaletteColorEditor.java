@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import st.infos.elementalcube.snowhex.TokenTypes;
+import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 /**
@@ -72,22 +73,20 @@ public class PaletteColorEditor extends JPanel {
 		// as the color chooser dialog stays open, it can 'commit' when a color isn't selected
 		if (token == null || token.getType() != TokenTypes.TOKEN_IMAGE_COLOR || token.getSubtype() != GIFToken.SUBTY_PALETTE_RGB)
 			return;
-		panel.getBytes()[token.getOffset()] = (byte) color.getRed();
-		panel.getBytes()[token.getOffset() + 1] = (byte) color.getGreen();
-		panel.getBytes()[token.getOffset() + 2] = (byte) color.getBlue();
-		panel.bytesDidChange();
+		panel.getDocument().replaceBytes(token.getOffset(), 3,
+				new byte[] {(byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue()}, EditType.PROPERTY_CHANGE);
 	}
 
 	public void updateValues(HexPanel panel) {
 		GIFToken token = ((GIFToken) panel.getClosestToken());
-		Color color = new Color(panel.getBytes()[token.getOffset()] & 0xff,
-				panel.getBytes()[token.getOffset() + 1] & 0xff,
-				panel.getBytes()[token.getOffset() + 2] & 0xff);
+		Color color = new Color(panel.getDocument().getByte(token.getOffset()) & 0xff,
+				panel.getDocument().getByte(token.getOffset() + 1) & 0xff,
+				panel.getDocument().getByte(token.getOffset() + 2) & 0xff);
 		
 		indexText.setText("Palette color #" + token.getIndex());
 		if (chooserDialog != null)
 			chooserDialog.setTitle(indexText.getText());
-		hexText.setText("#" + GIFTokenMaker.parseColor(panel.getBytes(), token.getOffset()));
+		hexText.setText("#" + GIFTokenMaker.parseColor(panel.getDocument().getBytes(), token.getOffset()));
 		preview.setBackground(color);
 		chooser.setColor(color);
 	}

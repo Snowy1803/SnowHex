@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+import st.infos.elementalcube.snowhex.HexDocument;
 import st.infos.elementalcube.snowylangapi.Lang;
 
 public class PreviewFrame extends JDialog implements ActionListener {
@@ -35,7 +36,7 @@ public class PreviewFrame extends JDialog implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() instanceof byte[]) {
+		if (e.getSource() instanceof HexDocument) {
 			img = parent.getEditor().getPreviewImage();
 			getContentPane().repaint();
 		}

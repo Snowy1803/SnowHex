@@ -198,6 +198,13 @@ public class HexFrame extends JFrame {
 				e1.printStackTrace();
 			}
 		});
+
+		JMenuItem undo = new JMenuItem(Lang.getString("menu.edit.undo"));
+		undo.addActionListener(e -> editor.getDocument().undo());
+		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMask()));
+		JMenuItem redo = new JMenuItem(Lang.getString("menu.edit.undo"));
+		redo.addActionListener(e -> editor.getDocument().redo());
+		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
 		
 		JMenuItem cut = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.cutAction));
 		cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, getToolkit().getMenuShortcutKeyMask()));
@@ -271,7 +278,10 @@ public class HexFrame extends JFrame {
 		file.add(create);
 		file.add(open);
 		file.add(save);
-		
+
+		edit.add(undo);
+		edit.add(redo);
+		edit.addSeparator();
 		edit.add(cut);
 		edit.add(copy);
 		edit.add(paste);

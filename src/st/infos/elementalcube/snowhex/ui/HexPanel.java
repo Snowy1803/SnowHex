@@ -43,6 +43,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import st.infos.elementalcube.snowhex.ByteSelection;
 import st.infos.elementalcube.snowhex.Format;
+import st.infos.elementalcube.snowhex.HexDocument;
+import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.Theme;
 import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowhex.TokenMaker;
@@ -52,7 +54,7 @@ import st.infos.elementalcube.snowylangapi.Lang;
 public class HexPanel extends JPanel implements Scrollable {
 	private static final long serialVersionUID = 8016191606233812054L;
 	private static final Font FONT = new Font(Font.MONOSPACED, Font.PLAIN, 20);
-	private byte[] bytes;
+	private HexDocument document;
 	private TokenMaker colorer;
 	private List<Token> tokens;
 	private double length0, lineH;
@@ -71,7 +73,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	
 	/**
 	 * Called with sources:
-	 * - A byte [] (bytes) when the bytes change
+	 * - A HexDocument when the document changes
 	 * - HexPanel.this when mode changes
 	 * - A HexCaret when the caret position changes
 	 * - A List of Tokens when the token list changes
@@ -80,7 +82,9 @@ public class HexPanel extends JPanel implements Scrollable {
 	private ActionListener listener;
 	
 	public HexPanel(byte[] initialBytes) {
-		this.caret = new HexCaret(this);
+		caret = new HexCaret(this);
+		document = new HexDocument();
+		document.addEditListener(this::bytesChanged);
 		recolorTimer = new Timer(200, e -> reloadColorsNow());
 		recolorTimer.setRepeats(false);
 		setBytes(initialBytes);
@@ -125,19 +129,15 @@ public class HexPanel extends JPanel implements Scrollable {
 					int caretIndex = caret.getDot();
 					boolean caretAfter = caret.isDotAfter();
 					if (insert && caretAfter) {
-						bytes = ArrayUtils.insert(caretIndex + 1, bytes, (byte) Integer.parseInt(e.getKeyChar() + "0", 16));
+						document.insertBytes(caretIndex + 1, new byte[] { (byte) Integer.parseInt(e.getKeyChar() + "0", 16) }, EditType.TYPING);
 					} else {
 						int i = caretAfter ? caretIndex + 1 : caretIndex;
-						if (bytes.length == i) {
-							bytes = Arrays.copyOf(bytes, bytes.length + 1);
-						}
-						char[] cs = twoCharsHexByte(bytes[i]).toCharArray();
+						char[] cs = twoCharsHexByte(document.getByte(i)).toCharArray();
 						cs[caretAfter ? 0 : 1] = e.getKeyChar();
-						bytes[i] = (byte) Integer.parseInt(new String(cs), 16);
+						document.replaceBytes(i, document.getLength() == i ? 0 : 1,
+								new byte[] { (byte) Integer.parseInt(new String(cs), 16) }, EditType.TYPING);
 					}
-					setDocumentModified();
 					caret.moveCaretRight();
-					bytesDidChange();
 					repaint(getVisibleRect());
 				}
 			}
@@ -169,7 +169,7 @@ public class HexPanel extends JPanel implements Scrollable {
 		getActionMap().put(DefaultEditorKit.selectionUpAction, new LambdaAction(() -> caret.moveDot(caret.getDot() - 16)));
 		getActionMap().put(DefaultEditorKit.selectionDownAction, new LambdaAction(() -> caret.moveDot(caret.getDot() + 16)));
 		
-		getActionMap().put(DefaultEditorKit.selectAllAction, new LambdaAction(() -> caret.setSelection(0, bytes.length)));
+		getActionMap().put(DefaultEditorKit.selectAllAction, new LambdaAction(() -> caret.setSelection(0, document.getLength())));
 		getActionMap().put("unselect", new LambdaAction(() -> caret.setCaretPosition(caret.getDot(), caret.isDotAfter())));
 		
 		getActionMap().put(DefaultEditorKit.beginLineAction, new LambdaAction(() -> caret.setCaretPosition(caret.getDot() / 16 * 16, false)));
@@ -178,36 +178,34 @@ public class HexPanel extends JPanel implements Scrollable {
 		getActionMap().put(DefaultEditorKit.selectionEndLineAction, new LambdaAction(() -> caret.moveDot(((caret.getDot() + 1) / 16 + 1) * 16 - 1)));
 		
 		getActionMap().put(DefaultEditorKit.beginAction, new LambdaAction(() -> caret.setCaretPosition(-1, true)));
-		getActionMap().put(DefaultEditorKit.endAction, new LambdaAction(() -> caret.setCaretPosition(bytes.length - 1, true)));
+		getActionMap().put(DefaultEditorKit.endAction, new LambdaAction(() -> caret.setCaretPosition(document.getLength() - 1, true)));
 		getActionMap().put(DefaultEditorKit.selectionBeginAction, new LambdaAction(() -> caret.moveDot(-1)));
-		getActionMap().put(DefaultEditorKit.selectionEndAction, new LambdaAction(() -> caret.moveDot(bytes.length - 1)));
+		getActionMap().put(DefaultEditorKit.selectionEndAction, new LambdaAction(() -> caret.moveDot(document.getLength() - 1)));
 		
 		getActionMap().put(DefaultEditorKit.deletePrevCharAction, new LambdaAction(() -> {
 			int i = caret.getDot();
-			bytes[i] = (byte) (bytes[i] & (caret.isDotAfter() ? 0xf0 : 0x0f));
+			document.replaceBytes(i, 1, new byte[] { (byte) (document.getByte(i) & (caret.isDotAfter() ? 0xf0 : 0x0f)) }, EditType.TYPING);
 			caret.moveCaretLeft();
-			bytesDidChange();
 		}));
 		Action delByte = new LambdaAction(() -> {
 			if (caret.hasSelection()) { // delete it all
-				deleteSelectedBytes();
+				document.removeSelectedBytes(caret, EditType.TYPING);
 			} else if (caret.isDotAfter() && caret.getDot() >= 0) {
-				bytes = ArrayUtils.remove(bytes, caret.getDot());
+				document.removeBytes(caret.getDot(), 1, EditType.TYPING);
 				caret.setCaretPosition(caret.getDot() - 1, true);
-				bytesDidChange();
 			}
 		});
 		getActionMap().put("delByte", delByte);
 		getActionMap().put("insert", new LambdaAction(this::toggleInsertMode));
 		Action copy = new LambdaAction(() -> {
 			getToolkit().getSystemClipboard().setContents(
-					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
+					new ByteSelection(document.getSelectedBytes(caret)), null);
 		});
 		getActionMap().put(DefaultEditorKit.copyAction, copy);
 		Action cut = new LambdaAction(() -> {
 			getToolkit().getSystemClipboard().setContents(
-					new ByteSelection(ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1)), null);
-			deleteSelectedBytes();
+					new ByteSelection(document.getSelectedBytes(caret)), null);
+			document.removeSelectedBytes(caret, EditType.DELETE_CUT);
 		});
 		getActionMap().put(DefaultEditorKit.cutAction, cut);
 		getActionMap().put(DefaultEditorKit.pasteAction, new LambdaAction(() -> {
@@ -215,9 +213,13 @@ public class HexPanel extends JPanel implements Scrollable {
 				byte[] b = (byte[]) getToolkit().getSystemClipboard().getContents(this).getTransferData(ByteSelection.BYTE_ARRAY);
 				if (b == null)
 					return;
-				if (caret.hasSelection())
-					deleteSelectedBytes();
-				insertBytes(b);
+				if (caret.hasSelection()) {
+					document.replaceSelectedBytes(caret, b, EditType.INSERT_PASTE);
+					// update caret position ?
+				} else {
+					document.insertBytes(caret.getDot() + 1, b, EditType.INSERT_PASTE);
+					caret.setSelection(caret.getDot() + 1, b.length);
+				}
 			} catch (HeadlessException | UnsupportedFlavorException | IOException ex) {
 				ex.printStackTrace();
 			}
@@ -232,23 +234,9 @@ public class HexPanel extends JPanel implements Scrollable {
 		});
 	}
 	
-	private void deleteSelectedBytes() {
-		byte[] copy = new byte[bytes.length - (caret.getLastByte() - caret.getFirstByte() + 1)];
-		System.arraycopy(bytes, 0, copy, 0, caret.getFirstByte());
-		System.arraycopy(bytes, caret.getLastByte() + 1, copy, caret.getFirstByte(), bytes.length - (caret.getLastByte() + 1));
-		bytes = copy;
-		caret.setCaretPosition(caret.getFirstByte() - 1, true);
-		bytesDidChange();
-	}
-	
-	private void insertBytes(byte[] insert) {
-		bytes = ArrayUtils.insert(caret.getDot() + 1, bytes, insert);
-		caret.setSelection(caret.getDot() + 1, insert.length);
-		bytesDidChange();
-	}
-
 	protected void setDocumentModified() {
-		getRootPane().putClientProperty("Window.documentModified", true);
+		if (getRootPane() != null)
+			getRootPane().putClientProperty("Window.documentModified", true);
 	}
 	
 	private void updateClosestToken() {
@@ -256,19 +244,22 @@ public class HexPanel extends JPanel implements Scrollable {
 			closestToken = null;
 			return;
 		}
-		closestToken = colorer.getClosestToken(bytes, tokens, caret.getFirstByte());
-		if (caret.hasSelection() && closestToken != colorer.getClosestToken(bytes, tokens, caret.getLastByte())) {
+		closestToken = colorer.getClosestToken(document.getBytes(), tokens, caret.getFirstByte());
+		if (caret.hasSelection() && closestToken != colorer.getClosestToken(document.getBytes(), tokens, caret.getLastByte())) {
 			closestToken = null;
 		}
 	}
 	
-	// public because can be changed from `getBytes()[...] = ...`
-	public void bytesDidChange() {
+	// our document listener
+	private void bytesChanged(ActionEvent e) {
+		if ("compound".equals(e.getActionCommand()))
+			return; // not done yet, let's wait for the end
+		setDocumentModified();
 		calculateAddressCols();
 		reloadColors();
 		repaint(getVisibleRect());
 		if (listener != null)
-			listener.actionPerformed(new ActionEvent(bytes, ActionEvent.ACTION_PERFORMED, null));
+			listener.actionPerformed(new ActionEvent(document, ActionEvent.ACTION_PERFORMED, null));
 	}
 	
 	// our caret listener
@@ -302,10 +293,10 @@ public class HexPanel extends JPanel implements Scrollable {
 			if (rx > 15) rx = 15;
 		}
 		int i = ry * 16 + rx;
-		if (i >= bytes.length) {
+		if (i >= document.getLength()) {
 			if (!closest)
 				return -1;
-			return bytes.length - 1;
+			return document.getLength() - 1;
 		}
 		return i;
 	}
@@ -314,16 +305,16 @@ public class HexPanel extends JPanel implements Scrollable {
 		return (int) ((addressCols + 2) * length0);
 	}
 	
+	@Deprecated // this removes undo stack
 	public void setBytes(byte[] bytes) {
-		this.bytes = bytes;
-		bytesDidChange();
+		document.replaceDocument(bytes);
 	}
 	
 	private void calculateAddressCols() {
-		if (bytes == null) {
+		if (document.getBytes() == null) {
 			return;
 		}
-		addressCols = (int) Math.ceil(Math.log(bytes.length) / Math.log(16));
+		addressCols = (int) Math.ceil(Math.log(document.getLength()) / Math.log(16));
 		if (addressCols == 0) addressCols = 1;
 	}
 	
@@ -346,7 +337,7 @@ public class HexPanel extends JPanel implements Scrollable {
 			tokens = null;
 		} else {
 			colorer.invalidateTokenPool();
-			tokens = colorer.generateTokens(bytes);
+			tokens = colorer.generateTokens(document.getBytes());
 		}
 		updateClosestToken();
 		repaint(getVisibleRect());
@@ -354,8 +345,13 @@ public class HexPanel extends JPanel implements Scrollable {
 			listener.actionPerformed(new ActionEvent(tokens == null ? old : tokens, ActionEvent.ACTION_PERFORMED, null));
 	}
 	
+	@Deprecated
 	public byte[] getBytes() {
-		return bytes;
+		return document.getBytes();
+	}
+	
+	public HexDocument getDocument() {
+		return document;
 	}
 	
 	public Token getClosestToken() {
@@ -380,7 +376,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	
 	public Object getPreviewImage() {
 		try {
-			Object obj = colorer.getDump(bytes);
+			Object obj = colorer.getDump(document.getBytes());
 			return obj instanceof Image ? (Image) obj : null;
 		} catch (Exception e) {
 			return e.getMessage();
@@ -419,7 +415,7 @@ public class HexPanel extends JPanel implements Scrollable {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setFont(FONT);
 		g2d.setStroke(new BasicStroke(1));
-		if (bytes == null) {
+		if (document.getBytes() == null) {
 			String s = Lang.getString("frame.empty");
 			Rectangle2D r2d = FONT.getStringBounds(s, g2d.getFontRenderContext());
 			g2d.drawString(s, (int) (getWidth() - r2d.getWidth()) / 2, (int) (getHeight() - r2d.getHeight()) / 2);
@@ -431,7 +427,7 @@ public class HexPanel extends JPanel implements Scrollable {
 		lineH = Math.ceil(r2d.getHeight());
 		setPreferredSize(new Dimension(
 				(int) ((addressCols + (showDump ? 66 : 50)) * length0), 
-				(int) (Math.ceil(bytes.length / 16F + 1) * lineH) + 5));
+				(int) (Math.ceil(document.getLength() / 16F + 1) * lineH) + 5));
 		if (g2d.getClip().intersects((int) ((addressCols + 2.5) * length0), 0, 54 * length0, lineH)) {
 			g2d.drawString("0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f", (int) ((addressCols + 2.5) * length0), (int) lineH);
 			if (showDump)
@@ -439,7 +435,7 @@ public class HexPanel extends JPanel implements Scrollable {
 		}
 		int ix = startX();
 		int a = Math.max(0, (int) (g2d.getClipBounds().getMinY() / lineH - 2));
-		int count = Math.min((int) Math.ceil(bytes.length / 16F), (int) (g2d.getClipBounds().getMaxY() / lineH));
+		int count = Math.min((int) Math.ceil(document.getLength() / 16F), (int) (g2d.getClipBounds().getMaxY() / lineH));
 		List<Token> formats = getTokensAt(tokens, a * 16, count * 16);
 		for (; a < count; a++) {
 			int y = (int) ((a + 2) * lineH);
@@ -453,8 +449,8 @@ public class HexPanel extends JPanel implements Scrollable {
 			g2d.drawString(address, (int) ((addressCols - address.length() + 1) * length0), y);
 			for (int i = 0; i < 16; i++) {
 				int index = a * 16 + i;
-				if (bytes.length <= index) break;
-				byte b = bytes[index];
+				if (document.getLength() <= index) break;
+				byte b = document.getByte(index);
 				Format f = getFormatAt(formats, index);
 				g2d.setColor(f.getBackground());
 				g2d.fillRect(x - (int) (length0 / 2), y - (int) lineH + 3, (int) (length0 * 3), (int) lineH);
@@ -602,7 +598,7 @@ public class HexPanel extends JPanel implements Scrollable {
 
 	@Override
 	public Dimension getPreferredScrollableViewportSize() {
-		return new Dimension((int) length0 * 64, (int) (lineH * bytes.length / 16));
+		return new Dimension((int) length0 * 64, (int) (lineH * document.getLength() / 16));
 	}
 
 	@Override
