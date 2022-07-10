@@ -219,7 +219,7 @@ public class HexFrame extends JFrame {
 			private static final long serialVersionUID = -5865428512521623261L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				editor.getDocument().undo();
+				editor.getDocument().redo();
 			}
 		};
 		redoAction.setEnabled(false);

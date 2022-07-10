@@ -99,7 +99,7 @@ public class HexDocument {
 	 * Note that this doesn't dispatch an event, as the document is not changed
 	 */
 	public void pushFence() {
-		if (undos.peek().isFence())
+		if (undos.empty() || undos.peek().isFence())
 			return;
 		undos.push(new DocumentEdit(0, 0, ArrayUtils.EMPTY_BYTE_ARRAY, System.currentTimeMillis(), EditType.FENCE));
 	}

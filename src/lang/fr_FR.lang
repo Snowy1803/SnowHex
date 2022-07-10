@@ -22,6 +22,8 @@ menu.file.open=Ouvrir
 menu.file.save=Enregistrer
 
 menu.edit=Édition
+menu.edit.undo=Annuler
+menu.edit.redo=Rétablir
 menu.edit.cut=Couper
 menu.edit.copy=Copier
 menu.edit.paste=Coller

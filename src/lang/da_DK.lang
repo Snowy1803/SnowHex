@@ -22,6 +22,8 @@ menu.file.open=Åbn
 menu.file.save=Gem
 
 menu.edit=Rediger
+menu.edit.undo=Fortryd
+menu.edit.redo=Gentag
 menu.edit.cut=Klip
 menu.edit.copy=Kopier
 menu.edit.paste=Sæt ind

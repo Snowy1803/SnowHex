@@ -13,6 +13,8 @@ import java.awt.Rectangle;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -104,6 +106,7 @@ public class HexPanel extends JPanel implements Scrollable {
 				if (e.getClickCount() >= 2 && closestToken != null) {
 					caret.setSelection(closestToken.getOffset(), closestToken.getLength());
 				}
+				document.pushFence();
 				repaint(getVisibleRect());
 				requestFocus();
 			}
@@ -140,6 +143,12 @@ public class HexPanel extends JPanel implements Scrollable {
 				}
 			}
 		});
+		addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				document.pushFence();
+			}
+		});
 		caret.addChangeListener(e -> caretDidMove());
 		// use the system input map for text editors. this will not auto update this UIResource on L&F change
 		getInputMap().setParent((InputMap) UIManager.get("EditorPane.focusInputMap"));
@@ -153,38 +162,38 @@ public class HexPanel extends JPanel implements Scrollable {
 		// line = shown line, 16 bytes
 		// paragraph = N/A
 		
-		getActionMap().put(DefaultEditorKit.backwardAction, new LambdaAction(caret::moveCaretLeft));
-		getActionMap().put(DefaultEditorKit.forwardAction, new LambdaAction(caret::moveCaretRight));
-		getActionMap().put(DefaultEditorKit.selectionBackwardAction, new LambdaAction(() -> caret.moveDot(caret.getDot() - 1)));
-		getActionMap().put(DefaultEditorKit.selectionForwardAction, new LambdaAction(() -> caret.moveDot(caret.getDot() + 1)));
+		getActionMap().put(DefaultEditorKit.backwardAction, new LambdaAction(caret::moveCaretLeft, true));
+		getActionMap().put(DefaultEditorKit.forwardAction, new LambdaAction(caret::moveCaretRight, true));
+		getActionMap().put(DefaultEditorKit.selectionBackwardAction, new LambdaAction(() -> caret.moveDot(caret.getDot() - 1), true));
+		getActionMap().put(DefaultEditorKit.selectionForwardAction, new LambdaAction(() -> caret.moveDot(caret.getDot() + 1), true));
 		
-		Action up = new LambdaAction(() -> caret.setCaretPosition(caret.getDot() - 16, caret.isDotAfter()));
-		Action down = new LambdaAction(() -> caret.setCaretPosition(caret.getDot() + 16, caret.isDotAfter()));
+		Action up = new LambdaAction(() -> caret.setCaretPosition(caret.getDot() - 16, caret.isDotAfter()), true);
+		Action down = new LambdaAction(() -> caret.setCaretPosition(caret.getDot() + 16, caret.isDotAfter()), true);
 		getActionMap().put(DefaultEditorKit.upAction, up);
 		getActionMap().put(DefaultEditorKit.downAction, down);
 		getActionMap().put("aqua-move-up", up); // macOS
 		getActionMap().put("aqua-move-down", down);
-		getActionMap().put(DefaultEditorKit.selectionUpAction, new LambdaAction(() -> caret.moveDot(caret.getDot() - 16)));
-		getActionMap().put(DefaultEditorKit.selectionDownAction, new LambdaAction(() -> caret.moveDot(caret.getDot() + 16)));
+		getActionMap().put(DefaultEditorKit.selectionUpAction, new LambdaAction(() -> caret.moveDot(caret.getDot() - 16), true));
+		getActionMap().put(DefaultEditorKit.selectionDownAction, new LambdaAction(() -> caret.moveDot(caret.getDot() + 16), true));
 		
-		getActionMap().put(DefaultEditorKit.selectAllAction, new LambdaAction(() -> caret.setSelection(0, document.getLength())));
-		getActionMap().put("unselect", new LambdaAction(() -> caret.setCaretPosition(caret.getDot(), caret.isDotAfter())));
+		getActionMap().put(DefaultEditorKit.selectAllAction, new LambdaAction(() -> caret.setSelection(0, document.getLength()), true));
+		getActionMap().put("unselect", new LambdaAction(() -> caret.setCaretPosition(caret.getDot(), caret.isDotAfter()), true));
 		
-		getActionMap().put(DefaultEditorKit.beginLineAction, new LambdaAction(() -> caret.setCaretPosition(caret.getDot() / 16 * 16, false)));
-		getActionMap().put(DefaultEditorKit.endLineAction, new LambdaAction(() -> caret.setCaretPosition((caret.getDot() / 16 + 1) * 16 - 1, true)));
-		getActionMap().put(DefaultEditorKit.selectionBeginLineAction, new LambdaAction(() -> caret.moveDot(caret.getDot() / 16 * 16 - 1)));
-		getActionMap().put(DefaultEditorKit.selectionEndLineAction, new LambdaAction(() -> caret.moveDot(((caret.getDot() + 1) / 16 + 1) * 16 - 1)));
+		getActionMap().put(DefaultEditorKit.beginLineAction, new LambdaAction(() -> caret.setCaretPosition(caret.getDot() / 16 * 16, false), true));
+		getActionMap().put(DefaultEditorKit.endLineAction, new LambdaAction(() -> caret.setCaretPosition((caret.getDot() / 16 + 1) * 16 - 1, true), true));
+		getActionMap().put(DefaultEditorKit.selectionBeginLineAction, new LambdaAction(() -> caret.moveDot(caret.getDot() / 16 * 16 - 1), true));
+		getActionMap().put(DefaultEditorKit.selectionEndLineAction, new LambdaAction(() -> caret.moveDot(((caret.getDot() + 1) / 16 + 1) * 16 - 1), true));
 		
-		getActionMap().put(DefaultEditorKit.beginAction, new LambdaAction(() -> caret.setCaretPosition(-1, true)));
-		getActionMap().put(DefaultEditorKit.endAction, new LambdaAction(() -> caret.setCaretPosition(document.getLength() - 1, true)));
-		getActionMap().put(DefaultEditorKit.selectionBeginAction, new LambdaAction(() -> caret.moveDot(-1)));
-		getActionMap().put(DefaultEditorKit.selectionEndAction, new LambdaAction(() -> caret.moveDot(document.getLength() - 1)));
+		getActionMap().put(DefaultEditorKit.beginAction, new LambdaAction(() -> caret.setCaretPosition(-1, true), true));
+		getActionMap().put(DefaultEditorKit.endAction, new LambdaAction(() -> caret.setCaretPosition(document.getLength() - 1, true), true));
+		getActionMap().put(DefaultEditorKit.selectionBeginAction, new LambdaAction(() -> caret.moveDot(-1), true));
+		getActionMap().put(DefaultEditorKit.selectionEndAction, new LambdaAction(() -> caret.moveDot(document.getLength() - 1), true));
 		
 		getActionMap().put(DefaultEditorKit.deletePrevCharAction, new LambdaAction(() -> {
 			int i = caret.getDot();
 			document.replaceBytes(i, 1, new byte[] { (byte) (document.getByte(i) & (caret.isDotAfter() ? 0xf0 : 0x0f)) }, EditType.TYPING);
 			caret.moveCaretLeft();
-		}));
+		}, false));
 		Action delByte = new LambdaAction(() -> {
 			if (caret.hasSelection()) { // delete it all
 				document.removeSelectedBytes(caret, EditType.TYPING);
@@ -192,21 +201,21 @@ public class HexPanel extends JPanel implements Scrollable {
 				document.removeBytes(caret.getDot(), 1, EditType.TYPING);
 				caret.setCaretPosition(caret.getDot() - 1, true);
 			}
-		});
+		}, false);
 		delByte.putValue(Action.NAME, Lang.getString("menu.edit.delByte"));
 		delByte.setEnabled(false);
 		getActionMap().put("delByte", delByte);
-		getActionMap().put("insert", new LambdaAction(this::toggleInsertMode));
+		getActionMap().put("insert", new LambdaAction(this::toggleInsertMode, false));
 		Action copy = new LambdaAction(() -> {
 			getToolkit().getSystemClipboard().setContents(
 					new ByteSelection(document.getSelectedBytes(caret)), null);
-		});
+		}, false);
 		getActionMap().put(DefaultEditorKit.copyAction, copy);
 		Action cut = new LambdaAction(() -> {
 			getToolkit().getSystemClipboard().setContents(
 					new ByteSelection(document.getSelectedBytes(caret)), null);
 			document.removeSelectedBytes(caret, EditType.DELETE_CUT);
-		});
+		}, false);
 		getActionMap().put(DefaultEditorKit.cutAction, cut);
 		getActionMap().put(DefaultEditorKit.pasteAction, new LambdaAction(() -> {
 			try {
@@ -223,7 +232,7 @@ public class HexPanel extends JPanel implements Scrollable {
 			} catch (HeadlessException | UnsupportedFlavorException | IOException ex) {
 				ex.printStackTrace();
 			}
-		}));
+		}, false));
 		addChangeListener(e -> {
 			if (e.getSource() == caret) {
 				delByte.putValue(Action.NAME, caret.hasSelection() ? Lang.getString("menu.edit.delBytes") : Lang.getString("menu.edit.delByte"));
@@ -236,7 +245,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	
 	protected void setDocumentModified() {
 		if (getRootPane() != null)
-			getRootPane().putClientProperty("Window.documentModified", true);
+			getRootPane().putClientProperty("Window.documentModified", document.canUndo());
 	}
 	
 	private void updateClosestToken() {
@@ -585,14 +594,19 @@ public class HexPanel extends JPanel implements Scrollable {
 	private class LambdaAction extends AbstractAction {
 		private static final long serialVersionUID = 3266426527475612562L;
 		Runnable r;
+		boolean fence;
 		
-		public LambdaAction(Runnable r) {
+		public LambdaAction(Runnable r, boolean fence) {
 			this.r = r;
+			this.fence = fence;
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			r.run();
+			if (fence) {
+				document.pushFence();
+			}
 		}
 	}
 

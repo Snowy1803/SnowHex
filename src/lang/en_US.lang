@@ -23,6 +23,8 @@ menu.file.open=Open
 menu.file.save=Save
 
 menu.edit=Edit
+menu.edit.undo=Undo
+menu.edit.redo=Redo
 menu.edit.cut=Cut
 menu.edit.copy=Copy
 menu.edit.paste=Paste
