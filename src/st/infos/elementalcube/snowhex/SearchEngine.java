@@ -9,9 +9,9 @@ import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class SearchEngine {
 	/**
-	 * the byte sequence in which to search
+	 * the document in which to search
 	 */
-	public byte[] haystack;
+	public HexDocument haystack;
 	/**
 	 * the byte sequence to search
 	 */
@@ -29,7 +29,7 @@ public class SearchEngine {
 	 */
 	public int offset;
 	
-	public SearchEngine(byte[] haystack, byte[] needle, int start, int end) {
+	public SearchEngine(HexDocument haystack, byte[] needle, int start, int end) {
 		this.haystack = haystack;
 		this.needle = needle;
 		this.start = start;
@@ -39,7 +39,7 @@ public class SearchEngine {
 	
 	public int nextOccurrence(boolean wrap) {
 		for (int i = offset + 1; i <= end - needle.length; i++) {
-			if (Arrays.equals(haystack, i, i + needle.length, needle, 0, needle.length)) {
+			if (Arrays.equals(haystack.getBytes(), i, i + needle.length, needle, 0, needle.length)) {
 				offset = i;
 				return i;
 			}
@@ -53,7 +53,7 @@ public class SearchEngine {
 	
 	public int previousOccurrence(boolean wrap) {
 		for (int i = offset - 1; i >= start; i--) {
-			if (Arrays.equals(haystack, i, i + needle.length, needle, 0, needle.length)) {
+			if (Arrays.equals(haystack.getBytes(), i, i + needle.length, needle, 0, needle.length)) {
 				offset = i;
 				return i;
 			}

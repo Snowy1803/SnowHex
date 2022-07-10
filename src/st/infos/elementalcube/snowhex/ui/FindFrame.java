@@ -46,7 +46,7 @@ public class FindFrame extends JDialog {
 	public FindFrame(HexFrame parent) {
 		super(parent, Lang.getString("frame.find"), false);
 //		this.parent = parent;
-		this.engine = new SearchEngine(parent.getEditor().getBytes(), null, 0, parent.getEditor().getBytes().length);
+		this.engine = new SearchEngine(parent.getEditor().getDocument(), null, 0, parent.getEditor().getDocument().getLength());
 		JPanel content = new JPanel(new BorderLayout());
 		
 		JPanel center = new JPanel(new BorderLayout());
@@ -72,7 +72,7 @@ public class FindFrame extends JDialog {
 				parent.getEditor().setFindRange(new ImmutablePair<>(engine.start, engine.end - 1));
 			} else {
 				engine.start = 0;
-				engine.end = parent.getEditor().getBytes().length;
+				engine.end = parent.getEditor().getDocument().getLength();
 				parent.getEditor().setFindRange(null);
 			}
 			engine.offset = engine.start;
@@ -88,10 +88,9 @@ public class FindFrame extends JDialog {
 		find = new JButton("Find");
 		find.addActionListener(e -> {
 			engine.needle = providers[tabs.getSelectedIndex()].getNeedle();
-			engine.haystack = parent.getEditor().getBytes();
 			if (!selection.isSelected()) {
 				engine.start = 0;
-				engine.end = parent.getEditor().getBytes().length;
+				engine.end = parent.getEditor().getDocument().getLength();
 			}
 			int match = backwards.isSelected() ? engine.previousOccurrence(true) : engine.nextOccurrence(true);
 			if (match == -1) {
