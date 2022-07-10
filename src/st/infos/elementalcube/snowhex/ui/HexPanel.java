@@ -193,6 +193,8 @@ public class HexPanel extends JPanel implements Scrollable {
 				caret.setCaretPosition(caret.getDot() - 1, true);
 			}
 		});
+		delByte.putValue(Action.NAME, Lang.getString("menu.edit.delByte"));
+		delByte.setEnabled(false);
 		getActionMap().put("delByte", delByte);
 		getActionMap().put("insert", new LambdaAction(this::toggleInsertMode));
 		Action copy = new LambdaAction(() -> {

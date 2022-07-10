@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
 import java.awt.FileDialog;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -18,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
@@ -30,6 +33,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.text.DefaultEditorKit;
@@ -199,12 +203,38 @@ public class HexFrame extends JFrame {
 			}
 		});
 
-		JMenuItem undo = new JMenuItem(Lang.getString("menu.edit.undo"));
-		undo.addActionListener(e -> editor.getDocument().undo());
+		AbstractAction undoAction = new AbstractAction() {
+			private static final long serialVersionUID = -5865428512521623261L;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				editor.getDocument().undo();
+			}
+		};
+		undoAction.setEnabled(false);
+		undoAction.putValue(Action.NAME, Lang.getString("menu.edit.undo"));
+		JMenuItem undo = new JMenuItem(undoAction);
 		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMaskEx()));
-		JMenuItem redo = new JMenuItem(Lang.getString("menu.edit.redo"));
-		redo.addActionListener(e -> editor.getDocument().redo());
-		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMaskEx() | KeyEvent.SHIFT_DOWN_MASK));
+		
+		AbstractAction redoAction = new AbstractAction() {
+			private static final long serialVersionUID = -5865428512521623261L;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				editor.getDocument().undo();
+			}
+		};
+		redoAction.setEnabled(false);
+		redoAction.putValue(Action.NAME, Lang.getString("menu.edit.redo"));
+		JMenuItem redo = new JMenuItem(redoAction);
+		if (UIManager.getLookAndFeel().getID().equals("Aqua")) {
+			redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMaskEx() | KeyEvent.SHIFT_DOWN_MASK));
+		} else {
+			redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, getToolkit().getMenuShortcutKeyMaskEx()));
+		}
+		
+		editor.getDocument().addEditListener(e -> {
+			undoAction.setEnabled(editor.getDocument().canUndo());
+			redoAction.setEnabled(editor.getDocument().canRedo());
+		});
 		
 		JMenuItem cut = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.cutAction));
 		cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, getToolkit().getMenuShortcutKeyMaskEx()));

@@ -23,6 +23,7 @@ public class HexDocument {
 	/**
 	 * Action Commands:
 	 * - edit: some standalone edit was made
+	 * - coalesce: some standalone edit replaced previous edits in the stack (may also remove all edits)
 	 * - compound: one of a series of edits was made
 	 * - undo: an edit was undone
 	 * - redo: an edit was redone
@@ -44,6 +45,10 @@ public class HexDocument {
 	}
 	
 	// MARK: - Edit handling
+	
+	private void sendEvent(Object sender, String actionCommand) {
+		listener.actionPerformed(new ActionEvent(sender, ActionEvent.ACTION_PERFORMED, actionCommand));
+	}
 	
 	// Applies an edit, without pushing it to any stack
 	private void applyEdit(DocumentEdit edit) {
@@ -68,7 +73,7 @@ public class HexDocument {
 				redos.clear();
 		}
 		applyEdit(edit);
-		listener.actionPerformed(new ActionEvent(edit, ActionEvent.ACTION_PERFORMED, actionCommand));
+		sendEvent(edit, actionCommand);
 	}
 	
 	public void pushEdit(DocumentEdit edit) {
@@ -82,6 +87,7 @@ public class HexDocument {
 			if (undos.peek().isNoOp()) { // the edit we replace becomes useless
 				undos.pop();
 			}
+			sendEvent(edit, "coalesce");
 		}
 	}
 	
@@ -118,7 +124,7 @@ public class HexDocument {
 		undoing = true;
 		undoOrRedoStack(undos);
 		undoing = false;
-		listener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "undo"));
+		sendEvent(this, "undo");
 	}
 	
 	/**
@@ -128,7 +134,7 @@ public class HexDocument {
 		redoing = true;
 		undoOrRedoStack(redos);
 		redoing = false;
-		listener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "redo"));
+		sendEvent(this, "redo");
 	}
 	
 	public boolean canUndo() {
@@ -145,7 +151,7 @@ public class HexDocument {
 		this.bytes = array;
 		undos.clear();
 		redos.clear();
-		listener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "replace"));
+		sendEvent(this, "replace");
 	}
 	
 	public void insertBytes(int offset, byte[] b, EditType type) {
@@ -283,6 +289,13 @@ public class HexDocument {
 		public boolean isNoOp() {
 			return Arrays.equals(replace, 0, replace.length, bytes, start, start + length);
 		}
+		
+		@Override
+		public String toString() {
+			return "DocumentEdit [start=" + start + ", length=" + length + ", replace=" + Arrays.toString(replace)
+					+ ", time=" + time + ", type=" + type + "]";
+		}
+
 	}
 	
 	public enum EditType {
