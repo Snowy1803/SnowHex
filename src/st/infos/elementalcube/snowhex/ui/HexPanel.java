@@ -129,7 +129,7 @@ public class HexPanel extends JPanel implements Scrollable {
 						.getKeyChar() <= 'F') {
 					int caretIndex = caret.getDot();
 					boolean caretAfter = caret.isDotAfter();
-					if (insert && caretAfter) {
+					if ((insert || caretIndex == document.getLength() - 1) && caretAfter) {
 						document.insertBytes(caretIndex + 1, new byte[] { (byte) Integer.parseInt(e.getKeyChar() + "0", 16) }, EditType.TYPING);
 					} else {
 						int i = caretAfter ? caretIndex + 1 : caretIndex;
