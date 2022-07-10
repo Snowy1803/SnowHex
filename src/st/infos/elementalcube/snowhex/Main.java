@@ -22,7 +22,7 @@ public class Main {
 			e.printStackTrace();
 		}
 		try {
-			Class<?> c = Class.forName("java.awt.Taskbar", false, null);
+			Class.forName("java.awt.Taskbar", false, null);
 			if (Taskbar.isTaskbarSupported()) {
 				Taskbar.getTaskbar().setIconImage(new ImageIcon(HexFrame.class.getResource("/img/icon.png")).getImage());
 			}

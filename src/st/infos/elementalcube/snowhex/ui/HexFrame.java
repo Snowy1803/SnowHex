@@ -135,17 +135,17 @@ public class HexFrame extends JFrame {
 			lang.add(item);
 		}
 		
-		create.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, getToolkit().getMenuShortcutKeyMask()));
+		create.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, getToolkit().getMenuShortcutKeyMaskEx()));
 		create.addActionListener(e -> {
 			if (this.file != null) {
 				new HexFrame(new HexPanel(new byte[1]));
 			} else {
-				editor.setBytes(new byte[1]);
+				editor.getDocument().replaceDocument(new byte[1]);
 				editor.repaint();
 			}
 		});
 		
-		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, getToolkit().getMenuShortcutKeyMask()));
+		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, getToolkit().getMenuShortcutKeyMaskEx()));
 		open.addActionListener(e -> {
 			if (USE_NATIVE_FILE_DIALOG) {
 				FileDialog fc = new FileDialog(HexFrame.this, "", FileDialog.LOAD);
@@ -168,7 +168,7 @@ public class HexFrame extends JFrame {
 			}
 		});
 		
-		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, getToolkit().getMenuShortcutKeyMask()));
+		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, getToolkit().getMenuShortcutKeyMaskEx()));
 		save.addActionListener(e -> {
 			File saveFile;
 			if (USE_NATIVE_FILE_DIALOG) {
@@ -192,7 +192,7 @@ public class HexFrame extends JFrame {
 			}
 			this.setFile(saveFile);
 			try {
-				FileUtils.writeByteArrayToFile(this.file, editor.getBytes());
+				FileUtils.writeByteArrayToFile(this.file, editor.getDocument().getBytes());
 				getRootPane().putClientProperty("Window.documentModified", false);
 			} catch (Exception e1) {
 				e1.printStackTrace();
@@ -201,28 +201,28 @@ public class HexFrame extends JFrame {
 
 		JMenuItem undo = new JMenuItem(Lang.getString("menu.edit.undo"));
 		undo.addActionListener(e -> editor.getDocument().undo());
-		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMask()));
+		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMaskEx()));
 		JMenuItem redo = new JMenuItem(Lang.getString("menu.edit.undo"));
 		redo.addActionListener(e -> editor.getDocument().redo());
-		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
+		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMaskEx() | KeyEvent.SHIFT_DOWN_MASK));
 		
 		JMenuItem cut = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.cutAction));
-		cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, getToolkit().getMenuShortcutKeyMask()));
+		cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, getToolkit().getMenuShortcutKeyMaskEx()));
 		cut.setText(Lang.getString("menu.edit.cut"));
 		JMenuItem copy = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.copyAction));
-		copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, getToolkit().getMenuShortcutKeyMask()));
+		copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, getToolkit().getMenuShortcutKeyMaskEx()));
 		copy.setText(Lang.getString("menu.edit.copy"));
 		JMenuItem paste = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.pasteAction));
-		paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, getToolkit().getMenuShortcutKeyMask()));
+		paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, getToolkit().getMenuShortcutKeyMaskEx()));
 		paste.setText(Lang.getString("menu.edit.paste"));
 		JMenuItem delByte = new JMenuItem(editor.getActionMap().get("delByte"));
-		delByte.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, getToolkit().getMenuShortcutKeyMask()));
+		delByte.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, getToolkit().getMenuShortcutKeyMaskEx()));
 		JMenuItem selectAll = new JMenuItem(editor.getActionMap().get(DefaultEditorKit.selectAllAction));
-		selectAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, getToolkit().getMenuShortcutKeyMask()));
+		selectAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, getToolkit().getMenuShortcutKeyMaskEx()));
 		selectAll.setText(Lang.getString("menu.edit.selectAll"));
 		
 		find.setSelected(false);
-		find.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, getToolkit().getMenuShortcutKeyMask()));
+		find.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, getToolkit().getMenuShortcutKeyMaskEx()));
 		find.addActionListener(e -> {
 			if (findDialog == null || !findDialog.isVisible()) {
 				findDialog = new FindFrame(this);
@@ -311,7 +311,7 @@ public class HexFrame extends JFrame {
 		} else {
 			this.setFile(file);
 			try {
-				editor.setBytes(FileUtils.readFileToByteArray(file));
+				editor.getDocument().replaceDocument(FileUtils.readFileToByteArray(file));
 				editor.setColorer(getColorer(file));
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -372,6 +372,7 @@ public class HexFrame extends JFrame {
 		public boolean importData(TransferSupport ts) {
 			try {
 				if (ts.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+					@SuppressWarnings("unchecked")
 					List<File> files = (List<File>) ts.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 					for (File f : files) {
 						open(f);

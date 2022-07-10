@@ -50,6 +50,7 @@ public class SERTokenMaker extends TokenMaker {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private int readSubBlocks(ArrayList<Token> list, byte[] array, int i, int token) {
 		int len = array[i++];
 		if (len == 0) {

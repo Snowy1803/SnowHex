@@ -1,16 +1,10 @@
 package st.infos.elementalcube.snowhex.parser.gif;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Collections;
-
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,10 +12,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-
 import st.infos.elementalcube.snowhex.HexDocument.EditType;
-import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class LSDPackedEditor extends JPanel {
