@@ -75,7 +75,14 @@ public class HexDocument {
 		if (!edit.isFence() && edit.isNoOp()) {
 			return; // no change
 		}
+		boolean shouldFastCoalesce = !undoing && !redoing && !undos.empty() && edit.canReplace(undos.peek());
 		pushCompoundEdit(edit, "edit");
+		if (shouldFastCoalesce) {
+			undos.pop(); // what we just added is redundant
+			if (undos.peek().isNoOp()) { // the edit we replace becomes useless
+				undos.pop();
+			}
+		}
 	}
 	
 	/**
@@ -243,6 +250,18 @@ public class HexDocument {
 				return false; // 30s is the standard time to stop coalescing
 			if (type == EditType.INSERT_PASTE || type == EditType.DELETE_CUT)
 				return false; // cut/paste never get coalesced
+			return true;
+		}
+		
+		public boolean canReplace(DocumentEdit edit) {
+			if (edit.isFence())
+				return false; // can't replace a fence
+			if (!canCoalesceWith(edit))
+				return false;
+			if (edit.replace.length != edit.length || replace.length != length)
+				return false; // insertions/deletions not supported
+			if (start != edit.start || length != edit.length)
+				return false; // not same area
 			return true;
 		}
 

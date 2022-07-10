@@ -202,7 +202,7 @@ public class HexFrame extends JFrame {
 		JMenuItem undo = new JMenuItem(Lang.getString("menu.edit.undo"));
 		undo.addActionListener(e -> editor.getDocument().undo());
 		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMaskEx()));
-		JMenuItem redo = new JMenuItem(Lang.getString("menu.edit.undo"));
+		JMenuItem redo = new JMenuItem(Lang.getString("menu.edit.redo"));
 		redo.addActionListener(e -> editor.getDocument().redo());
 		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, getToolkit().getMenuShortcutKeyMaskEx() | KeyEvent.SHIFT_DOWN_MASK));
 		
