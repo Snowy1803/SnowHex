@@ -3,6 +3,7 @@ package st.infos.elementalcube.snowhex;
 import java.awt.AWTEventMulticaster;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.Stack;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -71,6 +72,9 @@ public class HexDocument {
 	}
 	
 	public void pushEdit(DocumentEdit edit) {
+		if (!edit.isFence() && edit.isNoOp()) {
+			return; // no change
+		}
 		pushCompoundEdit(edit, "edit");
 	}
 	
@@ -252,6 +256,13 @@ public class HexDocument {
 		 */
 		public boolean isFence() {
 			return replace.length == 0 && length == 0;
+		}
+		
+		/**
+		 * @return true if this edit, if applied now, doesn't change anything
+		 */
+		public boolean isNoOp() {
+			return Arrays.equals(replace, 0, replace.length, bytes, start, start + length);
 		}
 	}
 	
