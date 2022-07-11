@@ -83,8 +83,9 @@ public class HexCaret {
 	}
 	
 	public int normalizePos(int pos) {
-		if (pos >= component.getBytes().length) {
-			return component.getBytes().length - 1;
+		int length = component.getDocument().getLength();
+		if (pos >= length) {
+			return length - 1;
 		} else if (pos < 0) {
 			return -1;
 		} else {

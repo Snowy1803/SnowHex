@@ -12,6 +12,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import st.infos.elementalcube.snowhex.TokenMaker;
+import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class DelayEditor extends JPanel {
@@ -32,19 +33,19 @@ public class DelayEditor extends JPanel {
 		JSpinner.NumberEditor editor = new JSpinner.NumberEditor(delay, "0.00 s");
 		delay.setEditor(editor);
 		delay.addChangeListener(e -> {
-			ByteBuffer bb = ByteBuffer.wrap(panel.getBytes(), panel.getClosestToken().getOffset(), 2);
+			byte[] copy = panel.getDocument().getBytes(panel.getClosestToken().getOffset(), 2);
+			ByteBuffer bb = ByteBuffer.wrap(copy);
 			bb.order(ByteOrder.LITTLE_ENDIAN);
 			bb.putShort((short) Math.round((double) delay.getValue() * 100d));
-			panel.bytesDidChange();
+			panel.getDocument().replaceBytes(panel.getClosestToken().getOffset(), 2, copy, EditType.PROPERTY_CHANGE);
 		});
 		content.add(delay);
 		add(content, BorderLayout.PAGE_START);
 	}
 
 	public void updateValues(HexPanel panel) {
-		byte[] bytes = panel.getBytes();
 		int offset = panel.getClosestToken().getOffset();
-		short s = TokenMaker.toShort(bytes[offset], bytes[offset + 1], ByteOrder.LITTLE_ENDIAN);
+		short s = TokenMaker.toShort(panel.getDocument().getByte(offset), panel.getDocument().getByte(offset + 1), ByteOrder.LITTLE_ENDIAN);
 		double d = (double) Short.toUnsignedInt(s) / 100d;
 		delay.setValue(d);
 	}

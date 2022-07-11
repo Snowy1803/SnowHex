@@ -1,6 +1,5 @@
 package st.infos.elementalcube.snowhex;
 
-import java.awt.Image;
 import java.awt.Taskbar;
 
 import javax.swing.ImageIcon;
@@ -21,22 +20,8 @@ public class Main {
 		} catch (ReflectiveOperationException | UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-		try {
-			Class<?> c = Class.forName("java.awt.Taskbar", false, null);
-			if (Taskbar.isTaskbarSupported()) {
-				Taskbar.getTaskbar().setIconImage(new ImageIcon(HexFrame.class.getResource("/img/icon.png")).getImage());
-			}
-		} catch (ReflectiveOperationException | SecurityException | IllegalArgumentException | UnsupportedOperationException e) {
-			/* Java 8 */
-			e.printStackTrace();
-			try {
-				Class<?> c = Class.forName("com.apple.eawt.Application", false, null);
-				c.getMethod("setDockIconImage", Image.class).invoke(c.getMethod("getApplication").invoke(null),
-						new ImageIcon(HexFrame.class.getResource("/img/icon.png")).getImage());
-			} catch (ReflectiveOperationException | SecurityException | IllegalArgumentException e1) {
-				/* Not on mac */
-				e1.printStackTrace();
-			}
+		if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.ICON_IMAGE)) {
+			Taskbar.getTaskbar().setIconImage(new ImageIcon(HexFrame.class.getResource("/img/icon.png")).getImage());
 		}
 		HexFrame.main(args);
 	}

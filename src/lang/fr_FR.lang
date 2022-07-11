@@ -7,6 +7,7 @@ frame.empty=Aucun fichier ouvert
 frame.preview=Résultat
 frame.preview.null=Une erreur est survenue :
 frame.properties=Propriétés
+frame.find=Rechercher
 frame.overwrite=Écraser
 frame.insert=Insérer
 frame.caretPos=Ligne : %d Colonne : %d
@@ -22,6 +23,8 @@ menu.file.open=Ouvrir
 menu.file.save=Enregistrer
 
 menu.edit=Édition
+menu.edit.undo=Annuler
+menu.edit.redo=Rétablir
 menu.edit.cut=Couper
 menu.edit.copy=Copier
 menu.edit.paste=Coller

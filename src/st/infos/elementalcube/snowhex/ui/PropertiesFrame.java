@@ -3,11 +3,14 @@ package st.infos.elementalcube.snowhex.ui;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
 import st.infos.elementalcube.snowhex.Token;
@@ -25,6 +28,15 @@ public class PropertiesFrame extends JDialog implements ActionListener {
 		rootPane.putClientProperty("Window.style", "small");
 		if (System.getProperty("os.name").contains("Mac"))
 			setAlwaysOnTop(true);
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+		getRootPane().getActionMap().put("close", new AbstractAction() {
+			private static final long serialVersionUID = 5031761572638786701L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+			}
+		});
 		setSize(300, 300);
 		setLocation(parent.getX() + parent.getWidth() + 5, parent.getY() + parent.getHeight() - 300);
 		updateContent();

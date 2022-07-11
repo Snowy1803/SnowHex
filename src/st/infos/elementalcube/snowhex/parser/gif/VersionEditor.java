@@ -9,6 +9,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class VersionEditor extends JPanel {
@@ -26,8 +27,8 @@ public class VersionEditor extends JPanel {
 		combo = new JComboBox<>(new String[] { "Version 87a (May 1987)", "Version 89a (July 1989)" });
 		combo.setAlignmentX(Component.LEFT_ALIGNMENT);
 		combo.addActionListener(e -> {
-			panel.getBytes()[panel.getClosestToken().getOffset() + 4] = (byte) (combo.getSelectedIndex() == 1 ? '9' : '7');
-			panel.bytesDidChange();
+			panel.getDocument().setByte(panel.getClosestToken().getOffset() + 4,
+					(byte) (combo.getSelectedIndex() == 1 ? '9' : '7'), EditType.PROPERTY_CHANGE);
 		});
 		content.add(combo);
 		add(content, BorderLayout.PAGE_START);
@@ -35,6 +36,6 @@ public class VersionEditor extends JPanel {
 
 	public void updateValues(HexPanel panel) {
 		// only have 87a and 89a
-		combo.setSelectedIndex(panel.getBytes()[panel.getClosestToken().getOffset() + 4] == '9' ? 1 : 0);
+		combo.setSelectedIndex(panel.getDocument().getByte(panel.getClosestToken().getOffset() + 4) == '9' ? 1 : 0);
 	}
 }

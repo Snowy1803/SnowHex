@@ -1,16 +1,10 @@
 package st.infos.elementalcube.snowhex.parser.gif;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Collections;
-
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,9 +12,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-
-import st.infos.elementalcube.snowhex.TokenMaker;
+import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class LSDPackedEditor extends JPanel {
@@ -41,11 +33,10 @@ public class LSDPackedEditor extends JPanel {
 		gctPresent.addActionListener(e -> {
 			int offs = panel.getClosestToken().getOffset();
 			if (gctPresent.isSelected()) {
-				panel.getBytes()[offs] |= 1 << 7;
+				panel.getDocument().setByte(offs, (byte) (panel.getDocument().getByte(offs) | (1 << 7)), EditType.PROPERTY_CHANGE);
 			} else {
-				panel.getBytes()[offs] &= ~(1 << 7);
+				panel.getDocument().setByte(offs, (byte) (panel.getDocument().getByte(offs) & ~(1 << 7)), EditType.PROPERTY_CHANGE);
 			}
-			panel.bytesDidChange();
 		});
 		content.add(gctPresent, c);
 
@@ -53,11 +44,10 @@ public class LSDPackedEditor extends JPanel {
 		sorted.addActionListener(e -> {
 			int offs = panel.getClosestToken().getOffset();
 			if (sorted.isSelected()) {
-				panel.getBytes()[offs] |= 1 << 3;
+				panel.getDocument().setByte(offs, (byte) (panel.getDocument().getByte(offs) | (1 << 3)), EditType.PROPERTY_CHANGE);
 			} else {
-				panel.getBytes()[offs] &= ~(1 << 3);
+				panel.getDocument().setByte(offs, (byte) (panel.getDocument().getByte(offs) & ~(1 << 3)), EditType.PROPERTY_CHANGE);
 			}
-			panel.bytesDidChange();
 		});
 		content.add(sorted, c);
 
@@ -74,9 +64,8 @@ public class LSDPackedEditor extends JPanel {
 		((JSpinner.ListEditor)size.getEditor()).getTextField().setHorizontalAlignment(JTextField.TRAILING);
 		size.addChangeListener(e -> {
 			int offs = panel.getClosestToken().getOffset();
-			panel.getBytes()[offs] &= ~(0b111);
-			panel.getBytes()[offs] |= ints.indexOf(size.getValue());
-			panel.bytesDidChange();
+			panel.getDocument().setByte(offs, (byte) ((panel.getDocument().getByte(offs) & ~0b111) | ints.indexOf(size.getValue())),
+					EditType.PROPERTY_CHANGE);
 		});
 		content.add(size, c);
 		
@@ -88,9 +77,8 @@ public class LSDPackedEditor extends JPanel {
 		res = new JSpinner(new SpinnerNumberModel(8, 0b000 + 1, 0b111 + 1, 1));
 		res.addChangeListener(e -> {
 			int offs = panel.getClosestToken().getOffset();
-			panel.getBytes()[offs] &= ~(0b111 << 4);
-			panel.getBytes()[offs] |= ((int) res.getValue() - 1) << 4;
-			panel.bytesDidChange();
+			panel.getDocument().setByte(offs, (byte) ((panel.getDocument().getByte(offs) & ~(0b111 << 4)) | (((int) res.getValue() - 1) << 4)),
+					EditType.PROPERTY_CHANGE);
 		});
 		content.add(res, c);
 		
@@ -101,7 +89,7 @@ public class LSDPackedEditor extends JPanel {
 	}
 
 	public void updateValues(HexPanel panel) {
-		byte b = panel.getBytes()[panel.getClosestToken().getOffset()];
+		byte b = panel.getDocument().getByte(panel.getClosestToken().getOffset());
 		gctPresent.setSelected((b & (1 << 7)) != 0);
 		sorted.setSelected((b & (1 << 3)) != 0);
 		res.setValue(((b >> 4) & 0b111) + 1);

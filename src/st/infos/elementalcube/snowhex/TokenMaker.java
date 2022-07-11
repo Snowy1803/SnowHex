@@ -156,8 +156,8 @@ public abstract class TokenMaker implements TokenTypes {
 		Class<? extends TokenMaker> c = subclasses.get(ext.toLowerCase());
 		if (c != null) {
 			try {
-				return c.newInstance();
-			} catch (InstantiationException | IllegalAccessException e) {
+				return c.getDeclaredConstructor().newInstance();
+			} catch (ReflectiveOperationException e) {
 				System.err.println("Unable to initialize TokenMaker: " + c);
 				e.printStackTrace();
 			}
