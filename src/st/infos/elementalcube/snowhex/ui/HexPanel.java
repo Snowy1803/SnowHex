@@ -191,14 +191,14 @@ public class HexPanel extends JPanel implements Scrollable {
 		
 		getActionMap().put(DefaultEditorKit.deletePrevCharAction, new LambdaAction(() -> {
 			int i = caret.getDot();
-			document.replaceBytes(i, 1, new byte[] { (byte) (document.getByte(i) & (caret.isDotAfter() ? 0xf0 : 0x0f)) }, EditType.TYPING);
+			document.replaceBytes(i, 1, new byte[] { (byte) (document.getByte(i) & (caret.isDotAfter() ? 0xf0 : 0x0f)) }, EditType.DELETE);
 			caret.moveCaretLeft();
 		}, false));
 		Action delByte = new LambdaAction(() -> {
 			if (caret.hasSelection()) { // delete it all
-				document.removeSelectedBytes(caret, EditType.TYPING);
+				document.removeSelectedBytes(caret, EditType.DELETE);
 			} else if (caret.isDotAfter() && caret.getDot() >= 0) {
-				document.removeBytes(caret.getDot(), 1, EditType.TYPING);
+				document.removeBytes(caret.getDot(), 1, EditType.DELETE);
 				caret.setCaretPosition(caret.getDot() - 1, true);
 			}
 		}, false);

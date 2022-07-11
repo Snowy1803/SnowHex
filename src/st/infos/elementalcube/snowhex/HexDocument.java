@@ -304,9 +304,13 @@ public class HexDocument {
 		 */
 		PROPERTY_CHANGE,
 		/**
-		 * User typed it
+		 * User typed it (inserts & overwrites)
 		 */
 		TYPING,
+		/**
+		 * User deleted text (zeroing & byte deletions)
+		 */
+		DELETE,
 		/**
 		 * User pasted data
 		 */
