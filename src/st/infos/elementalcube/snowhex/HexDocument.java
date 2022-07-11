@@ -31,19 +31,6 @@ public class HexDocument {
 	 */
 	private ActionListener listener;
 	
-	public HexDocument() {
-		addEditListener(e -> {
-			for (DocumentEdit edit : undos) {
-				System.out.println(edit);
-			}
-			System.out.println("----");
-			for (DocumentEdit edit : redos) {
-				System.out.println(edit);
-			}
-			System.out.println("====");
-		});
-	}
-	
 	// MARK: - Edit handling
 	
 	private void sendEvent(Object sender, String actionCommand) {
