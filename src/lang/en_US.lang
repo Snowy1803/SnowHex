@@ -43,7 +43,7 @@ parser.none=No highlighting
 parser.multipleNotices=Multiple notices:
 parser.sni=Snow Image (SNI)
 parser.sni.ioob=The end of the file is missing
-parser.sni.header=The SNI header (53 4d) is missing.
+parser.sni.header=The SNI header (53 4d) is missing
 parser.sni.meta=Metadata:
 parser.sni.meta.alpha.true=<span style="color: green">✓</span> With transparency
 parser.sni.meta.alpha.false=<span style="color: red">✗</span> Without transparency
@@ -63,7 +63,7 @@ parser.sni.dead=The image end has been reached
 parser.sni.palette.ioob=The palette is smaller than %d.
 
 parser.gif=Graphics Interchange Format (GIF)
-parser.gif.header=The GIF header (47 49 46 38 (37|39) 61) is missing.
+parser.gif.header=The GIF header (47 49 46 38 (37|39) 61) is missing
 parser.gif.ioob=The end of the file is missing
 parser.gif.pos=Position: %d, %d
 parser.gif.size=Size: %d×%d
@@ -102,6 +102,11 @@ parser.gif.ext.text.fore=Position of the foreground in the palette: %d
 parser.gif.ext.text.back=Position of the background in the palette: %d
 parser.gif.interlace.true=<span style="color: green">✓</span> Interlaced
 parser.gif.interlace.false=<span style="color: red">✗</span> Not interlaced
+
+parser.png=Portable Network Graphics (PNG)
+parser.png.header=The PNG header (89 50 4e 47 0d 0a 1a 0a) is missing
+parser.png.ioob=The IEND chunk is missing
+parser.png.invalidCrc=The CRC32 chunk checksum is incorrect
 
 parser.ser=Java Serialized File (SER)
 parser.ser.header=The SER header (AC ED) is missing

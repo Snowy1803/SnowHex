@@ -103,6 +103,11 @@ parser.gif.ext.text.back=Position af baggrunden i paletten: %d
 parser.gif.interlace.true=<span style="color: green">✓</span> Interlaced
 parser.gif.interlace.false=<span style="color: red">✗</span> Ikke interlaced
 
+parser.png=Portable Network Graphics (PNG)
+parser.png.header=PNG headeren (89 50 4e 47 0d 0a 1a 0a) mangler
+parser.png.ioob=IEND blokken mangler
+parser.png.invalidCrc=CRC32 kontrolsummen til blokken er forkert
+
 parser.ser=Java Serialiseret Fil (SER)
 parser.ser.header=SER headeren (AC ED) mangler
 parser.ser.version=Serialisation version %d

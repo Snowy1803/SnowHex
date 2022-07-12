@@ -14,6 +14,7 @@ import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.parser.Ant1TokenMaker;
 import st.infos.elementalcube.snowhex.parser.Ant3TokenMaker;
 import st.infos.elementalcube.snowhex.parser.CORTokenMaker;
+import st.infos.elementalcube.snowhex.parser.PNGTokenMaker;
 import st.infos.elementalcube.snowhex.parser.SNITokenMaker;
 import st.infos.elementalcube.snowhex.parser.gif.GIFTokenMaker;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
@@ -32,6 +33,7 @@ public abstract class TokenMaker implements TokenTypes {
 		subclasses.put("ant3", Ant3TokenMaker.class);
 		subclasses.put("ant1", Ant1TokenMaker.class);
 		subclasses.put("cor", CORTokenMaker.class);
+		subclasses.put("png", PNGTokenMaker.class);
 		// TODO subclasses.put("ser", SERTokenMaker.class);
 	}
 	

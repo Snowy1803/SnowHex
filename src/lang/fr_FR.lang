@@ -103,6 +103,11 @@ parser.gif.ext.text.back=Position de l'arrière-plan dans la palette : %d
 parser.gif.interlace.true=<span style="color: green">✓</span> Entrelacé
 parser.gif.interlace.false=<span style="color: red">✗</span> Pas entrelacé
 
+parser.png=Portable Network Graphics (PNG)
+parser.png.header=L'entête PNG (89 50 4e 47 0d 0a 1a 0a) est manquant
+parser.png.ioob=Le tronçon IEND est manquant
+parser.png.invalidCrc=La somme de contrôle CRC32 est incorrect
+
 parser.ser=Fichier Java Sérialisé (SER)
 parser.ser.header=L'entête SER (AC ED) est manquant
 parser.ser.version=Sérialisation de version %d
