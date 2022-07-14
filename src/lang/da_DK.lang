@@ -107,6 +107,31 @@ parser.png=Portable Network Graphics (PNG)
 parser.png.header=PNG headeren (89 50 4e 47 0d 0a 1a 0a) mangler
 parser.png.ioob=IEND blokken mangler
 parser.png.invalidCrc=CRC32 kontrolsummen til blokken er forkert
+parser.png.chunk=%s blok (%s, %s, %s)
+parser.png.chunk.critical=Kritisk
+parser.png.chunk.ancillary=Ikke kritisk
+parser.png.chunk.public=standard
+parser.png.chunk.private=privat
+parser.png.chunk.unsafe=skal ikke kopieres
+parser.png.chunk.safe=kan kopieres
+parser.png.size=Størrelse: %d×%d
+# == Not localized
+parser.png.bitDepth=Bit Depth: %d
+parser.png.colorType=Color Type: %s
+parser.png.colorType.0=Grayscale
+parser.png.colorType.2=RGB
+parser.png.colorType.3=Palette
+parser.png.colorType.4=Grayscale with alpha
+parser.png.colorType.6=RGB with alpha
+parser.png.colorType.error=Unknown value
+parser.png.compression.0=Compression: Deflate
+parser.png.compression.error=Compression: Unknown method
+parser.png.filter.0=Filter method: Adaptive
+parser.png.filter.error=Filter method: Unknown value
+parser.png.interlace.0=Interlace: No
+parser.png.interlace.1=Interlace: Yes, using Adam7
+parser.png.interlace.error=Interlace: Unknown value
+# ==
 
 parser.ser=Java Serialiseret Fil (SER)
 parser.ser.header=SER headeren (AC ED) mangler
