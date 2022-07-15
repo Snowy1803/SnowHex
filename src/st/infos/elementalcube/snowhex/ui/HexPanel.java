@@ -43,7 +43,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import st.infos.elementalcube.snowhex.HexDocument;
 import st.infos.elementalcube.snowhex.ByteSelection;
-import st.infos.elementalcube.snowhex.DefaultHexDocument;
 import st.infos.elementalcube.snowhex.Format;
 import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.Theme;

@@ -1,4 +1,4 @@
-package st.infos.elementalcube.snowhex.parser;
+package st.infos.elementalcube.snowhex.parser.png;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -59,7 +59,7 @@ public class PNGTokenMaker extends TokenMaker {
 			if ((int) crc.getValue() != checksum) {
 				list.add(createToken(TOKEN_ERRORED, buf.position() - 4, 4, notice("invalidCrc"), Level.ERROR));
 			} else {
-				list.add(createToken(TOKEN_RESERVED, buf.position() - 4, 4));
+				list.add(createToken(TOKEN_CHECKSUM, buf.position() - 4, 4));
 			}
 			if (type == 0x49_45_4e_44) { // IEND
 				return; // last block, skip the rest
@@ -102,7 +102,7 @@ public class PNGTokenMaker extends TokenMaker {
 			break;
 		case 0x49_44_41_54: // IDAT
 			list.add(createToken(TOKEN_IMAGE_DATA, buf.position() - 8, length + 12));
-			list.add(createToken(TOKEN_IMAGE_COLOR, buf.position(), length));
+			list.add(createToken(TOKEN_COMPRESSED_DATA, buf.position(), length));
 			break;
 		}
 	}

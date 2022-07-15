@@ -162,7 +162,7 @@ public class GIFTokenMaker extends TokenMaker {
 					i += numLCTEntries * 3;
 				}
 				list.add(((GIFToken) createToken(TOKEN_METADATA, i++, 1)).withSubtype(GIFToken.SUBTY_LZW));
-				i = readSubBlocks(list, array, i, TOKEN_IMAGE_COLOR);
+				i = readSubBlocks(list, array, i, TOKEN_COMPRESSED_DATA);
 				list.add(createToken(TOKEN_IMAGE_DATA, imgStart, i - imgStart));
 				break;
 			case 0x3b:

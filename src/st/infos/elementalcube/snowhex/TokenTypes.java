@@ -4,10 +4,31 @@ package st.infos.elementalcube.snowhex;
  * The name space for the token types constants
  */
 public interface TokenTypes {
+	
+	// MARK: - special
+	
 	/**
 	 * This token is invalid, it will be red underlined
 	 */
 	public static final int TOKEN_ERRORED = 0;
+	
+	// MARK: - chunks / secondaries
+	
+	/**
+	 * This secondary token is a color palette for an image
+	 */
+	public static final int TOKEN_IMAGE_PALETTE = 7;
+	/**
+	 * This secondary token is the main data
+	 */
+	public static final int TOKEN_IMAGE_DATA = 9;
+	/**
+	 * This secondary token is a misc data chunk
+	 */
+	public static final int TOKEN_CHUNK = 11;
+	
+	// MARK: - primaries
+	
 	/**
 	 * This token is a magic number, the identifier to this file type
 	 */
@@ -33,23 +54,23 @@ public interface TokenTypes {
 	 */
 	public static final int TOKEN_LENGTH = 6;
 	/**
-	 * This secondary token is a color palette for an image
-	 */
-	public static final int TOKEN_IMAGE_PALETTE = 7;
-	/**
 	 * This token corresponds to a color
 	 */
 	public static final int TOKEN_IMAGE_COLOR = 8;
-	/**
-	 * This secondary token is the main data
-	 */
-	public static final int TOKEN_IMAGE_DATA = 9;
 	/**
 	 * This token is the size of the image, or a position in an image
 	 */
 	public static final int TOKEN_IMAGE_SIZE = 10;
 	/**
-	 * This secondary token is a data chunk
+	 * This token is compressed data, difficult to read
 	 */
-	public static final int TOKEN_CHUNK = 11;
+	public static final int TOKEN_COMPRESSED_DATA = 12;
+	/**
+	 * This token is a checksum
+	 */
+	public static final int TOKEN_CHECKSUM = 13;
+	/**
+	 * This token is a keyword
+	 */
+	public static final int TOKEN_KEYWORD = 14;
 }
