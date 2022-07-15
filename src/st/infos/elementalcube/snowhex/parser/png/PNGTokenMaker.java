@@ -22,6 +22,9 @@ import st.infos.elementalcube.snowhex.ui.HexPanel;
 public class PNGTokenMaker extends TokenMaker {
 	private static final byte[] SIGNATURE = {(byte) 137, 80, 78, 71, 13, 10, 26, 10};
 	
+	int width, height;
+	byte bitDepth, colorType;
+	
 	@Override
 	public List<Token> generateTokens(byte[] array) {
 		ArrayList<Token> list = new ArrayList<>();
@@ -77,12 +80,12 @@ public class PNGTokenMaker extends TokenMaker {
 	private void readChunk(ArrayList<Token> list, ByteBuffer buf, int type, int length) {
 		switch (type) {
 		case 0x49_48_44_52: // IHDR
-			int width = buf.getInt();
-			int height = buf.getInt();
+			width = buf.getInt();
+			height = buf.getInt();
 			list.add(createToken(TOKEN_IMAGE_SIZE, buf.position() - 8, 8, notice("size", width, height), Level.INFO));
-			byte bitDepth = buf.get();
+			bitDepth = buf.get();
 			list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("bitDepth", bitDepth), Level.INFO));
-			byte colorType = buf.get();
+			colorType = buf.get();
 			if (Arrays.binarySearch(new byte[] {0, 2, 3, 4, 6}, colorType) >= 0) {
 				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("colorType", notice("colorType." + colorType)), Level.INFO));
 			} else {
@@ -148,7 +151,8 @@ public class PNGTokenMaker extends TokenMaker {
 				MenuItem open = new MenuItem(notice("decompress"));
 				open.addActionListener(e -> {
 					InflatedSubDocument doc = new InflatedSubDocument(panel.getDocument(), closest.getOffset(), closest.getLength());
-					new HexFrame(doc);
+					HexFrame frame = new HexFrame(doc);
+					frame.getEditor().setColorer(new IDATTokenMaker(this));
 				});
 				menu.add(open);
 			}

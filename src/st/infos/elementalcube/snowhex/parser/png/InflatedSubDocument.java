@@ -13,7 +13,7 @@ import java.util.zip.InflaterInputStream;
 import st.infos.elementalcube.snowhex.HexDocument;
 
 /**
- * A document for an inflated PNG IDAT chunk. All modifications are reflected on the parent document and vice-versa.
+ * A document for an inflated PNG compressed chunk. All modifications are reflected on the parent document and vice-versa.
  * The chunk length and chunk checksum are both also updated at each change.
  * 
  * @author emil
@@ -27,7 +27,7 @@ public class InflatedSubDocument extends HexDocument implements ActionListener {
 	private boolean paused;
 	
 	/**
-	 * Creates a document for an inflated PNG IDAT chunk.
+	 * Creates a document for an inflated PNG compressed chunk.
 	 * 
 	 * @param parent the parent PNG document
 	 * @param offset the offset of the IDAT content token (right after the chunk header)

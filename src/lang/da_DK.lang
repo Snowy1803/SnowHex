@@ -108,6 +108,7 @@ parser.png.header=PNG headeren (89 50 4e 47 0d 0a 1a 0a) mangler
 parser.png.ioob=IEND blokken mangler
 parser.png.invalidCrc=CRC32 kontrolsummen til blokken er forkert
 parser.png.invalidCrc.fix=Ret kontrolsummen og bekræft data
+parser.png.decompress=Vis dekomprimeret data
 parser.png.chunk=%s blok (%s, %s, %s)
 parser.png.chunk.critical=Kritisk
 parser.png.chunk.ancillary=Ikke kritisk
@@ -133,6 +134,8 @@ parser.png.interlace.0=Interlace: No
 parser.png.interlace.1=Interlace: Yes, using Adam7
 parser.png.interlace.error=Interlace: Unknown value
 # ==
+
+parser.png.idat=Dekomprimeret IDAT blok (PNG)
 
 parser.ser=Java Serialiseret Fil (SER)
 parser.ser.header=SER headeren (AC ED) mangler

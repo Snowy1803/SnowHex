@@ -108,6 +108,7 @@ parser.png.header=L'entête PNG (89 50 4e 47 0d 0a 1a 0a) est manquant
 parser.png.ioob=Le tronçon IEND est manquant
 parser.png.invalidCrc=La somme de contrôle CRC32 est incorrect
 parser.png.invalidCrc.fix=Corriger la somme de contrôle et confirmer les données
+parser.png.decompress=Afficher les données décompressées
 parser.png.chunk=Tronçon %s (%s, %s, %s)
 parser.png.chunk.critical=Critique
 parser.png.chunk.ancillary=Auxiliaire
@@ -131,6 +132,8 @@ parser.png.filter.error=Filtre : Valeur inconnue
 parser.png.interlace.0=Entrelacé : Non
 parser.png.interlace.1=Entrelacé : Oui, méthode Adam7
 parser.png.interlace.error=Entrelacé : Méthode inconnue
+
+parser.png.idat=Tronçon IDAT décompressé (PNG)
 
 parser.ser=Fichier Java Sérialisé (SER)
 parser.ser.header=L'entête SER (AC ED) est manquant

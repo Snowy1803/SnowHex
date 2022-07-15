@@ -108,6 +108,7 @@ parser.png.header=The PNG header (89 50 4e 47 0d 0a 1a 0a) is missing
 parser.png.ioob=The IEND chunk is missing
 parser.png.invalidCrc=The CRC32 chunk checksum is incorrect
 parser.png.invalidCrc.fix=Fix checksum and confirm data
+parser.png.decompress=Show decompressed data
 parser.png.chunk=%s chunk (%s, %s, %s)
 parser.png.chunk.critical=Critical
 parser.png.chunk.ancillary=Ancillary
@@ -131,6 +132,8 @@ parser.png.filter.error=Filter method: Unknown value
 parser.png.interlace.0=Interlace: No
 parser.png.interlace.1=Interlace: Yes, using Adam7
 parser.png.interlace.error=Interlace: Unknown value
+
+parser.png.idat=Decompressed IDAT chunk (PNG)
 
 parser.ser=Java Serialized File (SER)
 parser.ser.header=The SER header (AC ED) is missing
