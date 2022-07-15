@@ -4,22 +4,13 @@ import java.awt.AWTEventMulticaster;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
-import java.util.Stack;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 import st.infos.elementalcube.snowhex.ui.HexCaret;
 
-/**
- * The document holding the array of bytes
- * @author emil
- *
- */
-public class HexDocument {
-	private byte[] bytes;
-	private Stack<DocumentEdit> undos = new Stack<>();
-	private Stack<DocumentEdit> redos = new Stack<>();
-	private boolean undoing, redoing;
+public abstract class HexDocument {
+
 	/**
 	 * Action Commands:
 	 * - edit: some standalone edit was made
@@ -30,54 +21,34 @@ public class HexDocument {
 	 * - replace: the whole document was replaced, clearing all stacks
 	 */
 	private ActionListener listener;
-	
-	// MARK: - Edit handling
-	
-	private void sendEvent(Object sender, String actionCommand) {
+
+	public HexDocument() {
+		super();
+	}
+
+	public abstract byte[] getBytes();
+
+	/**
+	 * Redoes a possibly coalesced action from the redo stack
+	 */
+	public abstract void redo();
+
+	/**
+	 * Undoes a possibly coalesced action from the undo stack
+	 */
+	public abstract void undo();
+
+	public abstract boolean canRedo();
+	public abstract boolean canUndo();
+
+	public abstract void pushEdit(DocumentEdit edit);
+
+	// MARK: - events
+
+	protected void sendEvent(Object sender, String actionCommand) {
 		listener.actionPerformed(new ActionEvent(sender, ActionEvent.ACTION_PERFORMED, actionCommand));
 	}
-	
-	// Applies an edit, without pushing it to any stack
-	private void applyEdit(DocumentEdit edit) {
-		if (edit.length == edit.replace.length) {
-			// simple case, just overwrite
-			System.arraycopy(edit.replace, 0, bytes, edit.start, edit.length);
-		} else {
-			byte[] copy = new byte[bytes.length - edit.length + edit.replace.length];
-			System.arraycopy(bytes, 0, copy, 0, edit.start);
-			System.arraycopy(edit.replace, 0, copy, edit.start, edit.replace.length);
-			System.arraycopy(bytes, edit.start + edit.length, copy, edit.start + edit.replace.length, bytes.length - (edit.start + edit.length));
-			bytes = copy;
-		}
-	}
-	
-	private void pushCompoundEdit(DocumentEdit edit, String actionCommand) {
-		if (undoing) {
-			redos.push(edit.reversed());
-		} else {
-			undos.push(edit.reversed());
-			if (!redoing)
-				redos.clear();
-		}
-		applyEdit(edit);
-		sendEvent(edit, actionCommand);
-	}
-	
-	public void pushEdit(DocumentEdit edit) {
-		if (!edit.isFence() && edit.isNoOp()) {
-			return; // no change
-		}
-		boolean shouldFastCoalesce = !undoing && !redoing && !undos.empty() && edit.canReplace(undos.peek());
-		pushCompoundEdit(edit, "edit");
-		if (shouldFastCoalesce) {
-			undos.pop(); // what we just added is redundant
-			if (undos.peek().isNoOp()) { // the edit we replace becomes useless
-				undos.pop();
-			}
-			sendEvent(edit, "coalesce");
-		}
-	}
-	
+
 	/**
 	 * Pushes a fence to the undo stack, stopping previous and next edits from coalescing together
 	 * 
@@ -85,116 +56,60 @@ public class HexDocument {
 	 * 
 	 * Note that this doesn't dispatch an event, as the document is not changed
 	 */
-	public void pushFence() {
-		if (undos.empty() || undos.peek().isFence())
-			return;
-		undos.push(new DocumentEdit(0, 0, ArrayUtils.EMPTY_BYTE_ARRAY, System.currentTimeMillis(), EditType.FENCE));
-	}
-	
-	// MARK: - Undo/Redo handling
-	
-	private void undoOrRedoStack(Stack<DocumentEdit> stack) {
-		if (stack.empty())
-			return;
-		DocumentEdit edit = stack.pop();
-		pushCompoundEdit(edit, "compound");
-		while (!stack.empty() && stack.peek().canCoalesceWith(edit)) {
-			edit = stack.pop();
-			pushCompoundEdit(edit, "compound");
-		}
-	}
-	
-	/**
-	 * Undoes a possibly coalesced action from the undo stack
-	 */
-	public void undo() {
-		undoing = true;
-		undoOrRedoStack(undos);
-		undoing = false;
-		sendEvent(this, "undo");
-	}
-	
-	/**
-	 * Redoes a possibly coalesced action from the redo stack
-	 */
-	public void redo() {
-		redoing = true;
-		undoOrRedoStack(redos);
-		redoing = false;
-		sendEvent(this, "redo");
-	}
-	
-	public boolean canUndo() {
-		return !undos.isEmpty();
-	}
-	
-	public boolean canRedo() {
-		return !redos.isEmpty();
-	}
-	
+	public abstract void pushFence();
+
+	public abstract void replaceDocument(byte[] array);
+
 	// MARK: - convenience APIs
-	
-	public void replaceDocument(byte[] array) {
-		this.bytes = array;
-		undos.clear();
-		redos.clear();
-		sendEvent(this, "replace");
-	}
-	
+
 	public void insertBytes(int offset, byte[] b, EditType type) {
 		pushEdit(new DocumentEdit(offset, 0, b, System.currentTimeMillis(), type));
 	}
-	
+
 	public void replaceBytes(int offset, int length, byte[] b, EditType type) {
 		pushEdit(new DocumentEdit(offset, length, b, System.currentTimeMillis(), type));
 	}
-	
+
 	public void setByte(int offset, byte b, EditType type) {
 		pushEdit(new DocumentEdit(offset, 1, new byte[] { b }, System.currentTimeMillis(), type));
 	}
-	
+
 	public void removeBytes(int offset, int length, EditType type) {
 		pushEdit(new DocumentEdit(offset, length, ArrayUtils.EMPTY_BYTE_ARRAY, System.currentTimeMillis(), type));
 	}
-	
+
 	public void replaceSelectedBytes(HexCaret caret, byte[] b, EditType type) {
 		pushEdit(new DocumentEdit(caret.getFirstByte(), caret.getLastByte() - caret.getFirstByte() + 1,
 				b, System.currentTimeMillis(), type));
 	}
-	
+
 	public void removeSelectedBytes(HexCaret caret, EditType type) {
 		pushEdit(new DocumentEdit(caret.getFirstByte(), caret.getLastByte() - caret.getFirstByte() + 1,
 				ArrayUtils.EMPTY_BYTE_ARRAY, System.currentTimeMillis(), type));
 	}
-	
+
 	// MARK: - getters
-	
-	public byte[] getBytes() {
-		return bytes;
-	}
-	
+
 	public byte getByte(int i) {
-		return bytes[i];
+		return getBytes()[i];
 	}
-	
+
 	public int getLength() {
-		return bytes.length;
+		return getBytes().length;
 	}
-	
+
 	public byte[] getBytes(int start, int length) {
-		return ArrayUtils.subarray(bytes, start, start + length);
+		return ArrayUtils.subarray(getBytes(), start, start + length);
 	}
-	
+
 	public byte[] getSelectedBytes(HexCaret caret) {
-		return ArrayUtils.subarray(bytes, caret.getFirstByte(), caret.getLastByte() + 1);
+		return ArrayUtils.subarray(getBytes(), caret.getFirstByte(), caret.getLastByte() + 1);
 	}
-	
-	// MARK: - events
-	
+
 	public void addEditListener(ActionListener l) {
 		listener = AWTEventMulticaster.add(listener, l);
 	}
-	
+
 	public void removeEditListener(ActionListener l) {
 		listener = AWTEventMulticaster.remove(listener, l);
 	}
@@ -258,8 +173,8 @@ public class HexDocument {
 			return true;
 		}
 
-		private DocumentEdit reversed() {
-			byte[] newReplace = ArrayUtils.subarray(bytes, start, start + length);
+		protected DocumentEdit reversed() {
+			byte[] newReplace = ArrayUtils.subarray(getBytes(), start, start + length);
 			return new DocumentEdit(start, replace.length, newReplace, time, type);
 		}
 		
@@ -274,7 +189,7 @@ public class HexDocument {
 		 * @return true if this edit, if applied now, doesn't change anything
 		 */
 		public boolean isNoOp() {
-			return Arrays.equals(replace, 0, replace.length, bytes, start, start + length);
+			return Arrays.equals(replace, 0, replace.length, getBytes(), start, start + length);
 		}
 		
 		@Override
@@ -282,9 +197,8 @@ public class HexDocument {
 			return "DocumentEdit [start=" + start + ", length=" + length + ", replace=" + Arrays.toString(replace)
 					+ ", time=" + time + ", type=" + type + "]";
 		}
-
 	}
-	
+
 	public enum EditType {
 		/**
 		 * A property was changed from the PropertiesFrame

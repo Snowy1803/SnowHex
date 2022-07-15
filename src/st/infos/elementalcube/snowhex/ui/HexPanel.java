@@ -41,9 +41,10 @@ import javax.swing.text.DefaultEditorKit;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import st.infos.elementalcube.snowhex.ByteSelection;
-import st.infos.elementalcube.snowhex.Format;
 import st.infos.elementalcube.snowhex.HexDocument;
+import st.infos.elementalcube.snowhex.ByteSelection;
+import st.infos.elementalcube.snowhex.DefaultHexDocument;
+import st.infos.elementalcube.snowhex.Format;
 import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.Theme;
 import st.infos.elementalcube.snowhex.Token;
@@ -83,7 +84,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	
 	public HexPanel(byte[] initialBytes) {
 		caret = new HexCaret(this);
-		document = new HexDocument();
+		document = new DefaultHexDocument();
 		document.addEditListener(this::bytesChanged);
 		recolorTimer = new Timer(200, e -> reloadColorsNow());
 		recolorTimer.setRepeats(false);
