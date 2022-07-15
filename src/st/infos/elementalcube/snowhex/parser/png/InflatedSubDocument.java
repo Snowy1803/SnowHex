@@ -136,4 +136,8 @@ public class InflatedSubDocument extends HexDocument implements ActionListener {
 	public void replaceDocument(byte[] array) {
 		throw new UnsupportedOperationException("Replacing an InflatedSubDocument is illegal");
 	}
+	
+	public HexDocument getParent() {
+		return parent;
+	}
 }

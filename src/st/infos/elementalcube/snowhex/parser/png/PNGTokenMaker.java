@@ -152,7 +152,7 @@ public class PNGTokenMaker extends TokenMaker {
 				open.addActionListener(e -> {
 					InflatedSubDocument doc = new InflatedSubDocument(panel.getDocument(), closest.getOffset(), closest.getLength());
 					HexFrame frame = new HexFrame(doc);
-					frame.getEditor().setColorer(new IDATTokenMaker(this));
+					frame.getEditor().setColorer(new IDATTokenMaker(this, doc));
 				});
 				menu.add(open);
 			}

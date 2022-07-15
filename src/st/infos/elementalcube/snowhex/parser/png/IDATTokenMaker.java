@@ -12,9 +12,11 @@ import st.infos.elementalcube.snowhex.TokenMaker;
 public class IDATTokenMaker extends TokenMaker {
 	
 	private PNGTokenMaker parent;
+	private InflatedSubDocument doc;
 	
-	public IDATTokenMaker(PNGTokenMaker parent) {
+	public IDATTokenMaker(PNGTokenMaker parent, InflatedSubDocument doc) {
 		this.parent = parent;
+		this.doc = doc;
 	}
 
 	@Override
@@ -24,15 +26,20 @@ public class IDATTokenMaker extends TokenMaker {
 		for (int y = 0; y < parent.height; y++) {
 			byte filter = buf.get();
 			tokens.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, "Filter: " + filter, Level.INFO));
-//			if (parent.bitDepth == 8 || parent.bitDepth == 16) {
+			if (parent.bitDepth == 8 || parent.bitDepth == 16) {
 				// yay, byte boundary, can show more info
-//			} else {
+				int bytesPerPixel = getComponentCount() * (parent.bitDepth / 8);
+				for (int x = 0; x < parent.width; x++) {
+					tokens.add(createToken(TOKEN_IMAGE_COLOR, buf.position(), bytesPerPixel));
+					buf.position(buf.position() + bytesPerPixel);
+				}
+			} else {
 				// skip it
 				int bits = parent.width * parent.bitDepth * getComponentCount();
 				int bytes = (bits + 7) / 8; // ceil
 				tokens.add(createToken(TOKEN_COMPRESSED_DATA, buf.position(), bytes));
 				buf.position(buf.position() + bytes);
-//			}
+			}
 		}
 		return tokens;
 	}
@@ -44,7 +51,7 @@ public class IDATTokenMaker extends TokenMaker {
 
 	@Override
 	public Object getDump(byte[] array) {
-		return parent;
+		return parent.getDump(doc.getParent().getBytes());
 	}
 	
 	private int getComponentCount() {
