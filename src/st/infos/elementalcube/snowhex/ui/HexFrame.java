@@ -3,7 +3,6 @@ package st.infos.elementalcube.snowhex.ui;
 import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
 import java.awt.FileDialog;
-import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -16,7 +15,6 @@ import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.swing.AbstractAction;
@@ -24,7 +22,6 @@ import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -32,38 +29,37 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.filechooser.FileSystemView;
 import javax.swing.text.DefaultEditorKit;
 
 import org.apache.commons.io.FileUtils;
 
+import st.infos.elementalcube.snowhex.DefaultHexDocument;
+import st.infos.elementalcube.snowhex.HexDocument;
 import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowylangapi.Lang;
 import st.infos.elementalcube.snowylangapi.LangLoader;
 import st.infos.elementalcube.snowymage.SnowImageReaderSpi;
 import st.infos.elementalcube.snowymage.SnowImageWriterSpi;
 
-public class HexFrame extends JFrame {
+public class HexFrame extends SnowHexFrame {
 	private static final long serialVersionUID = 125057354483869125L;
-	public static final File APPDATA = new File((System.getenv("APPDATA") == null ? FileSystemView.getFileSystemView().getDefaultDirectory().getPath()
-		: System.getenv("APPDATA") + "/") + "ElementalCube/snowhex");
-	public static final boolean USE_NATIVE_FILE_DIALOG = System.getProperty("os.name", "").contains("Mac");
 	private File file;
 	private HexPanel editor;
 	private PreviewFrame preview;
 	private PropertiesFrame props;
 	private FindFrame findDialog;
 	
-	public HexFrame(HexPanel panel) {
+	public HexFrame(File file, HexPanel panel) {
 		super(Lang.getString("frame.title"));
-		JScrollPane pane = new JScrollPane(editor = panel);
+		this.file = file;
+		editor = panel;
+		JScrollPane pane = new JScrollPane(editor);
 		JPanel border = new JPanel(new BorderLayout());
 		border.add(pane);
-		StatusBar bar = new StatusBar(panel);
-		panel.addChangeListener(bar);
+		StatusBar bar = new StatusBar(editor);
+		editor.addChangeListener(bar);
 		border.add(bar, BorderLayout.PAGE_END);
 		setContentPane(border);
 		createJMenuBar();
@@ -79,13 +75,13 @@ public class HexFrame extends JFrame {
 		setVisible(true);
 	}
 	
-	public HexFrame(File file) {
-		this();
-		open(file);
+	public HexFrame(HexDocument document) {
+		this(null, new HexPanel(document));
 	}
 	
-	public HexFrame() {
-		this(new HexPanel(null));
+	public HexFrame(File file) {
+		this(new DefaultHexDocument());
+		open(file);
 	}
 	
 	private void createJMenuBar() {
@@ -130,8 +126,8 @@ public class HexFrame extends JFrame {
 			item.addActionListener(e -> {
 				Lang.getInstance().setLocale(key);
 				try {
-					setVisible(false);
-					new HexFrame(editor);
+					dispose();
+					new HexFrame(this.file, editor);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -142,7 +138,9 @@ public class HexFrame extends JFrame {
 		create.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, getToolkit().getMenuShortcutKeyMaskEx()));
 		create.addActionListener(e -> {
 			if (this.file != null) {
-				new HexFrame(new HexPanel(new byte[1]));
+				DefaultHexDocument doc = new DefaultHexDocument();
+				doc.replaceDocument(new byte[1]);
+				new HexFrame(doc);
 			} else {
 				editor.getDocument().replaceDocument(new byte[1]);
 				editor.repaint();
@@ -333,11 +331,10 @@ public class HexFrame extends JFrame {
 		setJMenuBar(bar);
 	}
 	
-	private void open(File file) {
+	@Override
+	protected void open(File file) {
 		if (this.file != null) {
-			HexFrame f = new HexFrame(file);
-			f.editor.setColorer(getColorer(file));
-			f.editor.repaint();
+			new HexFrame(file);
 		} else {
 			this.setFile(file);
 			try {
@@ -370,9 +367,11 @@ public class HexFrame extends JFrame {
 	public static void main(String[] args) {
 		IIORegistry.getDefaultInstance().registerServiceProvider(new SnowImageReaderSpi());
 		IIORegistry.getDefaultInstance().registerServiceProvider(new SnowImageWriterSpi());
-		HexFrame f = new HexFrame();
 		for (String arg : args) {
-			f.open(new File(arg));
+			new HexFrame(new File(arg));
+		}
+		if (args.length == 0) {
+			new InitialFrame();
 		}
 		try {
 			File path = new File(APPDATA, "path.txt");
@@ -382,37 +381,6 @@ public class HexFrame extends JFrame {
 			pw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-	}
-	
-	private class OpenFileTransferHandler extends TransferHandler {
-		private static final long serialVersionUID = 2749553292520468494L;
-		
-		@Override
-		public boolean canImport(TransferSupport ts) {
-			if ((COPY & ts.getSourceDropActions()) == COPY) {// Force copy
-				ts.setDropAction(COPY);
-			} else {
-				return false;
-			}
-			return ts.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
-		}
-		
-		@Override
-		public boolean importData(TransferSupport ts) {
-			try {
-				if (ts.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-					@SuppressWarnings("unchecked")
-					List<File> files = (List<File>) ts.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-					for (File f : files) {
-						open(f);
-					}
-					return true;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return false;
 		}
 	}
 }

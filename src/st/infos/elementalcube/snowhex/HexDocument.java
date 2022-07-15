@@ -46,6 +46,8 @@ public abstract class HexDocument {
 	// MARK: - events
 
 	protected void sendEvent(Object sender, String actionCommand) {
+		if (listener == null)
+			return;
 		listener.actionPerformed(new ActionEvent(sender, ActionEvent.ACTION_PERFORMED, actionCommand));
 	}
 

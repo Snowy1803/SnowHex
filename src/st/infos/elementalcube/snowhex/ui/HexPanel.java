@@ -82,13 +82,12 @@ public class HexPanel extends JPanel implements Scrollable {
 	 */
 	private ActionListener listener;
 	
-	public HexPanel(byte[] initialBytes) {
+	public HexPanel(HexDocument document) {
 		caret = new HexCaret(this);
-		document = new DefaultHexDocument();
+		this.document = document;
 		document.addEditListener(this::bytesChanged);
 		recolorTimer = new Timer(200, e -> reloadColorsNow());
 		recolorTimer.setRepeats(false);
-		setBytes(initialBytes);
 		setBackground(Color.WHITE);
 		setForeground(Color.BLACK);
 		setFocusable(true);
@@ -315,15 +314,7 @@ public class HexPanel extends JPanel implements Scrollable {
 		return (int) ((addressCols + 2) * length0);
 	}
 	
-	@Deprecated // this removes undo stack
-	public void setBytes(byte[] bytes) {
-		document.replaceDocument(bytes);
-	}
-	
 	private void calculateAddressCols() {
-		if (document.getBytes() == null) {
-			return;
-		}
 		addressCols = (int) Math.ceil(Math.log(document.getLength()) / Math.log(16));
 		if (addressCols == 0) addressCols = 1;
 	}
@@ -353,11 +344,6 @@ public class HexPanel extends JPanel implements Scrollable {
 		repaint(getVisibleRect());
 		if (listener != null && (tokens != null || old != null))
 			listener.actionPerformed(new ActionEvent(tokens == null ? old : tokens, ActionEvent.ACTION_PERFORMED, null));
-	}
-	
-	@Deprecated
-	public byte[] getBytes() {
-		return document.getBytes();
 	}
 	
 	public HexDocument getDocument() {
@@ -425,12 +411,6 @@ public class HexPanel extends JPanel implements Scrollable {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setFont(FONT);
 		g2d.setStroke(new BasicStroke(1));
-		if (document.getBytes() == null) {
-			String s = Lang.getString("frame.empty");
-			Rectangle2D r2d = FONT.getStringBounds(s, g2d.getFontRenderContext());
-			g2d.drawString(s, (int) (getWidth() - r2d.getWidth()) / 2, (int) (getHeight() - r2d.getHeight()) / 2);
-			return;
-		}
 		char[] buf = new char[2];
 		Rectangle2D r2d = FONT.getStringBounds("0", g2d.getFontRenderContext());
 		length0 = Math.ceil(r2d.getWidth());
