@@ -352,7 +352,7 @@ public class HexFrame extends JFrame {
 	
 	private void setFile(File file) {
 		this.file = file;
-		setTitle(Lang.getString("frame.title.file", file.getAbsolutePath()));
+		setTitle(Lang.getString("frame.title.file", file.getName()));
 		// macOS draggable icon
 		rootPane.putClientProperty("Window.documentFile", file);
 	}
