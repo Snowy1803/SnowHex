@@ -1,5 +1,6 @@
 package st.infos.elementalcube.snowhex;
 
+import java.awt.PopupMenu;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -131,6 +132,16 @@ public abstract class TokenMaker implements TokenTypes {
 	public JComponent getTokenProperties(HexPanel panel) {
 		return null;
 	}
+
+	/**
+	 * Called when a right click menu will be shown. The TokenMaker may add custom actions to the menu.
+	 * By default, before this method is called, it contains the classic copy-cut-paste actions.
+	 * They shouldn't be removed, but new actions can be added before or after, with a separator.
+	 * 
+	 * @param panel the editor of the file
+	 * @param menu the popup to be shown (note it is an AWT PopupMenu as they look better)
+	 */
+	public void willShowPopup(HexPanel panel, PopupMenu menu) {}
 	
 	// Static utilities
 	

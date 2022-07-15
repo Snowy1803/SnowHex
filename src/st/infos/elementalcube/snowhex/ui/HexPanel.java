@@ -9,6 +9,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.HeadlessException;
 import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.Rectangle;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
@@ -34,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -41,14 +44,14 @@ import javax.swing.text.DefaultEditorKit;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import st.infos.elementalcube.snowhex.HexDocument;
 import st.infos.elementalcube.snowhex.ByteSelection;
 import st.infos.elementalcube.snowhex.Format;
+import st.infos.elementalcube.snowhex.HexDocument;
 import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.Theme;
 import st.infos.elementalcube.snowhex.Token;
-import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowylangapi.Lang;
 
 public class HexPanel extends JPanel implements Scrollable {
@@ -94,26 +97,52 @@ public class HexPanel extends JPanel implements Scrollable {
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				int caretIndex = getCoordsOffset(e.getX(), e.getY(), false);
-				if (caretIndex == -1) {
-					caret.removeCaretPosition();
-				} else {
-					int startX = (int) ((addressCols + 2) * length0);
-					boolean caretAfter = Math.round((e.getX() - startX) / length0 % 3) >= 2;
-					caret.setCaretPosition(caretIndex, caretAfter);
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					int caretIndex = getCoordsOffset(e.getX(), e.getY(), false);
+					if (caretIndex == -1) {
+						caret.removeCaretPosition();
+					} else {
+						int startX = (int) ((addressCols + 2) * length0);
+						boolean caretAfter = Math.round((e.getX() - startX) / length0 % 3) >= 2;
+						caret.setCaretPosition(caretIndex, caretAfter);
+					}
+					if (e.getClickCount() >= 2 && closestToken != null) {
+						caret.setSelection(closestToken.getOffset(), closestToken.getLength());
+					}
+					document.pushFence();
+					repaint(getVisibleRect());
+					requestFocus();
 				}
-				if (e.getClickCount() >= 2 && closestToken != null) {
-					caret.setSelection(closestToken.getOffset(), closestToken.getLength());
+				if (e.isPopupTrigger())
+					handlePopup(e);
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger())
+					handlePopup(e);
+			}
+			
+			private void handlePopup(MouseEvent e) {
+				PopupMenu menu = new PopupMenu();
+				for (String s : new String[] { DefaultEditorKit.copyAction, DefaultEditorKit.cutAction, DefaultEditorKit.pasteAction }) {
+					Action a = getActionMap().get(s);
+					MenuItem mi = new MenuItem((String) a.getValue(Action.NAME));
+					mi.addActionListener(a);
+					mi.setEnabled(a.isEnabled());
+					menu.add(mi);
 				}
-				document.pushFence();
-				repaint(getVisibleRect());
-				requestFocus();
+				if (colorer != null) {
+					colorer.willShowPopup(HexPanel.this, menu);
+				}
+				HexPanel.this.add(menu);
+				menu.show(HexPanel.this, e.getX(), e.getY());
 			}
 		});
 		addMouseMotionListener(new MouseAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				if (!caret.hasValidPosition())
+				if (!caret.hasValidPosition() || !SwingUtilities.isLeftMouseButton(e))
 					return;
 				int caretIndex = getCoordsOffset(e.getX(), e.getY(), true);
 				caret.moveDot(caretIndex);
@@ -209,14 +238,16 @@ public class HexPanel extends JPanel implements Scrollable {
 			getToolkit().getSystemClipboard().setContents(
 					new ByteSelection(document.getSelectedBytes(caret)), null);
 		}, false);
+		copy.putValue(Action.NAME, Lang.getString("menu.edit.copy"));
 		getActionMap().put(DefaultEditorKit.copyAction, copy);
 		Action cut = new LambdaAction(() -> {
 			getToolkit().getSystemClipboard().setContents(
 					new ByteSelection(document.getSelectedBytes(caret)), null);
 			document.removeSelectedBytes(caret, EditType.DELETE_CUT);
 		}, false);
+		cut.putValue(Action.NAME, Lang.getString("menu.edit.cut"));
 		getActionMap().put(DefaultEditorKit.cutAction, cut);
-		getActionMap().put(DefaultEditorKit.pasteAction, new LambdaAction(() -> {
+		Action paste = new LambdaAction(() -> {
 			try {
 				byte[] b = (byte[]) getToolkit().getSystemClipboard().getContents(this).getTransferData(ByteSelection.BYTE_ARRAY);
 				if (b == null)
@@ -231,7 +262,9 @@ public class HexPanel extends JPanel implements Scrollable {
 			} catch (HeadlessException | UnsupportedFlavorException | IOException ex) {
 				ex.printStackTrace();
 			}
-		}, false));
+		}, false);
+		paste.putValue(Action.NAME, Lang.getString("menu.edit.paste"));
+		getActionMap().put(DefaultEditorKit.pasteAction, paste);
 		addChangeListener(e -> {
 			if (e.getSource() == caret) {
 				delByte.putValue(Action.NAME, caret.hasSelection() ? Lang.getString("menu.edit.delBytes") : Lang.getString("menu.edit.delByte"));
