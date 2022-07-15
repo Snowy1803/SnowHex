@@ -20,16 +20,7 @@ public class DefaultHexDocument extends HexDocument {
 	
 	// Applies an edit, without pushing it to any stack
 	private void applyEdit(DocumentEdit edit) {
-		if (edit.length == edit.replace.length) {
-			// simple case, just overwrite
-			System.arraycopy(edit.replace, 0, bytes, edit.start, edit.length);
-		} else {
-			byte[] copy = new byte[bytes.length - edit.length + edit.replace.length];
-			System.arraycopy(bytes, 0, copy, 0, edit.start);
-			System.arraycopy(edit.replace, 0, copy, edit.start, edit.replace.length);
-			System.arraycopy(bytes, edit.start + edit.length, copy, edit.start + edit.replace.length, bytes.length - (edit.start + edit.length));
-			bytes = copy;
-		}
+		bytes = super.applyEditToArray(edit, bytes);
 	}
 	
 	private void pushCompoundEdit(DocumentEdit edit, String actionCommand) {

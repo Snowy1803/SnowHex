@@ -28,6 +28,8 @@ public abstract class HexDocument {
 
 	public abstract byte[] getBytes();
 
+	// MARK: - undo manager
+	
 	/**
 	 * Redoes a possibly coalesced action from the redo stack
 	 */
@@ -40,6 +42,23 @@ public abstract class HexDocument {
 
 	public abstract boolean canRedo();
 	public abstract boolean canUndo();
+	
+	// MARK: - edits
+	
+	// utility function for applying an edit to a byte array
+	protected byte[] applyEditToArray(DocumentEdit edit, byte[] input) {
+		if (edit.length == edit.replace.length) {
+			// simple case, just overwrite
+			System.arraycopy(edit.replace, 0, input, edit.start, edit.length);
+			return input;
+		} else {
+			byte[] copy = new byte[input.length - edit.length + edit.replace.length];
+			System.arraycopy(input, 0, copy, 0, edit.start);
+			System.arraycopy(edit.replace, 0, copy, edit.start, edit.replace.length);
+			System.arraycopy(input, edit.start + edit.length, copy, edit.start + edit.replace.length, input.length - (edit.start + edit.length));
+			return copy;
+		}
+	}
 
 	public abstract void pushEdit(DocumentEdit edit);
 
@@ -119,27 +138,27 @@ public abstract class HexDocument {
 	/**
 	 * An edit entry with information on how to undo it
 	 */
-	class DocumentEdit {
+	public class DocumentEdit {
 		/**
 		 * the start index of the change
 		 */
-		protected final int start;
+		public final int start;
 		/**
 		 * the length of the area to replace
 		 */
-		protected final int length;
+		public final int length;
 		/**
 		 * the byte array to replace the area with (not necessarily the same length)
 		 */
-		protected final byte[] replace;
+		public final byte[] replace;
 		/**
 		 * the timestamp of the change (in ms)
 		 */
-		protected final long time;
+		public final long time;
 		/**
 		 * the type of edit
 		 */
-		protected final EditType type;
+		public final EditType type;
 		
 		public DocumentEdit(int start, int length, byte[] replace, long time, EditType type) {
 			this.start = start;
@@ -191,7 +210,7 @@ public abstract class HexDocument {
 		 * @return true if this edit, if applied now, doesn't change anything
 		 */
 		public boolean isNoOp() {
-			return Arrays.equals(replace, 0, replace.length, getBytes(), start, start + length);
+			return replace.length == length && Arrays.equals(replace, 0, replace.length, getBytes(), start, start + length);
 		}
 		
 		@Override

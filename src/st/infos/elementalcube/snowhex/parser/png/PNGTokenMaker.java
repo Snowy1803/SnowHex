@@ -16,6 +16,7 @@ import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.TokenMaker;
+import st.infos.elementalcube.snowhex.ui.HexFrame;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class PNGTokenMaker extends TokenMaker {
@@ -141,6 +142,15 @@ public class PNGTokenMaker extends TokenMaker {
 					panel.getDocument().replaceBytes(closest.getOffset(), closest.getLength(), b, EditType.PROPERTY_CHANGE);
 				});
 				menu.add(fix);
+			}
+			if (closest.getType() == TOKEN_COMPRESSED_DATA) {
+				menu.addSeparator();
+				MenuItem open = new MenuItem(notice("decompress"));
+				open.addActionListener(e -> {
+					InflatedSubDocument doc = new InflatedSubDocument(panel.getDocument(), closest.getOffset(), closest.getLength());
+					new HexFrame(doc);
+				});
+				menu.add(open);
 			}
 		}
 	}
