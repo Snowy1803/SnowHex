@@ -107,6 +107,7 @@ parser.png=Portable Network Graphics (PNG)
 parser.png.header=PNG headeren (89 50 4e 47 0d 0a 1a 0a) mangler
 parser.png.ioob=IEND blokken mangler
 parser.png.invalidCrc=CRC32 kontrolsummen til blokken er forkert
+parser.png.invalidCrc.fix=Ret kontrolsummen og bekræft data
 parser.png.chunk=%s blok (%s, %s, %s)
 parser.png.chunk.critical=Kritisk
 parser.png.chunk.ancillary=Ikke kritisk

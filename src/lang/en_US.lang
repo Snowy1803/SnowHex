@@ -107,6 +107,7 @@ parser.png=Portable Network Graphics (PNG)
 parser.png.header=The PNG header (89 50 4e 47 0d 0a 1a 0a) is missing
 parser.png.ioob=The IEND chunk is missing
 parser.png.invalidCrc=The CRC32 chunk checksum is incorrect
+parser.png.invalidCrc.fix=Fix checksum and confirm data
 parser.png.chunk=%s chunk (%s, %s, %s)
 parser.png.chunk.critical=Critical
 parser.png.chunk.ancillary=Ancillary

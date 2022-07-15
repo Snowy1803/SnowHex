@@ -107,6 +107,7 @@ parser.png=Portable Network Graphics (PNG)
 parser.png.header=L'entête PNG (89 50 4e 47 0d 0a 1a 0a) est manquant
 parser.png.ioob=Le tronçon IEND est manquant
 parser.png.invalidCrc=La somme de contrôle CRC32 est incorrect
+parser.png.invalidCrc.fix=Corriger la somme de contrôle et confirmer les données
 parser.png.chunk=Tronçon %s (%s, %s, %s)
 parser.png.chunk.critical=Critique
 parser.png.chunk.ancillary=Auxiliaire

@@ -1,5 +1,7 @@
 package st.infos.elementalcube.snowhex.parser.png;
 
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -9,9 +11,12 @@ import java.util.List;
 import java.util.zip.CRC32;
 
 import javax.swing.ImageIcon;
+
+import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.Token;
-import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.TokenMaker;
+import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class PNGTokenMaker extends TokenMaker {
 	private static final byte[] SIGNATURE = {(byte) 137, 80, 78, 71, 13, 10, 26, 10};
@@ -56,8 +61,9 @@ public class PNGTokenMaker extends TokenMaker {
 			readChunk(list, buf, type, length);
 			buf.position(datastart + length);
 			int checksum = buf.getInt();
-			if ((int) crc.getValue() != checksum) {
-				list.add(createToken(TOKEN_ERRORED, buf.position() - 4, 4, notice("invalidCrc"), Level.ERROR));
+			int expected = (int) crc.getValue();
+			if (expected != checksum) {
+				list.add(createToken(TOKEN_ERRORED, buf.position() - 4, 4, notice("invalidCrc"), Level.ERROR).expectedCrc(expected));
 			} else {
 				list.add(createToken(TOKEN_CHECKSUM, buf.position() - 4, 4));
 			}
@@ -119,5 +125,33 @@ public class PNGTokenMaker extends TokenMaker {
 	@Override
 	public Object getDump(byte[] array) {
 		return new ImageIcon(array).getImage();
+	}
+	
+	@Override
+	public void willShowPopup(HexPanel panel, PopupMenu menu) {
+		PNGToken closest = (PNGToken) panel.getClosestToken();
+		if (closest != null) {
+			if (closest.subtype == PNGToken.ERROR_CRC) {
+				menu.addSeparator();
+				MenuItem fix = new MenuItem(notice("invalidCrc.fix"));
+				fix.addActionListener(e -> {
+					byte[] b = new byte[4];
+					ByteBuffer buf = ByteBuffer.wrap(b);
+					buf.putInt(closest.expectedCrc);
+					panel.getDocument().replaceBytes(closest.getOffset(), closest.getLength(), b, EditType.PROPERTY_CHANGE);
+				});
+				menu.add(fix);
+			}
+		}
+	}
+	
+	@Override
+	public Token allocToken() {
+		return new PNGToken();
+	}
+	
+	@Override
+	public PNGToken createToken(int type, int offset, int length, String desc, Level lvl) {
+		return (PNGToken) super.createToken(type, offset, length, desc, lvl);
 	}
 }
