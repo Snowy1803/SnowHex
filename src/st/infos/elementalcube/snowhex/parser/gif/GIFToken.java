@@ -34,6 +34,7 @@ class GIFToken extends TokenImpl {
 		return subtype;
 	}
 	
+	@Override
 	public int getIndex() {
 		return index;
 	}

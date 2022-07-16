@@ -32,6 +32,7 @@ public class TokenImpl implements Token {
 		this(0, 0, 0, null, null);
 	}
 
+	@Override
 	public void init(int type, int offset, int length, String tooltip, Level tooltipLevel) {
 		this.type = type;
 		this.offset = offset;
@@ -40,28 +41,42 @@ public class TokenImpl implements Token {
 		this.level = tooltipLevel;
 	}
 	
+	@Override
 	public int getType() {
 		return type;
 	}
 	
+	@Override
 	public int getOffset() {
 		return offset;
 	}
 	
+	@Override
 	public int getLength() {
 		return length;
 	}
 	
+	@Override
 	public boolean hasToolTip() {
 		return tooltip != null;
 	}
 	
+	@Override
 	public String getToolTip() {
 		return tooltip;
 	}
 	
+	@Override
 	public Level getToolTipLevel() {
 		return level;
+	}
+	
+	public int getIndex() {
+		return 0;
+	}
+
+	public int getSubtype() {
+		return 0;
 	}
 	
 	@Override

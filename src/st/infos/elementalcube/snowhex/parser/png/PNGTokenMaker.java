@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.zip.CRC32;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 
 import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.TokenMaker;
+import st.infos.elementalcube.snowhex.parser.gif.PaletteColorEditor;
 import st.infos.elementalcube.snowhex.ui.HexFrame;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 import st.infos.elementalcube.snowylangapi.Lang;
@@ -117,7 +119,8 @@ public class PNGTokenMaker extends TokenMaker {
 			break;
 		case 0x50_4c_54_45: // PLTE
 			for (int i = 0; i < length / 3; i++) {
-				list.add(createToken(TOKEN_IMAGE_COLOR, buf.position(), 3, Lang.getString("parser.gif.color", parseColor(buf.array(), buf.position())), Level.INFO));
+				list.add(createToken(TOKEN_IMAGE_COLOR, buf.position(), 3, Lang.getString("parser.gif.color", parseColor(buf.array(), buf.position())), Level.INFO)
+						.withPLTEIndex(i));
 				buf.position(buf.position() + 3);
 			}
 			break;
@@ -174,5 +177,25 @@ public class PNGTokenMaker extends TokenMaker {
 	@Override
 	public PNGToken createToken(int type, int offset, int length, String desc, Level lvl) {
 		return (PNGToken) super.createToken(type, offset, length, desc, lvl);
+	}
+	
+	private PaletteColorEditor paletteColorEditor;
+	private PaletteColorEditor getPaletteColorEditor(HexPanel panel) {
+		if (paletteColorEditor == null) {
+			paletteColorEditor = new PaletteColorEditor(panel);
+		}
+		paletteColorEditor.updateValues(panel);
+		return paletteColorEditor;
+	}
+	
+	@Override
+	public JComponent getTokenProperties(HexPanel panel) {
+		if (panel.getClosestToken() == null)
+			return null;
+		switch (panel.getClosestToken().getType()) {
+		case TOKEN_IMAGE_COLOR:
+			return getPaletteColorEditor(panel);
+		}
+		return null;
 	}
 }

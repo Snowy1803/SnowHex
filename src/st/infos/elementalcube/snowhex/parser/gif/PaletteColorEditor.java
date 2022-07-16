@@ -12,8 +12,9 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import st.infos.elementalcube.snowhex.TokenTypes;
 import st.infos.elementalcube.snowhex.HexDocument.EditType;
+import st.infos.elementalcube.snowhex.TokenImpl;
+import st.infos.elementalcube.snowhex.TokenTypes;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 /**
@@ -69,7 +70,7 @@ public class PaletteColorEditor extends JPanel {
 	}
 	
 	private void commitColor(HexPanel panel, Color color) {
-		GIFToken token = ((GIFToken) panel.getClosestToken());
+		TokenImpl token = ((TokenImpl) panel.getClosestToken());
 		// as the color chooser dialog stays open, it can 'commit' when a color isn't selected
 		if (token == null || token.getType() != TokenTypes.TOKEN_IMAGE_COLOR || token.getSubtype() != GIFToken.SUBTY_PALETTE_RGB)
 			return;
@@ -78,7 +79,7 @@ public class PaletteColorEditor extends JPanel {
 	}
 
 	public void updateValues(HexPanel panel) {
-		GIFToken token = ((GIFToken) panel.getClosestToken());
+		TokenImpl token = ((TokenImpl) panel.getClosestToken());
 		Color color = new Color(panel.getDocument().getByte(token.getOffset()) & 0xff,
 				panel.getDocument().getByte(token.getOffset() + 1) & 0xff,
 				panel.getDocument().getByte(token.getOffset() + 2) & 0xff);
