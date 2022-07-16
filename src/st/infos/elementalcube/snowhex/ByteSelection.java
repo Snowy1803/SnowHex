@@ -31,13 +31,17 @@ public class ByteSelection implements Transferable {
 	@Override
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
 		if (flavor == DataFlavor.stringFlavor) {
-			StringBuilder sb = new StringBuilder(array.length * 2);
-			for (byte b : array) {
-				sb.append(HexPanel.twoCharsHexByte(b));
-			}
-			return sb.toString();
+			return toString();
 		}
 		return array;
 	}
-
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(array.length * 2);
+		for (byte b : array) {
+			sb.append(HexPanel.twoCharsHexByte(b));
+		}
+		return sb.toString();
+	}
 }

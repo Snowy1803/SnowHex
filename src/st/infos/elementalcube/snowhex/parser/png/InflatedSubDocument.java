@@ -46,6 +46,7 @@ public class InflatedSubDocument extends HexDocument implements ActionListener {
 		if (e.getActionCommand() == "compound")
 			return;
 		updateInflate();
+		// FIXME: we don't restore parentLength on undo/redo!
 		sendEvent(e.getSource(), e.getActionCommand());
 	}
 	
