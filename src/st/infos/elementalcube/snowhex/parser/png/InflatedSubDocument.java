@@ -21,7 +21,7 @@ import st.infos.elementalcube.snowhex.HexDocument;
  */
 public class InflatedSubDocument extends HexDocument implements ActionListener {
 	private HexDocument parent;
-	private int parentOffset, parentLength;
+	private int parentOffset, parentLength, headerLength;
 	private byte[] inflated;
 	private CRC32 crc = new CRC32();
 	private boolean paused;
@@ -33,10 +33,11 @@ public class InflatedSubDocument extends HexDocument implements ActionListener {
 	 * @param offset the offset of the IDAT content token (right after the chunk header)
 	 * @param length the length of the chunk
 	 */
-	public InflatedSubDocument(HexDocument parent, int offset, int length) {
+	public InflatedSubDocument(HexDocument parent, int offset, int length, int headerLength) {
 		this.parent = parent;
 		this.parentOffset = offset;
 		this.parentLength = length;
+		this.headerLength = headerLength;
 		parent.addEditListener(this);
 		updateInflate();
 	}
@@ -83,13 +84,13 @@ public class InflatedSubDocument extends HexDocument implements ActionListener {
         parentLength = change.length;
         {
 	        byte[] size = new byte[4];
-	        ByteBuffer.wrap(size).putInt(parentLength);
-	        parent.replaceBytes(parentOffset - 8, 4, size, type);
+	        ByteBuffer.wrap(size).putInt(parentLength + headerLength - 8);
+	        parent.replaceBytes(parentOffset - headerLength, 4, size, type);
         }
         {
 	        byte[] checksum = new byte[4];
 			crc.reset();
-			crc.update(parent.getBytes(), parentOffset - 4, parentLength + 4);
+			crc.update(parent.getBytes(), parentOffset - headerLength + 4, parentLength + headerLength - 4);
 	        ByteBuffer.wrap(checksum).putInt((int) crc.getValue());
 	        parent.replaceBytes(parentOffset + parentLength, 4, checksum, type);
         }

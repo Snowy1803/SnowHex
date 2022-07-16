@@ -5,6 +5,8 @@ import st.infos.elementalcube.snowhex.TokenImpl;
 class PNGToken extends TokenImpl {
 	static final int ERROR_CRC = 1;
 	static final int PLTE_INDEX = 2;
+	static final int COMPRESSED_IDAT = 3;
+	static final int COMPRESSED_ZTXT = 4;
 	
 	int subtype;
 	int expectedCrc;
@@ -26,6 +28,16 @@ class PNGToken extends TokenImpl {
 	public PNGToken withPLTEIndex(int index) {
 		this.subtype = PLTE_INDEX;
 		this.index = index;
+		return this;
+	}
+	
+	public PNGToken withIndex(int index) {
+		this.index = index;
+		return this;
+	}
+	
+	public PNGToken withSubtype(int type) {
+		this.subtype = type;
 		return this;
 	}
 	

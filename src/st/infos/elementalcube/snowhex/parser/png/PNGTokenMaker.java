@@ -86,6 +86,7 @@ public class PNGTokenMaker extends TokenMaker {
 	}
 	
 	private void readChunk(ArrayList<Token> list, ByteBuffer buf, int type, int length) {
+		int start = buf.position();
 		switch (type) {
 		case 0x49_48_44_52: // IHDR
 			width = buf.getInt();
@@ -120,7 +121,8 @@ public class PNGTokenMaker extends TokenMaker {
 			break;
 		case 0x49_44_41_54: // IDAT
 			list.add(createToken(TOKEN_IMAGE_DATA, buf.position() - 8, length + 12));
-			list.add(createToken(TOKEN_COMPRESSED_DATA, buf.position(), length));
+			list.add(createToken(TOKEN_COMPRESSED_DATA, buf.position(), length)
+					.withSubtype(PNGToken.COMPRESSED_IDAT).withIndex(8));
 			break;
 		case 0x50_4c_54_45: // PLTE
 			list.add(createToken(TOKEN_IMAGE_PALETTE, buf.position() - 8, length + 12));
@@ -141,6 +143,55 @@ public class PNGTokenMaker extends TokenMaker {
 			ZonedDateTime time = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("Z"));
 			list.add(createToken(TOKEN_METADATA, buf.position() - length, length,
 					time.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)), Level.INFO));
+			break;
+		case 0x74_45_58_74: // tEXt
+			list.add(createToken(TOKEN_CHUNK, buf.position() - 8, length + 12));
+			while (buf.get() != 0);
+			list.add(createToken(TOKEN_KEYWORD, start, buf.position() - start));
+			list.add(createToken(TOKEN_COMMENT, buf.position(), length - (buf.position() - start)));
+			break;
+		case 0x7a_54_58_74: // zTXt
+			list.add(createToken(TOKEN_CHUNK, buf.position() - 8, length + 12));
+			while (buf.get() != 0);
+			list.add(createToken(TOKEN_KEYWORD, start, buf.position() - start));
+			compression = buf.get();
+			if (compression == 0) {
+				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("compression." + compression), Level.INFO));
+			} else {
+				list.add(createToken(TOKEN_ERRORED, buf.position() - 1, 1, notice("compression.error"), Level.ERROR));	
+			}
+			list.add(createToken(TOKEN_COMPRESSED_DATA, buf.position(), length - (buf.position() - start))
+					.withSubtype(PNGToken.COMPRESSED_ZTXT).withIndex(buf.position() - start + 8));
+			break;
+		case 0x69_54_58_74: // iTXt
+			list.add(createToken(TOKEN_CHUNK, buf.position() - 8, length + 12));
+			while (buf.get() != 0);
+			list.add(createToken(TOKEN_KEYWORD, start, buf.position() - start));
+			byte compressed = buf.get();
+			list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1)); // compressed on/off. no notice ?
+			compression = buf.get();
+			if (compressed != 0) {
+				if (compression == 0) {
+					list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("compression." + compression), Level.INFO));
+				} else {
+					list.add(createToken(TOKEN_ERRORED, buf.position() - 1, 1, notice("compression.error"), Level.ERROR));	
+				}
+			} else {
+				list.add(createToken(TOKEN_RESERVED, buf.position() - 1, 1));	
+			}
+			int langtagstart = buf.position();
+			while (buf.get() != 0);
+			list.add(createToken(TOKEN_METADATA, langtagstart, buf.position() - langtagstart));
+			int transkwstart = buf.position();
+			while (buf.get() != 0);
+			list.add(createToken(TOKEN_KEYWORD, transkwstart, buf.position() - transkwstart));
+			if (compressed != 0) {
+				list.add(createToken(TOKEN_COMPRESSED_DATA, buf.position(), length - (buf.position() - start))
+						.withSubtype(PNGToken.COMPRESSED_ZTXT).withIndex(buf.position() - start + 8));
+			} else {
+				list.add(createToken(TOKEN_COMMENT, buf.position(), length - (buf.position() - start)));
+			}
+			break;
 		}
 	}
 
@@ -177,9 +228,11 @@ public class PNGTokenMaker extends TokenMaker {
 				menu.addSeparator();
 				MenuItem open = new MenuItem(notice("decompress"));
 				open.addActionListener(e -> {
-					InflatedSubDocument doc = new InflatedSubDocument(panel.getDocument(), closest.getOffset(), closest.getLength());
+					InflatedSubDocument doc = new InflatedSubDocument(panel.getDocument(), closest.getOffset(), closest.getLength(), closest.getIndex());
 					HexFrame frame = new HexFrame(doc);
-					frame.getEditor().setColorer(new IDATTokenMaker(this, doc));
+					if (closest.getSubtype() == PNGToken.COMPRESSED_IDAT) {
+						frame.getEditor().setColorer(new IDATTokenMaker(this, doc));
+					}
 				});
 				menu.add(open);
 			}
@@ -194,6 +247,11 @@ public class PNGTokenMaker extends TokenMaker {
 	@Override
 	public PNGToken createToken(int type, int offset, int length, String desc, Level lvl) {
 		return (PNGToken) super.createToken(type, offset, length, desc, lvl);
+	}
+	
+	@Override
+	public PNGToken createToken(int type, int offset, int length) {
+		return (PNGToken) super.createToken(type, offset, length);
 	}
 	
 	private PaletteColorEditor paletteColorEditor;
