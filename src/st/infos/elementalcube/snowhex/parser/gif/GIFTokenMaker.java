@@ -6,9 +6,10 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+
 import st.infos.elementalcube.snowhex.Token;
-import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 
 public class GIFTokenMaker extends TokenMaker {
@@ -253,6 +254,22 @@ public class GIFTokenMaker extends TokenMaker {
 		lsdPackedEditor.updateValues(panel);
 		return lsdPackedEditor;
 	}
+	private CoordsEditor posEditor;
+	private CoordsEditor getPosEditor(HexPanel panel, String type) {
+		if (posEditor == null) {
+			posEditor = new CoordsEditor(panel, true, ByteOrder.LITTLE_ENDIAN);
+		}
+		posEditor.updateValues(panel, type);
+		return posEditor;
+	}
+	private CoordsEditor sizeEditor;
+	private CoordsEditor getSizeEditor(HexPanel panel, String type) {
+		if (sizeEditor == null) {
+			sizeEditor = new CoordsEditor(panel, false, ByteOrder.LITTLE_ENDIAN);
+		}
+		sizeEditor.updateValues(panel, type);
+		return sizeEditor;
+	}
 	
 	@Override
 	public JComponent getTokenProperties(HexPanel panel) {
@@ -273,6 +290,18 @@ public class GIFTokenMaker extends TokenMaker {
 				return getDelayEditor(panel);
 			case GIFToken.SUBTY_LSD_PACKED:
 				return getLSDPackedEditor(panel);
+			}
+			break;
+		case TOKEN_IMAGE_SIZE:
+			switch (((GIFToken) panel.getClosestToken()).getSubtype()) {
+			case GIFToken.SUBTY_GLOBAL_SIZE:
+				return getSizeEditor(panel, "Global size of the image");
+			case GIFToken.SUBTY_SUB_POS:
+				return getPosEditor(panel, "Position of the subimage");
+			case GIFToken.SUBTY_SUB_SIZE:
+				return getSizeEditor(panel, "Size of the subimage");
+			case GIFToken.SUBTY_CHAR_SIZE:
+				return getSizeEditor(panel, "Size of each character in pixels");
 			}
 			break;
 		}
