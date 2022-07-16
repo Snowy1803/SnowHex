@@ -18,6 +18,7 @@ import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.ui.HexFrame;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
+import st.infos.elementalcube.snowylangapi.Lang;
 
 public class PNGTokenMaker extends TokenMaker {
 	private static final byte[] SIGNATURE = {(byte) 137, 80, 78, 71, 13, 10, 26, 10};
@@ -113,6 +114,12 @@ public class PNGTokenMaker extends TokenMaker {
 		case 0x49_44_41_54: // IDAT
 			list.add(createToken(TOKEN_IMAGE_DATA, buf.position() - 8, length + 12));
 			list.add(createToken(TOKEN_COMPRESSED_DATA, buf.position(), length));
+			break;
+		case 0x50_4c_54_45: // PLTE
+			for (int i = 0; i < length / 3; i++) {
+				list.add(createToken(TOKEN_IMAGE_COLOR, buf.position(), 3, Lang.getString("parser.gif.color", parseColor(buf.array(), buf.position())), Level.INFO));
+				buf.position(buf.position() + 3);
+			}
 			break;
 		}
 	}
