@@ -17,6 +17,7 @@ import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.TokenMaker;
+import st.infos.elementalcube.snowhex.parser.gif.CoordsEditor;
 import st.infos.elementalcube.snowhex.parser.gif.PaletteColorEditor;
 import st.infos.elementalcube.snowhex.ui.HexFrame;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
@@ -187,6 +188,14 @@ public class PNGTokenMaker extends TokenMaker {
 		paletteColorEditor.updateValues(panel);
 		return paletteColorEditor;
 	}
+	private CoordsEditor sizeEditor;
+	private CoordsEditor getSizeEditor(HexPanel panel, String type) {
+		if (sizeEditor == null) {
+			sizeEditor = new CoordsEditor(panel, false, ByteOrder.BIG_ENDIAN);
+		}
+		sizeEditor.updateValues(panel, type);
+		return sizeEditor;
+	}
 	
 	@Override
 	public JComponent getTokenProperties(HexPanel panel) {
@@ -195,6 +204,8 @@ public class PNGTokenMaker extends TokenMaker {
 		switch (panel.getClosestToken().getType()) {
 		case TOKEN_IMAGE_COLOR:
 			return getPaletteColorEditor(panel);
+		case TOKEN_IMAGE_SIZE:
+			return getSizeEditor(panel, "Size of the image");
 		}
 		return null;
 	}
