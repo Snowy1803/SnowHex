@@ -5,6 +5,10 @@ import java.awt.PopupMenu;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -119,12 +123,24 @@ public class PNGTokenMaker extends TokenMaker {
 			list.add(createToken(TOKEN_COMPRESSED_DATA, buf.position(), length));
 			break;
 		case 0x50_4c_54_45: // PLTE
+			list.add(createToken(TOKEN_IMAGE_PALETTE, buf.position() - 8, length + 12));
 			for (int i = 0; i < length / 3; i++) {
 				list.add(createToken(TOKEN_IMAGE_COLOR, buf.position(), 3, Lang.getString("parser.gif.color", parseColor(buf.array(), buf.position())), Level.INFO)
 						.withPLTEIndex(i));
 				buf.position(buf.position() + 3);
 			}
 			break;
+		case 0x74_49_4d_45: // tIME
+			list.add(createToken(TOKEN_CHUNK, buf.position() - 8, length + 12));
+			int year = buf.getShort();
+			int month = buf.get();
+			int day = buf.get();
+			int hour = buf.get();
+			int minute = buf.get();
+			int second = buf.get();
+			ZonedDateTime time = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("Z"));
+			list.add(createToken(TOKEN_METADATA, buf.position() - length, length,
+					time.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)), Level.INFO));
 		}
 	}
 
