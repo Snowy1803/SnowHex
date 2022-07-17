@@ -228,7 +228,7 @@ public class PNGTokenMaker extends TokenMaker {
 				menu.addSeparator();
 				MenuItem open = new MenuItem(notice("decompress"));
 				open.addActionListener(e -> {
-					InflatedSubDocument doc = new InflatedSubDocument(panel.getDocument(), closest.getOffset(), closest.getLength(), closest.getIndex());
+					InflatedSubDocument doc = new InflatedSubDocument(panel.getDocument(), closest.getOffset(), closest.getLength(), closest.getIndex(), false);
 					HexFrame frame = new HexFrame(doc);
 					if (closest.getSubtype() == PNGToken.COMPRESSED_IDAT) {
 						frame.getEditor().setColorer(new IDATTokenMaker(this, doc));

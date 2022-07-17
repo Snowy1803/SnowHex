@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.swing.AbstractAction;
@@ -355,13 +356,21 @@ public class HexFrame extends SnowHexFrame {
 	}
 	
 	public static TokenMaker getColorer(File f) {
-		String ext = f.getName();
+		return getColorer(f.getName());
+	}
+	
+	public static TokenMaker getColorer(String filename) {
+		String ext = filename;
 		ext = (ext.contains(".") ? ext.substring(ext.lastIndexOf('.') + 1) : null);
 		return TokenMaker.getTokenMaker(ext);
 	}
 	
 	public HexPanel getEditor() {
 		return editor;
+	}
+	
+	public File getFile() {
+		return file;
 	}
 	
 	public static void main(String[] args) {
