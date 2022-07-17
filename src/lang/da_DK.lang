@@ -117,23 +117,21 @@ parser.png.chunk.private=privat
 parser.png.chunk.unsafe=skal ikke kopieres
 parser.png.chunk.safe=kan kopieres
 parser.png.size=Størrelse: %d×%d
-# == Not localized
-parser.png.bitDepth=Bit Depth: %d
-parser.png.colorType=Color Type: %s
-parser.png.colorType.0=Grayscale
+parser.png.bitDepth=Bitdybde: %d
+parser.png.colorType=Type farve: %s
+parser.png.colorType.0=Gråtoner
 parser.png.colorType.2=RGB
-parser.png.colorType.3=Palette
-parser.png.colorType.4=Grayscale with alpha
-parser.png.colorType.6=RGB with alpha
-parser.png.colorType.error=Unknown value
-parser.png.compression.0=Compression: Deflate
-parser.png.compression.error=Compression: Unknown method
-parser.png.filter.0=Filter method: Adaptive
-parser.png.filter.error=Filter method: Unknown value
-parser.png.interlace.0=Interlace: No
-parser.png.interlace.1=Interlace: Yes, using Adam7
-parser.png.interlace.error=Interlace: Unknown value
-# ==
+parser.png.colorType.3=Palet
+parser.png.colorType.4=Gråtoner med alpha
+parser.png.colorType.6=RGB med alpha
+parser.png.colorType.error=Ukendt værdi
+parser.png.compression.0=Komprimeringsmetode: Deflate
+parser.png.compression.error=Ugyldig komprimeringsmetode
+parser.png.filter.0=Filteringsmetode: Fleksibel
+parser.png.filter.error=Filteringsmetode: Ukendt værdi
+parser.png.interlace.0=Interlace: Nej
+parser.png.interlace.1=Interlace: Ja, med Adam7
+parser.png.interlace.error=Interlace: Ukendt værdi\
 
 parser.png.idat=Dekomprimeret IDAT blok (PNG)
 
