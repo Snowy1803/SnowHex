@@ -135,6 +135,22 @@ parser.png.interlace.error=Interlace: Unknown value
 
 parser.png.idat=Decompressed IDAT chunk (PNG)
 
+parser.gz=GZIP File (GZ)
+parser.gz.header=The GZIP header (1f 8b) is missing
+parser.gz.cm=Compression method: Deflate
+parser.gz.cm.error=Unknown compression method
+parser.gz.flg.ftext.true=Contains ASCII text
+parser.gz.flg.ftext.false=Content may be binary
+parser.gz.flg.fhcrc.true=<span style="color: green">✓</span> With header CRC
+parser.gz.flg.fhcrc.false=<span style="color: red">✗</span> Without header CRC
+parser.gz.flg.fextra.true=<span style="color: green">✓</span> With an extra field
+parser.gz.flg.fextra.false=<span style="color: red">✗</span> Without an extra field
+parser.gz.flg.fname.true=<span style="color: green">✓</span> Known filename
+parser.gz.flg.fname.false=<span style="color: red">✗</span> Unknown filename
+parser.gz.flg.fcomment.true=<span style="color: green">✓</span> With a comment
+parser.gz.flg.fcomment.false=<span style="color: red">✗</span> Without a comment
+parser.gz.mtime.none=<span style="color: red">✗</span> No file modification time provided
+
 parser.ser=Java Serialized File (SER)
 parser.ser.header=The SER header (AC ED) is missing
 parser.ser.version=Serialization version %d

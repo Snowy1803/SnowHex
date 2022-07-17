@@ -137,6 +137,22 @@ parser.png.interlace.error=Interlace: Unknown value
 
 parser.png.idat=Dekomprimeret IDAT blok (PNG)
 
+parser.gz=GZIP Fil (GZ)
+parser.gz.header=GZIP headeren (1f 8b) mangler
+parser.gz.cm=Komprimeringsmetode: Deflate
+parser.gz.cm.error=Ugyldig komprimeringsmetode
+parser.gz.flg.ftext.true=Indholder ASCII tekst
+parser.gz.flg.ftext.false=Indholder måske binært
+parser.gz.flg.fhcrc.true=<span style="color: green">✓</span> Med header CRC
+parser.gz.flg.fhcrc.false=<span style="color: red">✗</span> Uden header CRC
+parser.gz.flg.fextra.true=<span style="color: green">✓</span> Med en ekstra data
+parser.gz.flg.fextra.false=<span style="color: red">✗</span> Uden ekstra data
+parser.gz.flg.fname.true=<span style="color: green">✓</span> Kendt filnavn
+parser.gz.flg.fname.false=<span style="color: red">✗</span> Ukendt filnavn
+parser.gz.flg.fcomment.true=<span style="color: green">✓</span> Med en kommentar
+parser.gz.flg.fcomment.false=<span style="color: red">✗</span> Uden kommentar
+parser.gz.mtime.none=<span style="color: red">✗</span> Ingen redigeringstid kendt
+
 parser.ser=Java Serialiseret Fil (SER)
 parser.ser.header=SER headeren (AC ED) mangler
 parser.ser.version=Serialisation version %d

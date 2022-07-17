@@ -6,6 +6,9 @@ import java.io.File;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,19 +38,25 @@ public class GZTokenMaker extends TokenMaker {
 				list.add(createToken(TOKEN_ERRORED, 2, 1, notice("cm.error"), Level.ERROR));
 				break gen;
 			}
-			list.add(createToken(TOKEN_METADATA, 2, 1)); // notice ?
+			list.add(createToken(TOKEN_METADATA, 2, 1, notice("cm"), Level.INFO));
 			byte flg = array[3];
 			boolean ftext = (flg & (1 << 0)) != 0;
 			boolean fhcrc = (flg & (1 << 1)) != 0;
 			boolean fextra = (flg & (1 << 2)) != 0;
 			boolean fname = (flg & (1 << 3)) != 0;
 			boolean fcomment = (flg & (1 << 4)) != 0;
-			list.add(createToken(TOKEN_METADATA, 3, 1)); // notice ?
+			list.add(createToken(TOKEN_METADATA, 3, 1,
+					notice("flg.ftext." + ftext) + "<br/>"
+					+ notice("flg.fhcrc." + fhcrc) + "<br/>"
+					+ notice("flg.fextra." + fextra) + "<br/>"
+					+ notice("flg.fname." + fname) + "<br/>"
+					+ notice("flg.fcomment." + fcomment), Level.INFO));
 			int mtime = ByteBuffer.wrap(array, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
-			list.add(createToken(TOKEN_METADATA, 4, 4)); // notice ?
+			list.add(createToken(TOKEN_METADATA, 4, 4,
+					mtime == 0 ? notice("mtime.none") : DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL).format(Instant.ofEpochSecond(mtime)), Level.INFO));
 			byte xfl = array[8]; // deflate compression lvl
 			list.add(createToken(TOKEN_METADATA, 8, 1)); // notice ?
-			byte os = array[9]; // deflate compression lvl
+			byte os = array[9];
 			list.add(createToken(TOKEN_METADATA, 9, 1)); // notice ?
 			ByteBuffer buf = ByteBuffer.wrap(array).order(ByteOrder.LITTLE_ENDIAN).position(10);
 			if (fextra) {

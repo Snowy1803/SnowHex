@@ -135,6 +135,22 @@ parser.png.interlace.error=Entrelacé : Méthode inconnue
 
 parser.png.idat=Tronçon IDAT décompressé (PNG)
 
+parser.gz=Fichier GZIP (GZ)
+parser.gz.header=L'entête PNG (1f 8b) est manquant
+parser.gz.cm=Méthode de compression : Deflate
+parser.gz.cm.error=Méthode de compression inconnue
+parser.gz.flg.ftext.true=Contient du texte ASCII
+parser.gz.flg.ftext.false=Peut contenir du binaire
+parser.gz.flg.fhcrc.true=<span style="color: green">✓</span> Avec un CRC d'entête
+parser.gz.flg.fhcrc.false=<span style="color: red">✗</span> Sans CRC d'entête
+parser.gz.flg.fextra.true=<span style="color: green">✓</span> Avec un champ supplémentaire
+parser.gz.flg.fextra.false=<span style="color: red">✗</span> Sans champ supplémentaire
+parser.gz.flg.fname.true=<span style="color: green">✓</span> Nom de fichier connu
+parser.gz.flg.fname.false=<span style="color: red">✗</span> Nom de fichier inconnu
+parser.gz.flg.fcomment.true=<span style="color: green">✓</span> Avec un commentaire
+parser.gz.flg.fcomment.false=<span style="color: red">✗</span> Sans commentaire
+parser.gz.mtime.none=<span style="color: red">✗</span> Aucune date de dernière modification du fichier spécifiée
+
 parser.ser=Fichier Java Sérialisé (SER)
 parser.ser.header=L'entête SER (AC ED) est manquant
 parser.ser.version=Sérialisation de version %d
