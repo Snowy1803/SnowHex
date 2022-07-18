@@ -150,6 +150,7 @@ parser.gz.flg.fname.false=<span style="color: red">✗</span> Unknown filename
 parser.gz.flg.fcomment.true=<span style="color: green">✓</span> With a comment
 parser.gz.flg.fcomment.false=<span style="color: red">✗</span> Without a comment
 parser.gz.mtime.none=<span style="color: red">✗</span> No file modification time provided
+parser.gz.isize=Original filesize: %d bytes (mod 2^32)
 
 parser.ser=Java Serialized File (SER)
 parser.ser.header=The SER header (AC ED) is missing

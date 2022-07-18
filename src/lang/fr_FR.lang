@@ -150,6 +150,7 @@ parser.gz.flg.fname.false=<span style="color: red">✗</span> Nom de fichier inc
 parser.gz.flg.fcomment.true=<span style="color: green">✓</span> Avec un commentaire
 parser.gz.flg.fcomment.false=<span style="color: red">✗</span> Sans commentaire
 parser.gz.mtime.none=<span style="color: red">✗</span> Aucune date de dernière modification du fichier spécifiée
+parser.gz.isize=Taille du fichier original : %d octets (mod 2^32)
 
 parser.ser=Fichier Java Sérialisé (SER)
 parser.ser.header=L'entête SER (AC ED) est manquant

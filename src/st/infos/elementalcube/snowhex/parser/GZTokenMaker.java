@@ -93,7 +93,7 @@ public class GZTokenMaker extends TokenMaker {
 			int crc32 = buf.getInt();
 			list.add(createToken(TOKEN_CHECKSUM, buf.position() - 4, 4));
 			int isize = buf.getInt();
-			list.add(createToken(TOKEN_LENGTH, buf.position() - 4, 4));
+			list.add(createToken(TOKEN_LENGTH, buf.position() - 4, 4, notice("isize", isize), Level.INFO));
 		} catch (IndexOutOfBoundsException | BufferUnderflowException e) {
 			list.add(createToken(TOKEN_ERRORED, array.length - 1, 1, notice("ioob"), Level.ERROR));
 		}

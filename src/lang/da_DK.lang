@@ -131,7 +131,7 @@ parser.png.filter.0=Filteringsmetode: Fleksibel
 parser.png.filter.error=Filteringsmetode: Ukendt værdi
 parser.png.interlace.0=Interlace: Nej
 parser.png.interlace.1=Interlace: Ja, med Adam7
-parser.png.interlace.error=Interlace: Ukendt værdi\
+parser.png.interlace.error=Interlace: Ukendt værdi
 
 parser.png.idat=Dekomprimeret IDAT blok (PNG)
 
@@ -150,6 +150,7 @@ parser.gz.flg.fname.false=<span style="color: red">✗</span> Ukendt filnavn
 parser.gz.flg.fcomment.true=<span style="color: green">✓</span> Med en kommentar
 parser.gz.flg.fcomment.false=<span style="color: red">✗</span> Uden kommentar
 parser.gz.mtime.none=<span style="color: red">✗</span> Ingen redigeringstid kendt
+parser.gz.isize=Original filstørrelse: %d bytes (mod 2^32)
 
 parser.ser=Java Serialiseret Fil (SER)
 parser.ser.header=SER headeren (AC ED) mangler
