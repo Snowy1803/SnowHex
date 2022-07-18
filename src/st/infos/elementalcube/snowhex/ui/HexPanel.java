@@ -42,8 +42,6 @@ import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import st.infos.elementalcube.snowhex.ByteSelection;
 import st.infos.elementalcube.snowhex.Format;
 import st.infos.elementalcube.snowhex.HexDocument;
@@ -54,13 +52,15 @@ import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowylangapi.Lang;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 public class HexPanel extends JPanel implements Scrollable {
 	private static final long serialVersionUID = 8016191606233812054L;
 	private static final Font FONT = new Font(Font.MONOSPACED, Font.PLAIN, 20);
 	private HexDocument document;
 	private TokenMaker colorer;
 	private List<Token> tokens;
-	private double length0, lineH;
+	private int length0, lineH;
 	
 	// Caret
 	private HexCaret caret;
@@ -102,7 +102,7 @@ public class HexPanel extends JPanel implements Scrollable {
 					if (caretIndex == -1) {
 						caret.removeCaretPosition();
 					} else {
-						int startX = (int) ((addressCols + 2) * length0);
+						int startX = (addressCols + 2) * length0;
 						boolean caretAfter = Math.round((e.getX() - startX) / length0 % 3) >= 2;
 						caret.setCaretPosition(caretIndex, caretAfter);
 					}
@@ -311,9 +311,9 @@ public class HexPanel extends JPanel implements Scrollable {
 			return;
 		}
 		updateClosestToken();
-		int x1 = (int) (startX() + ((caret.getDot() % 16) * 3 + (caret.isDotAfter() ? 2 : 1)) * length0);
-		int y = (int) (((caret.getDot() / 16) + 2) * lineH);
-		scrollRectToVisible(new Rectangle(x1, y - (int) lineH + 2, 2, (int) lineH + 7));
+		int x1 = startX() + ((caret.getDot() % 16) * 3 + (caret.isDotAfter() ? 2 : 1)) * length0;
+		int y = ((caret.getDot() / 16) + 2) * lineH;
+		scrollRectToVisible(new Rectangle(x1, y - lineH + 2, 2, lineH + 7));
 		if (listener != null)
 			listener.actionPerformed(new ActionEvent(caret, ActionEvent.ACTION_PERFORMED, null));
 	}
@@ -321,11 +321,11 @@ public class HexPanel extends JPanel implements Scrollable {
 	private int getCoordsOffset(int x, int y, boolean closest) {
 		if (length0 == 0 || lineH == 0) return -1;
 		int startX = startX();
-		int startY = (int) (2 * lineH);
+		int startY = 2 * lineH;
 		x -= startX;
 		y -= startY;
-		int rx = (int) Math.floor(x / (length0 * 3));
-		int ry = (int) Math.ceil(y / lineH);
+		int rx = x / (length0 * 3);
+		int ry = (y + lineH - 1) / lineH;
 		if (rx < 0 || ry < 0 || rx > 15) {
 			if (!closest)
 				return -1;
@@ -343,7 +343,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	}
 	
 	private int startX() {
-		return (int) ((addressCols + 2) * length0);
+		return (addressCols + 2) * length0;
 	}
 	
 	private void calculateAddressCols() {
@@ -443,24 +443,23 @@ public class HexPanel extends JPanel implements Scrollable {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setFont(FONT);
 		g2d.setStroke(new BasicStroke(1));
-		char[] buf = new char[2];
 		Rectangle2D r2d = FONT.getStringBounds("0", g2d.getFontRenderContext());
-		length0 = Math.ceil(r2d.getWidth());
-		lineH = Math.ceil(r2d.getHeight());
+		length0 = (int) Math.ceil(r2d.getWidth() / 2) * 2;
+		lineH = (int) Math.ceil(r2d.getHeight() / 2) * 2;
 		setPreferredSize(new Dimension(
-				(int) ((addressCols + (showDump ? 66 : 50)) * length0), 
-				(int) (Math.ceil(document.getLength() / 16F + 1) * lineH) + 5));
+				(addressCols + (showDump ? 66 : 50)) * length0, 
+				(((document.getLength() + 15) / 16 + 1) * lineH) + 5));
 		if (g2d.getClip().intersects((int) ((addressCols + 2.5) * length0), 0, 54 * length0, lineH)) {
-			g2d.drawString("0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f", (int) ((addressCols + 2.5) * length0), (int) lineH);
+			g2d.drawString("0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f", (int) ((addressCols + 2.5) * length0), lineH);
 			if (showDump)
-				g2d.drawString("Dump", (int) ((addressCols + 50) * length0), (int) lineH);
+				g2d.drawString("Dump", (addressCols + 50) * length0, lineH);
 		}
 		int ix = startX();
-		int a = Math.max(0, (int) (g2d.getClipBounds().getMinY() / lineH - 2));
-		int count = Math.min((int) Math.ceil(document.getLength() / 16F), (int) (g2d.getClipBounds().getMaxY() / lineH));
+		int a = Math.max(0, (int) g2d.getClipBounds().getMinY() / lineH - 2);
+		int count = Math.min((document.getLength() + 15) / 16, (int) Math.ceil(g2d.getClipBounds().getMaxY() / lineH));
 		List<Token> formats = getTokensAt(tokens, a * 16, count * 16);
 		for (; a < count; a++) {
-			int y = (int) ((a + 2) * lineH);
+			int y = (a + 2) * lineH;
 			int x = ix;
 			
 			if (!g2d.getClip().intersects(0, y - lineH + 3, ix + 64 * length0, lineH))
@@ -468,50 +467,48 @@ public class HexPanel extends JPanel implements Scrollable {
 			
 			String address = Integer.toHexString(a) + "X";
 			g2d.setColor(Color.BLACK);
-			g2d.drawString(address, (int) ((addressCols - address.length() + 1) * length0), y);
+			g2d.drawString(address, (addressCols - address.length() + 1) * length0, y);
 			for (int i = 0; i < 16; i++) {
 				int index = a * 16 + i;
 				if (document.getLength() <= index) break;
 				byte b = document.getByte(index);
 				Format f = getFormatAt(formats, index);
 				g2d.setColor(f.getBackground());
-				g2d.fillRect(x - (int) (length0 / 2), y - (int) lineH + 3, (int) (length0 * 3), (int) lineH);
+				g2d.fillRect(x - length0 / 2, y - lineH + 3, length0 * 3, lineH);
 				g2d.setColor(f.getForeground());
-				if (f.isUnderlined() || (closestToken != null && closestToken.at(index) && !caret.hasSelection()))
-					g2d.drawLine(x - (int) (length0 / 2), y + 2, x + (int) (length0 * 2.5), y + 2);
-				getDigitsInByte(b, buf);
-				g2d.drawChars(buf, 0, 2, x, y);
+				g2d.drawString(twoCharsHexByte(b), x, y);
+				if (f.isUnderlined() || (closestToken != null && closestToken.at(index) && !caret.hasSelection())) {
+					g2d.drawLine(x - length0 / 2, y + 2, x + (int) (length0 * 2.5), y + 2);
+				}
 				if (caret.hasSelection() && caret.intersects(index)) {
 					g2d.setColor(getForeground());
 					if (i == 0 || index == caret.getFirstByte())
-						g2d.drawLine(x - (int) (length0 / 2), y - (int) lineH + 3, x - (int) (length0 / 2), y + 3);
+						g2d.drawLine(x - length0 / 2, y - lineH + 3, x - length0 / 2, y + 2);
 					if (i == 15 || index == caret.getLastByte())
-						g2d.drawLine(x + (int) (length0 * 2.5) - 1, y - (int) lineH + 3, x + (int) (length0 * 2.5) - 1, y + 3);
+						g2d.drawLine(x + (int) (length0 * 2.5) - 1, y - lineH + 3, x + (int) (length0 * 2.5) - 1, y + 2);
 					if (!caret.intersects(index + 16))
-						g2d.drawLine(x - (int) (length0 / 2), y + 2, x + (int) (length0 * 2.5) - 1, y + 2);
+						g2d.drawLine(x - length0 / 2, y + 2, x + (int) (length0 * 2.5) - 1, y + 2);
 					if (!caret.intersects(index - 16))
-						g2d.drawLine(x - (int) (length0 / 2), y - (int) lineH + 3, x + (int) (length0 * 2.5) - 1, y - (int) lineH + 3);
+						g2d.drawLine(x - length0 / 2, y - lineH + 3, x + (int) (length0 * 2.5) - 1, y - lineH + 3);
 				}
 				x += 3 * length0;
 				if (showDump) {
-					int dx = ix + (int) ((48 + i) * length0);
+					int dx = ix + (48 + i) * length0;
 					g2d.setColor(f.getBackground());
-					g2d.fillRect(dx, y - (int) lineH + 3, (int) (length0), (int) lineH);
+					g2d.fillRect(dx, y - lineH + 3, length0, lineH);
 					g2d.setColor(f.getForeground());
 					char[] s = {b >= 32 && b <= 127 ? (char) b : '.'};
-					g2d.drawChars(s, 0, 1, dx, y);
+					g2d.drawString(new String(s), dx, y);
 					if (caret.intersects(index)) {
-						g2d.drawLine(dx, y + 2, dx + (int) (length0), y + 2);
+						g2d.drawLine(dx, y + 2, dx + length0, y + 2);
 					}
 				}
 			}
 			
 			if (!caret.hasSelection() && caret.hasValidPosition() && caret.getDot() / 16 == a) {
-				g2d.setStroke(new BasicStroke(2));
 				g2d.setColor(Color.BLACK);
-				int x1 = (int) (ix + ((caret.getDot() % 16) * 3 + (caret.isDotAfter() ? 2 : 1)) * length0);
-				g2d.drawLine(x1, y + 5, x1, y - (int) lineH + 2);
-				g2d.setStroke(new BasicStroke(1));
+				int x1 = ix + ((caret.getDot() % 16) * 3 + (caret.isDotAfter() ? 2 : 1)) * length0;
+				g2d.fillRect(x1 - 1, y - lineH + 5, 2, lineH - 4);
 			}
 		}
 	}
@@ -625,17 +622,17 @@ public class HexPanel extends JPanel implements Scrollable {
 
 	@Override
 	public Dimension getPreferredScrollableViewportSize() {
-		return new Dimension((int) length0 * 64, (int) (lineH * document.getLength() / 16));
+		return new Dimension(length0 * 64, lineH * (document.getLength() + 15 / 16));
 	}
 
 	@Override
 	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
-		return direction == SwingConstants.HORIZONTAL ? (int) length0 * 3 : (int) lineH;
+		return direction == SwingConstants.HORIZONTAL ? length0 * 3 : lineH;
 	}
 
 	@Override
 	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
-		return direction == SwingConstants.HORIZONTAL ? (int) length0 * 3 : (int) (visibleRect.height / lineH * lineH);
+		return direction == SwingConstants.HORIZONTAL ? length0 * 3 : (visibleRect.height / lineH * lineH);
 	}
 
 	@Override
