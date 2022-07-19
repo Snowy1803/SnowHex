@@ -24,6 +24,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	
 	// Caret
 	private HexCaret caret;
-	private Token closestToken;
+	private Token[] closestToken;
 	private Pair<Integer, Integer> findRange;
 	
 	// Config
@@ -107,8 +108,9 @@ public class HexPanel extends JPanel implements Scrollable {
 						boolean caretAfter = Math.round((e.getX() - startX) / length0 % 3) >= 2;
 						caret.setCaretPosition(caretIndex, caretAfter);
 					}
-					if (e.getClickCount() >= 2 && closestToken != null) {
-						caret.setSelection(closestToken.getOffset(), closestToken.getLength());
+					if (e.getClickCount() >= 2 && closestToken != null && closestToken.length > 0) {
+						int index = e.getClickCount() - 2 >= closestToken.length ? closestToken.length - 1 : e.getClickCount() - 2;
+						caret.setSelection(closestToken[index].getOffset(), closestToken[index].getLength());
 					}
 					document.pushFence();
 					repaint(getVisibleRect());
@@ -287,7 +289,7 @@ public class HexPanel extends JPanel implements Scrollable {
 			return;
 		}
 		closestToken = colorer.getClosestToken(document.getBytes(), tokens, caret.getFirstByte());
-		if (caret.hasSelection() && closestToken != colorer.getClosestToken(document.getBytes(), tokens, caret.getLastByte())) {
+		if (caret.hasSelection() && !Arrays.equals(closestToken, colorer.getClosestToken(document.getBytes(), tokens, caret.getLastByte()))) {
 			closestToken = null;
 		}
 	}
@@ -384,7 +386,7 @@ public class HexPanel extends JPanel implements Scrollable {
 	}
 	
 	public Token getClosestToken() {
-		return closestToken;
+		return closestToken != null && closestToken.length > 0 ? closestToken[0] : null;
 	}
 	
 	public boolean isShowingDump() {
@@ -478,6 +480,7 @@ public class HexPanel extends JPanel implements Scrollable {
 				g2d.fillRect(x - length0 / 2, y - lineH + 3, length0 * 3, lineH);
 				g2d.setColor(f.getForeground());
 				g2d.drawString(twoCharsHexByte(b), x, y);
+				Token closestToken = getClosestToken();
 				if (closestToken != null && closestToken.at(index) && !caret.hasSelection()) {
 					g2d.drawLine(x - length0 / 2, y + 2, x + (int) (length0 * 2.5), y + 2);
 				}

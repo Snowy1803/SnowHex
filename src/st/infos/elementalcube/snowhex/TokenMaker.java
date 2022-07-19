@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -109,18 +108,8 @@ public abstract class TokenMaker implements TokenTypes {
 	 * @param offset the offset into the byte array
 	 * @return the closest token to the given offset, or null if there are none
 	 */
-	public Token getClosestToken(byte[] array, List<Token> tokens, int offset) {
-		Iterator<Token> filtered = tokens.stream().filter(t -> t.at(offset)).iterator();
-		Token closest = null;
-		int length = Integer.MAX_VALUE;
-		while (filtered.hasNext()) {
-			Token t = filtered.next();
-			if (t.getLength() <= length) {
-				closest = t;
-				length = t.getLength();
-			}
-		}
-		return closest;
+	public Token[] getClosestToken(byte[] array, List<Token> tokens, int offset) {
+		return tokens.stream().filter(t -> t.at(offset)).sorted((t1, t2) -> t1.getLength() - t2.getLength()).toArray(Token[]::new);
 	}
 	
 	/**
