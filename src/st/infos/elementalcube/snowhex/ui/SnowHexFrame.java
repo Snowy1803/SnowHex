@@ -13,7 +13,7 @@ public abstract class SnowHexFrame extends JFrame {
 	private static final long serialVersionUID = -8095398602614431283L;
 	public static final File APPDATA = new File((System.getenv("APPDATA") == null ? FileSystemView.getFileSystemView().getDefaultDirectory().getPath()
 			: System.getenv("APPDATA") + "/") + "ElementalCube/snowhex");
-	public static final boolean USE_NATIVE_FILE_DIALOG = System.getProperty("os.name", "").contains("Mac");
+	public static final boolean USE_NATIVE_FILE_DIALOG = true;
 
 
 	public SnowHexFrame(String title) throws HeadlessException {
