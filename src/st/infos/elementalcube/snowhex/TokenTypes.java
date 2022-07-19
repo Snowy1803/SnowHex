@@ -8,9 +8,10 @@ public interface TokenTypes {
 	// MARK: - special
 	
 	/**
-	 * This token is invalid, it will be red underlined
+	 * This token has no syntactic type. It should only render as a notice.
 	 */
-	public static final int TOKEN_ERRORED = 0;
+	public static final int TOKEN_NONE = 0;
+//	public static final int TOKEN_ERRORED = 0;
 	
 	// MARK: - chunks / secondaries
 	

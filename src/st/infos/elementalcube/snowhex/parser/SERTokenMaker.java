@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import st.infos.elementalcube.snowhex.Token;
-import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.TokenMaker;
 
 public class SERTokenMaker extends TokenMaker {
 	
@@ -20,13 +20,13 @@ public class SERTokenMaker extends TokenMaker {
 			if (array[i++] == -84 && array[i++] == -19) {
 				list.add(createToken(TOKEN_FILE_HEADER, i - 2, 2));
 			} else {
-				list.add(createToken(TOKEN_ERRORED, 0, 1, notice("header"), Level.ERROR));
+				list.add(createToken(TOKEN_FILE_HEADER, 0, 1, notice("header"), Level.ERROR));
 				break gen;
 			}
 			list.add(createToken(TOKEN_IMAGE_SIZE, i, 2, notice("version", toShort(array[i++], array[i++])), Level.INFO));
 			readBlocks(list, array, i);
 		} catch (IndexOutOfBoundsException e) {
-			list.add(createToken(TOKEN_ERRORED, array.length - 1, 1, notice("ioob"), Level.ERROR));
+			list.add(createToken(TOKEN_NONE, array.length - 1, 1, notice("ioob"), Level.ERROR));
 		}
 		return list;
 	}
@@ -42,7 +42,7 @@ public class SERTokenMaker extends TokenMaker {
 			i = readFieldName(list, array, i);
 			break;
 		default:
-			list.add(createToken(TOKEN_ERRORED, i - 1, 1, notice("block.unknown"), Level.ERROR));
+			list.add(createToken(TOKEN_CHUNK_HEADER, i - 1, 1, notice("block.unknown"), Level.ERROR));
 			break;
 		}
 		if (array.length != i) {// Missing trailer?

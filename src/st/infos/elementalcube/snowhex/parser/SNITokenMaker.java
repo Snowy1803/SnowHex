@@ -9,8 +9,8 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import st.infos.elementalcube.snowhex.Token;
-import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.TokenMaker;
 
 public class SNITokenMaker extends TokenMaker {
 	@Override
@@ -22,7 +22,7 @@ public class SNITokenMaker extends TokenMaker {
 			if (array[i++] == 0x53 && array[i++] == 0x4d) {
 				list.add(createToken(TOKEN_FILE_HEADER, i - 2, 2));
 			} else {
-				list.add(createToken(TOKEN_ERRORED, 0, 1, notice("header"), Level.ERROR));
+				list.add(createToken(TOKEN_FILE_HEADER, 0, 1, notice("header"), Level.ERROR));
 				break gen;
 			}
 			SNIMetadata meta = new SNIMetadata(array[i++]);
@@ -61,7 +61,7 @@ public class SNITokenMaker extends TokenMaker {
 							notice("clip", off, len),
 							Level.INFO));
 					if (len + off > h) {
-						list.add(createToken(TOKEN_ERRORED,
+						list.add(createToken(TOKEN_NONE,
 								i - (meta.isSmallImage() ? 2 : 4),
 								meta.isSmallImage() ? 2 : 4,
 								notice("clipSize"),
@@ -86,7 +86,7 @@ public class SNITokenMaker extends TokenMaker {
 							int p = array[i++];
 							list.add(createToken(TOKEN_IMAGE_COLOR, i - 1, 1));
 							if (p >= palSize) {
-								list.add(createToken(TOKEN_ERRORED, i - 1, 1, notice("palette.ioob", p), Level.ERROR));
+								list.add(createToken(TOKEN_NONE, i - 1, 1, notice("palette.ioob", p), Level.ERROR));
 							}
 						} else {
 							parseColor(list, meta, array, i);
@@ -97,10 +97,10 @@ public class SNITokenMaker extends TokenMaker {
 			}
 			list.add(createToken(TOKEN_IMAGE_DATA, dataStart, i - dataStart));
 			if (i < array.length) {
-				list.add(createToken(TOKEN_ERRORED, i, array.length - i, notice("dead"), Level.WARNING));
+				list.add(createToken(TOKEN_NONE, i, array.length - i, notice("dead"), Level.WARNING));
 			}
 		} catch (IndexOutOfBoundsException e) {
-			list.add(createToken(TOKEN_ERRORED, array.length - 1, 1, notice("ioob"), Level.ERROR));
+			list.add(createToken(TOKEN_NONE, array.length - 1, 1, notice("ioob"), Level.ERROR));
 		}
 		return list;
 	}

@@ -42,6 +42,8 @@ import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import st.infos.elementalcube.snowhex.ByteSelection;
 import st.infos.elementalcube.snowhex.Format;
 import st.infos.elementalcube.snowhex.HexDocument;
@@ -50,9 +52,8 @@ import st.infos.elementalcube.snowhex.Theme;
 import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.TokenMaker;
+import st.infos.elementalcube.snowhex.TokenTypes;
 import st.infos.elementalcube.snowylangapi.Lang;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 public class HexPanel extends JPanel implements Scrollable {
 	private static final long serialVersionUID = 8016191606233812054L;
@@ -477,8 +478,23 @@ public class HexPanel extends JPanel implements Scrollable {
 				g2d.fillRect(x - length0 / 2, y - lineH + 3, length0 * 3, lineH);
 				g2d.setColor(f.getForeground());
 				g2d.drawString(twoCharsHexByte(b), x, y);
-				if (f.isUnderlined() || (closestToken != null && closestToken.at(index) && !caret.hasSelection())) {
+				if (closestToken != null && closestToken.at(index) && !caret.hasSelection()) {
 					g2d.drawLine(x - length0 / 2, y + 2, x + (int) (length0 * 2.5), y + 2);
+				}
+				if (f.isStrikedThrough()) {
+					g2d.setColor(f.getStrikeThroughColor());
+					int ypos = y - lineH / 2 + 3;
+					g2d.drawLine(x - 1, ypos, x - 1 + length0 * 2, ypos);
+				}
+				if (f.isSquiggly()) {
+					g2d.setColor(f.getSquiggleColor());
+					int h = 2;
+					int ypos = y;
+					int xend = x + length0 * 2 + length0 / 2;
+					for (int xs = x - length0 / 2; xs < xend; xs += 2 * h) {
+						g2d.drawArc(xs, ypos, h, h, 0, 180);
+						g2d.drawArc(xs + h, ypos, h, h, 180, 181);
+					}
 				}
 				if (caret.hasSelection() && caret.intersects(index)) {
 					g2d.setColor(getForeground());
@@ -554,17 +570,23 @@ public class HexPanel extends JPanel implements Scrollable {
 	}
 	
 	private Format getFormatAt(List<Token> tokens, int index) {
-		Format f = Format.DEFAULT;
+		Format f = Theme.DEFAULT.get(TokenTypes.TOKEN_NONE);
 		if (tokens == null) return f;
 		Iterator<Token> i = getTokensAt(tokens, index);
+		Level highest = Level.INFO;
 		while (i.hasNext()) {
-			f = f.combine(Theme.DEFAULT.get(i.next().getType()));
+			Token t = i.next();
+			if (t.getType() != TokenTypes.TOKEN_NONE) {
+				f = f.combine(Theme.DEFAULT.get(t.getType()));
+			}
+			if (t.getToolTipLevel() != null) {
+				highest = highest.compareTo(t.getToolTipLevel()) > 0 ? highest : t.getToolTipLevel();
+			}
 		}
+		f = f.combine(Theme.DEFAULT.get(highest));
 		// have < alpha on non-'selected' bytes in find/replace
 		if (findRange != null && !(findRange.getLeft() <= index && index <= findRange.getRight())) {
-			Color bg = f.getBackground().darker();
-			Color fg = f.getForeground();
-			f = new Format(new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 127), new Color(bg.getRed(), bg.getGreen(), bg.getBlue(), 127), false);
+			f = f.faded();
 		}
 		return f;
 	}

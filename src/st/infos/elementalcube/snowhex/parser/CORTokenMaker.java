@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import st.infos.elementalcube.snowhex.Token;
-import st.infos.elementalcube.snowhex.TokenMaker;
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.TokenMaker;
 
 public class CORTokenMaker extends TokenMaker {
 
@@ -39,7 +39,7 @@ public class CORTokenMaker extends TokenMaker {
 		int offset = 2192;
 		while (offset < array.length) {
 			if (array[offset] <= 0 || array[offset] > OPNAMES.length) {
-				tokens.add(createToken(TOKEN_ERRORED, offset, 1, "Invalid opcode", Level.ERROR));
+				tokens.add(createToken(TOKEN_CHUNK_HEADER, offset, 1, "Invalid opcode", Level.ERROR));
 				offset++;
 				continue;
 			}

@@ -29,7 +29,7 @@ public class GIFTokenMaker extends TokenMaker {
 					&& array[i++] == 0x61) {
 				list.add(createToken(TOKEN_FILE_HEADER, i - 6, 6));
 			} else {
-				list.add(createToken(TOKEN_ERRORED, 0, 1, notice("header"), Level.ERROR));
+				list.add(createToken(TOKEN_FILE_HEADER, 0, 1, notice("header"), Level.ERROR));
 				break gen;
 			}
 			int w = toShort(array[i++], array[i++]);
@@ -62,7 +62,7 @@ public class GIFTokenMaker extends TokenMaker {
 			}
 			readBlocks(list, array, i);
 		} catch (IndexOutOfBoundsException e) {
-			list.add(createToken(TOKEN_ERRORED, array.length - 1, 1, notice("ioob"), Level.ERROR));
+			list.add(createToken(TOKEN_NONE, array.length - 1, 1, notice("ioob"), Level.ERROR));
 		}
 		return list;
 	}
@@ -111,7 +111,7 @@ public class GIFTokenMaker extends TokenMaker {
 					}
 					byte terminator = array[i++];
 					if (terminator != 0) {
-						list.add(createToken(TOKEN_ERRORED, i - 1, 1, notice("block.noterminator"), Level.ERROR));
+						list.add(createToken(TOKEN_NONE, i - 1, 1, notice("block.noterminator"), Level.ERROR));
 					} else list.add(createToken(TOKEN_RESERVED, i - 1, 1));
 					break;
 				case -2:
@@ -134,7 +134,7 @@ public class GIFTokenMaker extends TokenMaker {
 					list.add(createToken(TOKEN_CHUNK, extStart, i - extStart));
 					break;
 				default:
-					list.add(createToken(TOKEN_ERRORED, i - 2, 2, notice("block.unknown"), Level.ERROR));
+					list.add(createToken(TOKEN_CHUNK_HEADER, i - 2, 2, notice("block.unknown"), Level.ERROR));
 					break;
 				}
 				break;
@@ -169,11 +169,11 @@ public class GIFTokenMaker extends TokenMaker {
 			case 0x3b:
 				list.add(createToken(TOKEN_CHUNK_HEADER, i - 1, 1));
 				if (i < array.length) {
-					list.add(createToken(TOKEN_ERRORED, i, array.length - i, "Trailing data", Level.WARNING));
+					list.add(createToken(TOKEN_NONE, i, array.length - i, "Trailing data", Level.WARNING));
 				}
 				return;
 			default:
-				list.add(createToken(TOKEN_ERRORED, i - 1, 1, notice("block.unknown"), Level.ERROR));
+				list.add(createToken(TOKEN_CHUNK_HEADER, i - 1, 1, notice("block.unknown"), Level.ERROR));
 				break;
 			}
 		}

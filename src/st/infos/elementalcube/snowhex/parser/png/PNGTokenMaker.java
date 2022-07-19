@@ -39,13 +39,13 @@ public class PNGTokenMaker extends TokenMaker {
 		gen:
 		try {
 			if (!Arrays.equals(array, 0, 8, SIGNATURE, 0, 8)) {
-				list.add(createToken(TOKEN_ERRORED, 0, 8, notice("header"), Level.ERROR));
+				list.add(createToken(TOKEN_FILE_HEADER, 0, 8, notice("header"), Level.ERROR));
 				break gen;
 			}
 			list.add(createToken(TOKEN_FILE_HEADER, 0, 8));
 			readChunks(list, array);
 		} catch (IndexOutOfBoundsException | BufferUnderflowException e) {
-			list.add(createToken(TOKEN_ERRORED, array.length - 1, 1, notice("ioob"), Level.ERROR));
+			list.add(createToken(TOKEN_NONE, array.length - 1, 1, notice("ioob"), Level.ERROR));
 		}
 		return list;
 	}
@@ -75,7 +75,7 @@ public class PNGTokenMaker extends TokenMaker {
 			int checksum = buf.getInt();
 			int expected = (int) crc.getValue();
 			if (expected != checksum) {
-				list.add(createToken(TOKEN_ERRORED, buf.position() - 4, 4, notice("invalidCrc"), Level.ERROR).expectedCrc(expected));
+				list.add(createToken(TOKEN_CHECKSUM, buf.position() - 4, 4, notice("invalidCrc"), Level.ERROR).expectedCrc(expected));
 			} else {
 				list.add(createToken(TOKEN_CHECKSUM, buf.position() - 4, 4));
 			}
@@ -98,25 +98,25 @@ public class PNGTokenMaker extends TokenMaker {
 			if (Arrays.binarySearch(new byte[] {0, 2, 3, 4, 6}, colorType) >= 0) {
 				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("colorType", notice("colorType." + colorType)), Level.INFO));
 			} else {
-				list.add(createToken(TOKEN_ERRORED, buf.position() - 1, 1, notice("colorType", notice("colorType.error")), Level.ERROR));	
+				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("colorType", notice("colorType.error")), Level.ERROR));	
 			}
 			byte compression = buf.get();
 			if (compression == 0) {
 				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("compression." + compression), Level.INFO));
 			} else {
-				list.add(createToken(TOKEN_ERRORED, buf.position() - 1, 1, notice("compression.error"), Level.ERROR));	
+				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("compression.error"), Level.ERROR));	
 			}
 			byte filter = buf.get();
 			if (filter == 0) {
 				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("filter." + filter), Level.INFO));
 			} else {
-				list.add(createToken(TOKEN_ERRORED, buf.position() - 1, 1, notice("filter.error"), Level.ERROR));	
+				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("filter.error"), Level.ERROR));	
 			}
 			byte interlace = buf.get();
 			if (interlace == 0 || interlace == 1) {
 				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("interlace." + interlace), Level.INFO));
 			} else {
-				list.add(createToken(TOKEN_ERRORED, buf.position() - 1, 1, notice("interlace.error"), Level.ERROR));	
+				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("interlace.error"), Level.ERROR));	
 			}
 			break;
 		case 0x49_44_41_54: // IDAT
@@ -158,7 +158,7 @@ public class PNGTokenMaker extends TokenMaker {
 			if (compression == 0) {
 				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("compression." + compression), Level.INFO));
 			} else {
-				list.add(createToken(TOKEN_ERRORED, buf.position() - 1, 1, notice("compression.error"), Level.ERROR));	
+				list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("compression.error"), Level.ERROR));	
 			}
 			list.add(createToken(TOKEN_COMPRESSED_DATA, buf.position(), length - (buf.position() - start))
 					.withSubtype(PNGToken.COMPRESSED_ZTXT).withIndex(buf.position() - start + 8));
@@ -174,7 +174,7 @@ public class PNGTokenMaker extends TokenMaker {
 				if (compression == 0) {
 					list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("compression." + compression), Level.INFO));
 				} else {
-					list.add(createToken(TOKEN_ERRORED, buf.position() - 1, 1, notice("compression.error"), Level.ERROR));	
+					list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("compression.error"), Level.ERROR));	
 				}
 			} else {
 				list.add(createToken(TOKEN_RESERVED, buf.position() - 1, 1));	
