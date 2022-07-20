@@ -157,6 +157,15 @@ parser.ser.header=The SER header (AC ED) is missing
 parser.ser.version=Serialization version %d
 parser.ser.fieldname=Field name: '%s'
 
+parser.asn1=Abstract Syntax Notation 1 (ASN1 BER/DER/CER)
+parser.asn1.id.0=Universal %s identifier #%d
+parser.asn1.id.1=Application %s identifier #%d
+parser.asn1.id.2=Context-specific %s identifier #%d
+parser.asn1.id.3=Private %s identifier #%d
+parser.asn1.id.constructed.false=primitive
+parser.asn1.id.constructed.true=constructed
+parser.asn1.length=Length: %d bytes
+
 parser.ant1=Antman type 1
 parser.ant3=Antman type 3
 parser.cor=Corewar Warrior

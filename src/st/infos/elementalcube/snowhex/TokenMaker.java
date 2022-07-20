@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.parser.ASN1TokenMaker;
 import st.infos.elementalcube.snowhex.parser.Ant1TokenMaker;
 import st.infos.elementalcube.snowhex.parser.Ant3TokenMaker;
 import st.infos.elementalcube.snowhex.parser.CORTokenMaker;
@@ -36,6 +37,7 @@ public abstract class TokenMaker implements TokenTypes {
 		subclasses.put("cor", CORTokenMaker.class);
 		subclasses.put("png", PNGTokenMaker.class);
 		subclasses.put("gz", GZTokenMaker.class);
+		subclasses.put("asn1", ASN1TokenMaker.class);
 		// TODO subclasses.put("ser", SERTokenMaker.class);
 	}
 	

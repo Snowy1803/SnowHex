@@ -157,6 +157,15 @@ parser.ser.header=L'entête SER (AC ED) est manquant
 parser.ser.version=Sérialisation de version %d
 parser.ser.fieldname=Nom du champ : '%s'
 
+parser.asn1=Abstract Syntax Notation 1 (ASN1 BER/DER/CER)
+parser.asn1.id.0=Identifiant %s universel #%d
+parser.asn1.id.1=Identifiant %s d'application #%d
+parser.asn1.id.2=Identifiant %s contextuel #%d
+parser.asn1.id.3=Identifiant %s privé #%d
+parser.asn1.id.constructed.false=primitif
+parser.asn1.id.constructed.true=construit
+parser.asn1.length=Longueur : %d octets
+
 parser.ant1=Antman type 1
 parser.ant3=Antman type 3
 parser.cor=Champion Corewar
