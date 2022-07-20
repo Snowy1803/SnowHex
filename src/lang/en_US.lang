@@ -165,6 +165,11 @@ parser.asn1.id.3=Private %s identifier #%d
 parser.asn1.id.constructed.false=primitive
 parser.asn1.id.constructed.true=constructed
 parser.asn1.length=Length: %d bytes
+parser.asn1.boolean.true=Boolean: True
+parser.asn1.boolean.false=Boolean: False
+parser.asn1.boolean.truthy=Boolean: Truthy (Invalid DER/CER)
+parser.asn1.invalid=Invalid value for primitive
+parser.asn1.integer=Integer: %d
 
 parser.ant1=Antman type 1
 parser.ant3=Antman type 3

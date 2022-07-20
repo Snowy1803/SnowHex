@@ -1,5 +1,6 @@
 package st.infos.elementalcube.snowhex.parser;
 
+import java.math.BigInteger;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -60,12 +61,12 @@ public class ASN1TokenMaker extends TokenMaker {
 			indefinite = false;
 		}
 		list.add(createToken(TOKEN_LENGTH, lengthstart, buf.position() - lengthstart, notice("length", length), Level.INFO));
+		int contentstart = buf.position();
 		if (!constructed) { // primitive
-			list.add(createToken(TOKEN_METADATA, buf.position(), length));
-			buf.position(buf.position() + length);
+			parsePrimitive(tag, constructed, type, length, list, buf);
+			buf.position(contentstart + length);
 			return id == 0;
 		}
-		int contentstart = buf.position();
 		if (indefinite) {
 			while (!readChunk(list, buf));
 		} else {
@@ -75,6 +76,32 @@ public class ASN1TokenMaker extends TokenMaker {
 		}
 		list.add(createToken(TOKEN_CHUNK, chunkstart, buf.position() - chunkstart));
 		return false;
+	}
+
+	private void parsePrimitive(int tag, boolean constructed, long type, int length, ArrayList<Token> list, ByteBuffer buf) {
+		if (tag == 0) { // universal
+			switch ((int) type) {
+			case 1:
+				if (length != 1) {
+					list.add(createToken(TOKEN_METADATA, buf.position(), length, notice("invalid"), Level.ERROR));
+				} else {
+					byte b = buf.get();
+					if (b == 0) {
+						list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("boolean.false"), Level.INFO));
+					} else if (b == -1) {
+						list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("boolean.true"), Level.INFO));
+					} else {
+						list.add(createToken(TOKEN_METADATA, buf.position() - 1, 1, notice("boolean.truthy"), Level.WARNING));
+					}
+				}
+				return;
+			case 2:
+				BigInteger value = new BigInteger(buf.array(), buf.position(), length);
+				list.add(createToken(TOKEN_METADATA, buf.position(), length, notice("integer", value), Level.INFO));
+				return;
+			}
+		}
+		list.add(createToken(TOKEN_METADATA, buf.position(), length));
 	}
 
 	@Override
