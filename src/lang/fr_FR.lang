@@ -173,6 +173,7 @@ parser.asn1.integer=Entier: %d
 parser.asn1.oid=Identifiant d'objet: %s (%s)
 parser.asn1.oid.unknown=Identifiant d'objet: %s
 parser.asn1.oid.java9=Merci d'ajouter `%s` à votre variable d'environnement `_JAVA_OPTIONS`,<br>ou d'exécuter SnowHex avec `java %1$s -jar SnowHex.jar`
+parser.asn1.oid.relative=Identifiant d'objet relatif: %s
 
 parser.ant1=Antman type 1
 parser.ant3=Antman type 3

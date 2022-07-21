@@ -145,6 +145,20 @@ public class ASN1TokenMaker extends TokenMaker {
 							notice("oid.java9", "--add-exports=java.base/sun.security.util=ALL-UNNAMED --add-exports=java.base/sun.security.x509=ALL-UNNAMED"), Level.WARNING));
 				}
 				return;
+			case 13: // RELATIVE OID
+				sj = new StringJoiner(".");
+				val = 0;
+				for (int i = 0; i < length; i++) {
+					byte b = buf.get();
+					val = (val << 7) | (b & 0x7f);
+					if (b >= 0) {
+						sj.add(Long.toString(val));
+						val = 0;
+					}
+				}
+				str = sj.toString();
+				list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.relative", str), Level.INFO));
+				return;
 			}
 		}
 		list.add(createToken(TOKEN_METADATA, buf.position(), length));

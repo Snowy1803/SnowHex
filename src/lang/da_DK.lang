@@ -173,6 +173,7 @@ parser.asn1.invalid=Invalid value for primitive
 parser.asn1.integer=Integer: %d
 parser.asn1.oid=Object Identifier: %s (%s)
 parser.asn1.oid.unknown=Object Identifier: %s
+parser.asn1.oid.relative=Relative Object Identifier: %s
 #== not localized
 parser.asn1.oid.java9=Tilføj `%s` til din `_JAVA_OPTIONS` env variabel,<br>eller start SnowHex med `java %1$s -jar SnowHex.jar`
 
