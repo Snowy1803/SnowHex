@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -100,6 +101,7 @@ public class ASN1TokenMaker extends TokenMaker {
 				}
 				return;
 			case 2: // INT
+			case 10: // enumerated
 				BigInteger value = new BigInteger(buf.array(), buf.position(), length);
 				list.add(createToken(TOKEN_METADATA, buf.position(), length, notice("integer", value), Level.INFO));
 				return;
@@ -158,6 +160,11 @@ public class ASN1TokenMaker extends TokenMaker {
 				}
 				str = sj.toString();
 				list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.relative", str), Level.INFO));
+				return;
+			case 12: // utf8 string
+			case 19: // printable string (ascii)
+				str = new String(buf.array(), buf.position(), length, StandardCharsets.UTF_8);
+				list.add(createToken(TOKEN_IMAGE_COLOR, buf.position(), length, str, Level.INFO));
 				return;
 			}
 		}
