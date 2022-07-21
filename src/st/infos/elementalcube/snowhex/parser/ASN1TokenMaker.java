@@ -184,7 +184,7 @@ public class ASN1TokenMaker extends TokenMaker {
 						Integer.parseInt(str.substring(10, 12)),
 						0,
 						ZoneId.of(str.substring(12)));
-				list.add(createToken(TOKEN_METADATA, buf.position(), length,
+				list.add(createToken(TOKEN_DATE, buf.position(), length,
 						time.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)), Level.INFO));
 				return;
 			case 24: // Generalized time
@@ -200,7 +200,7 @@ public class ASN1TokenMaker extends TokenMaker {
 							endindex < 14 ? 0 : Integer.parseInt(str.substring(12, 14)),
 							endindex < 18 ? 0 : Integer.parseInt(str.substring(15, 18)) * 1_000_000,
 							ZoneId.of(str.substring(endindex)));
-					list.add(createToken(TOKEN_METADATA, buf.position(), length,
+					list.add(createToken(TOKEN_DATE, buf.position(), length,
 							time.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)), Level.INFO));
 				} else {
 					endindex = str.length();
@@ -212,7 +212,7 @@ public class ASN1TokenMaker extends TokenMaker {
 							endindex < 12 ? 0 : Integer.parseInt(str.substring(10, 12)),
 							endindex < 14 ? 0 : Integer.parseInt(str.substring(12, 14)),
 							endindex < 18 ? 0 : Integer.parseInt(str.substring(15, 18)) * 1_000_000);
-					list.add(createToken(TOKEN_METADATA, buf.position(), length,
+					list.add(createToken(TOKEN_DATE, buf.position(), length,
 							local.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)), Level.INFO));
 				}
 				return;

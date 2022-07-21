@@ -141,7 +141,7 @@ public class PNGTokenMaker extends TokenMaker {
 			int minute = buf.get();
 			int second = buf.get();
 			ZonedDateTime time = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("Z"));
-			list.add(createToken(TOKEN_METADATA, buf.position() - length, length,
+			list.add(createToken(TOKEN_DATE, buf.position() - length, length,
 					time.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)), Level.INFO));
 			break;
 		case 0x74_45_58_74: // tEXt

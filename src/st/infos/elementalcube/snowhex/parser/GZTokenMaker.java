@@ -52,7 +52,7 @@ public class GZTokenMaker extends TokenMaker {
 					+ notice("flg.fname." + fname) + "<br/>"
 					+ notice("flg.fcomment." + fcomment), Level.INFO));
 			int mtime = ByteBuffer.wrap(array, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
-			list.add(createToken(TOKEN_METADATA, 4, 4,
+			list.add(createToken(TOKEN_DATE, 4, 4,
 					mtime == 0 ? notice("mtime.none") : DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL).format(Instant.ofEpochSecond(mtime)), Level.INFO));
 			byte xfl = array[8]; // deflate compression lvl
 			list.add(createToken(TOKEN_METADATA, 8, 1)); // notice ?

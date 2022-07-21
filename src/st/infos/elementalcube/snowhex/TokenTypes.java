@@ -78,4 +78,8 @@ public interface TokenTypes {
 	 * This token is a misc character string
 	 */
 	public static final int TOKEN_STRING = 15;
+	/**
+	 * This token represents a date and/or time
+	 */
+	public static final int TOKEN_DATE = 16;
 }
