@@ -5,6 +5,11 @@ import java.math.BigInteger;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -166,6 +171,50 @@ public class ASN1TokenMaker extends TokenMaker {
 			case 22: // IA5 string (ascii)
 				str = new String(buf.array(), buf.position(), length, StandardCharsets.UTF_8);
 				list.add(createToken(TOKEN_STRING, buf.position(), length, str, Level.INFO));
+				return;
+			case 23: // UTC time
+				str = new String(buf.array(), buf.position(), length, StandardCharsets.UTF_8);
+				int year = Integer.parseInt(str.substring(0, 2));
+				ZonedDateTime time = ZonedDateTime.of(
+						year > 50 ? 1900 + year : 2000 + year, // RFC 5280 states UTCTime will not be used after 2050
+						Integer.parseInt(str.substring(2, 4)),
+						Integer.parseInt(str.substring(4, 6)),
+						Integer.parseInt(str.substring(6, 8)),
+						Integer.parseInt(str.substring(8, 10)),
+						Integer.parseInt(str.substring(10, 12)),
+						0,
+						ZoneId.of(str.substring(12)));
+				list.add(createToken(TOKEN_METADATA, buf.position(), length,
+						time.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)), Level.INFO));
+				return;
+			case 24: // Generalized time
+				str = new String(buf.array(), buf.position(), length, StandardCharsets.UTF_8);
+				int endindex = Math.max(Math.max(str.indexOf('+'), str.indexOf('-')), str.indexOf('Z'));
+				if (endindex >= 0) {
+					time = ZonedDateTime.of(
+							Integer.parseInt(str.substring(0, 4)),
+							Integer.parseInt(str.substring(4, 6)),
+							Integer.parseInt(str.substring(6, 8)),
+							Integer.parseInt(str.substring(8, 10)),
+							endindex < 12 ? 0 : Integer.parseInt(str.substring(10, 12)),
+							endindex < 14 ? 0 : Integer.parseInt(str.substring(12, 14)),
+							endindex < 18 ? 0 : Integer.parseInt(str.substring(15, 18)) * 1_000_000,
+							ZoneId.of(str.substring(endindex)));
+					list.add(createToken(TOKEN_METADATA, buf.position(), length,
+							time.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)), Level.INFO));
+				} else {
+					endindex = str.length();
+					LocalDateTime local = LocalDateTime.of(
+							Integer.parseInt(str.substring(0, 4)),
+							Integer.parseInt(str.substring(4, 6)),
+							Integer.parseInt(str.substring(6, 8)),
+							Integer.parseInt(str.substring(8, 10)),
+							endindex < 12 ? 0 : Integer.parseInt(str.substring(10, 12)),
+							endindex < 14 ? 0 : Integer.parseInt(str.substring(12, 14)),
+							endindex < 18 ? 0 : Integer.parseInt(str.substring(15, 18)) * 1_000_000);
+					list.add(createToken(TOKEN_METADATA, buf.position(), length,
+							local.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)), Level.INFO));
+				}
 				return;
 			}
 		}
