@@ -165,8 +165,16 @@ parser.asn1.id.2=Context-specific %s identifier #%d
 parser.asn1.id.3=Private %s identifier #%d
 parser.asn1.id.constructed.false=primitive
 parser.asn1.id.constructed.true=constructed
-#== not localized
 parser.asn1.length=Størrelse: %d bytes
+parser.asn1.boolean.true=Boolean: True
+parser.asn1.boolean.false=Boolean: False
+parser.asn1.boolean.truthy=Boolean: Truthy (Invalid DER/CER)
+parser.asn1.invalid=Invalid value for primitive
+parser.asn1.integer=Integer: %d
+parser.asn1.oid=Object Identifier: %s (%s)
+parser.asn1.oid.unknown=Object Identifier: %s
+#== not localized
+parser.asn1.oid.java9=Tilføj `%s` til din `_JAVA_OPTIONS` env variabel,<br>eller start SnowHex med `java %1$s -jar SnowHex.jar`
 
 parser.ant1=Antman type 1
 parser.ant3=Antman type 3

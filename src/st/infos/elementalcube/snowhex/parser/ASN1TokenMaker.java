@@ -1,14 +1,18 @@
 package st.infos.elementalcube.snowhex.parser;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.TokenMaker;
+import sun.security.util.ObjectIdentifier;
+import sun.security.x509.OIDMap;
 
 public class ASN1TokenMaker extends TokenMaker {
 
@@ -48,7 +52,7 @@ public class ASN1TokenMaker extends TokenMaker {
 		int length;
 		boolean indefinite;
 		if (lengthb < 0) {
-			int rest = lengthb & 0b1111111;
+			int rest = lengthb & 0x7f;
 			indefinite = rest == 0;
 			length = 0;
 			byte next;
@@ -81,7 +85,7 @@ public class ASN1TokenMaker extends TokenMaker {
 	private void parsePrimitive(int tag, boolean constructed, long type, int length, ArrayList<Token> list, ByteBuffer buf) {
 		if (tag == 0) { // universal
 			switch ((int) type) {
-			case 1:
+			case 1: // BOOL
 				if (length != 1) {
 					list.add(createToken(TOKEN_METADATA, buf.position(), length, notice("invalid"), Level.ERROR));
 				} else {
@@ -95,9 +99,51 @@ public class ASN1TokenMaker extends TokenMaker {
 					}
 				}
 				return;
-			case 2:
+			case 2: // INT
 				BigInteger value = new BigInteger(buf.array(), buf.position(), length);
 				list.add(createToken(TOKEN_METADATA, buf.position(), length, notice("integer", value), Level.INFO));
+				return;
+			case 6: // OID
+				ArrayList<Long> values = new ArrayList<>();
+				long val = 0;
+				for (int i = 0; i < length; i++) {
+					byte b = buf.get();
+					val = (val << 7) | (b & 0x7f);
+					if (b >= 0) {
+						values.add(val);
+						val = 0;
+					}
+				}
+				StringJoiner sj = new StringJoiner(".");
+				if (values.size() > 0) {
+					long first = values.get(0);
+					long s0 = first / 40;
+					long s1 = first % 40;
+					if (s0 > 2) {
+						s1 += (s0 - 2) * 40;
+						s0 = 2;
+					}
+					sj.add(Long.toString(s0));
+					sj.add(Long.toString(s1));
+					for (int i = 1; i < values.size(); i++) {
+						sj.add(Long.toString(values.get(i)));
+					}
+				}
+				String str = sj.toString();
+				try {
+					ObjectIdentifier oid = ObjectIdentifier.of(str);
+					String name = OIDMap.getName(oid);
+					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length,
+							name == null ? notice("oid.unknown", str) : notice("oid", name, str), Level.INFO));
+				} catch (IOException e) {
+					e.printStackTrace();
+					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.unknown", str), Level.INFO));
+				} catch (IllegalAccessError e) { // java 9 disallows 
+					e.printStackTrace();
+					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.unknown", str), Level.INFO));
+					list.add(createToken(TOKEN_NONE, buf.position() - length, length,
+							notice("oid.java9", "--add-exports=java.base/sun.security.util=ALL-UNNAMED --add-exports=java.base/sun.security.x509=ALL-UNNAMED"), Level.WARNING));
+				}
 				return;
 			}
 		}
