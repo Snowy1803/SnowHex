@@ -75,7 +75,7 @@ public class GZTokenMaker extends TokenMaker {
 			if (fname) {
 				int start = buf.position();
 				while (buf.get() != 0);
-				list.add(createToken(TOKEN_COMMENT, start, buf.position() - start));
+				list.add(createToken(TOKEN_STRING, start, buf.position() - start));
 			}
 			if (fcomment) {
 				int start = buf.position();

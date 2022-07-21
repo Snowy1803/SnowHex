@@ -14,7 +14,6 @@ public class Theme implements TokenTypes {
 	static {
 		DEFAULT = new Theme();
 		DEFAULT.put(TOKEN_NONE, new Format(Color.BLACK, Color.WHITE));// Black on white
-		//DEFAULT.put(TOKEN_ERRORED, new Format(new Color(255, 0, 0), null, true));// Red + underline
 		DEFAULT.put(TOKEN_COMMENT, new Format(new Color(0, 127, 0), null));// Dark green
 		DEFAULT.put(TOKEN_FILE_HEADER, new Format(new Color(127, 0, 0), null));// Dark red
 		DEFAULT.put(TOKEN_CHUNK_HEADER, new Format(new Color(190, 0, 0), null));// Dark- red
@@ -29,6 +28,7 @@ public class Theme implements TokenTypes {
 		DEFAULT.put(TOKEN_COMPRESSED_DATA, new Format(new Color(127, 80, 50), null));// Brown
 		DEFAULT.put(TOKEN_CHECKSUM, new Format(new Color(80, 100, 80), null));// Dark gray
 		DEFAULT.put(TOKEN_KEYWORD, new Format(new Color(255, 64, 255), null));// Magenta
+		DEFAULT.put(TOKEN_STRING, new Format(new Color(0x2A00FF), null));// Red
 		DEFAULT.put(Level.ERROR, new Format(null, null, new Color(0xee1d25), null));// SQUIGGLE Red
 		DEFAULT.put(Level.WARNING, new Format(null, null, new Color(0xff8000), null));// SQUIGGLE Yellow
 	}

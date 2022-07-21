@@ -68,7 +68,7 @@ public class ASN1TokenMaker extends TokenMaker {
 		list.add(createToken(TOKEN_LENGTH, lengthstart, buf.position() - lengthstart, notice("length", length), Level.INFO));
 		int contentstart = buf.position();
 		if (!constructed) { // primitive
-			parsePrimitive(tag, constructed, type, length, list, buf);
+			parsePrimitive(tag, type, length, list, buf);
 			buf.position(contentstart + length);
 			return id == 0;
 		}
@@ -83,7 +83,7 @@ public class ASN1TokenMaker extends TokenMaker {
 		return false;
 	}
 
-	private void parsePrimitive(int tag, boolean constructed, long type, int length, ArrayList<Token> list, ByteBuffer buf) {
+	private void parsePrimitive(int tag, long type, int length, ArrayList<Token> list, ByteBuffer buf) {
 		if (tag == 0) { // universal
 			switch ((int) type) {
 			case 1: // BOOL
@@ -163,8 +163,9 @@ public class ASN1TokenMaker extends TokenMaker {
 				return;
 			case 12: // utf8 string
 			case 19: // printable string (ascii)
+			case 22: // IA5 string (ascii)
 				str = new String(buf.array(), buf.position(), length, StandardCharsets.UTF_8);
-				list.add(createToken(TOKEN_IMAGE_COLOR, buf.position(), length, str, Level.INFO));
+				list.add(createToken(TOKEN_STRING, buf.position(), length, str, Level.INFO));
 				return;
 			}
 		}

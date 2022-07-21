@@ -74,4 +74,8 @@ public interface TokenTypes {
 	 * This token is a keyword
 	 */
 	public static final int TOKEN_KEYWORD = 14;
+	/**
+	 * This token is a misc character string
+	 */
+	public static final int TOKEN_STRING = 15;
 }
