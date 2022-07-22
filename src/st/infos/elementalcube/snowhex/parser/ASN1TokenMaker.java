@@ -1,7 +1,12 @@
 package st.infos.elementalcube.snowhex.parser;
 
+import java.awt.Desktop;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -16,7 +21,9 @@ import java.util.StringJoiner;
 
 import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowhex.Token.Level;
+import st.infos.elementalcube.snowhex.TokenImpl;
 import st.infos.elementalcube.snowhex.TokenMaker;
+import st.infos.elementalcube.snowhex.ui.HexPanel;
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.OIDMap;
 
@@ -186,13 +193,13 @@ public class ASN1TokenMaker extends TokenMaker {
 					ObjectIdentifier oid = ObjectIdentifier.of(str);
 					String name = OIDMap.getName(oid);
 					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length,
-							name == null ? notice("oid.unknown", str) : notice("oid", name, str), Level.INFO));
+							name == null ? notice("oid.unknown", str) : notice("oid", name, str), Level.INFO).withOid(str));
 				} catch (IOException e) {
 					e.printStackTrace();
-					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.unknown", str), Level.INFO));
+					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.unknown", str), Level.INFO).withOid(str));
 				} catch (IllegalAccessError e) { // java 9 disallows 
 					e.printStackTrace();
-					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.unknown", str), Level.INFO));
+					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.unknown", str), Level.INFO).withOid(str));
 					list.add(createToken(TOKEN_NONE, buf.position() - length, length,
 							notice("oid.java9", "--add-exports=java.base/sun.security.util=ALL-UNNAMED --add-exports=java.base/sun.security.x509=ALL-UNNAMED"), Level.WARNING));
 				}
@@ -274,5 +281,41 @@ public class ASN1TokenMaker extends TokenMaker {
 	@Override
 	public Object getDump(byte[] array) {
 		return null;
+	}
+	
+	@Override
+	public void willShowPopup(HexPanel panel, PopupMenu menu) {
+		ASN1Token token = (ASN1Token) panel.getClosestToken();
+		if (token != null && token.getType() == TOKEN_KEYWORD && token.oid != null) {
+			menu.addSeparator();
+			MenuItem item = new MenuItem(notice("oid.repository"));
+			item.addActionListener(e -> {
+				try {
+					Desktop.getDesktop().browse(new URI("https://oid-rep.orange-labs.fr/get/" + token.oid));
+				} catch (IOException | URISyntaxException | UnsupportedOperationException ex) {
+					ex.printStackTrace();
+				}
+			});
+			menu.add(item);
+		}
+	}
+	
+	@Override
+	public Token allocToken() {
+		return new ASN1Token();
+	}
+	
+	@Override
+	public ASN1Token createToken(int type, int offset, int length, String desc, Level lvl) {
+		return (ASN1Token) super.createToken(type, offset, length, desc, lvl);
+	}
+	
+	private class ASN1Token extends TokenImpl {
+		private String oid;
+		
+		public ASN1Token withOid(String oid) {
+			this.oid = oid;
+			return this;
+		}
 	}
 }
