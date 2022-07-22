@@ -30,6 +30,7 @@ public class Theme implements TokenTypes {
 		DEFAULT.put(TOKEN_KEYWORD, new Format(new Color(255, 64, 255), null));// Magenta
 		DEFAULT.put(TOKEN_STRING, new Format(new Color(0x2A00FF), null));// Red
 		DEFAULT.put(TOKEN_DATE, new Format(new Color(0x16b06e), null));// Green
+		DEFAULT.put(TOKEN_HIERARCHICAL_CHUNK, new Format(null, new Color(190, 190, 255, 70)));// BACK Transparent blue gray
 		DEFAULT.put(Level.ERROR, new Format(null, null, new Color(0xee1d25), null));// SQUIGGLE Red
 		DEFAULT.put(Level.WARNING, new Format(null, null, new Color(0xff8000), null));// SQUIGGLE Yellow
 	}

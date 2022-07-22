@@ -27,6 +27,10 @@ public interface TokenTypes {
 	 * This secondary token is a misc data chunk
 	 */
 	public static final int TOKEN_CHUNK = 11;
+	/**
+	 * This secondary token is a data chunk which contain others
+	 */
+	public static final int TOKEN_HIERARCHICAL_CHUNK = 17;
 	
 	// MARK: - primaries
 	

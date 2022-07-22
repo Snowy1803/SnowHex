@@ -47,10 +47,25 @@ public class Format {
 		if (f == null)
 			return this;
 		return new Format(
-				f.foreground == null ? foreground : f.foreground,
-				f.background == null ? background : f.background,
-				f.squiggle == null ? squiggle : f.squiggle,
-				f.strikethrough == null ? strikethrough : f.strikethrough);
+				blend(foreground, f.foreground),
+				blend(background, f.background),
+				blend(squiggle, f.squiggle),
+				blend(strikethrough, f.strikethrough));
+	}
+	
+	private static Color blend(Color bottom, Color top) {
+		if (top == null)
+			return bottom;
+		if (bottom == null)
+			return top;
+		float falpha = top.getAlpha() / 255f;
+		float factor = falpha / 255f;
+		float ifactor = (1 - falpha) / 255f;
+		return new Color(
+				top.getRed() * factor + bottom.getRed() * ifactor,
+				top.getGreen() * factor + bottom.getGreen() * ifactor,
+				top.getBlue() * factor + bottom.getBlue() * ifactor,
+				falpha + bottom.getAlpha() * ifactor);
 	}
 	
 	public Format faded() {

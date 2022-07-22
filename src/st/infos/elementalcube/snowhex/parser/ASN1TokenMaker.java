@@ -84,7 +84,7 @@ public class ASN1TokenMaker extends TokenMaker {
 				readChunk(list, buf);
 			}
 		}
-		list.add(createToken(TOKEN_CHUNK, chunkstart, buf.position() - chunkstart));
+		list.add(createToken(TOKEN_HIERARCHICAL_CHUNK, chunkstart, buf.position() - chunkstart));
 		return false;
 	}
 
