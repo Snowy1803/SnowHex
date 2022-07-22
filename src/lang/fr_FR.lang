@@ -159,6 +159,7 @@ parser.ser.fieldname=Nom du champ : '%s'
 
 parser.asn1=Abstract Syntax Notation 1 (ASN1 BER/DER/CER)
 parser.asn1.id.0=Identifiant %s universel #%d
+parser.asn1.id.0.named=Identifiant %s universel #%d : %s
 parser.asn1.id.1=Identifiant %s d'application #%d
 parser.asn1.id.2=Identifiant %s contextuel #%d
 parser.asn1.id.3=Identifiant %s privé #%d

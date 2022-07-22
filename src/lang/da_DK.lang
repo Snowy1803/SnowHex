@@ -160,6 +160,7 @@ parser.ser.fieldname=Feltnavn: '%s'
 #== not localized
 parser.asn1=Abstract Syntax Notation 1 (ASN1 BER/DER/CER)
 parser.asn1.id.0=Universal %s identifier #%d
+parser.asn1.id.0.named=Universal %s identifier #%d: %s
 parser.asn1.id.1=Application %s identifier #%d
 parser.asn1.id.2=Context-specific %s identifier #%d
 parser.asn1.id.3=Private %s identifier #%d

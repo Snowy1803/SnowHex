@@ -22,6 +22,46 @@ import sun.security.x509.OIDMap;
 
 public class ASN1TokenMaker extends TokenMaker {
 
+	private static final String[] UNIVERSAL_TYPENAMES = {
+			"End of Content",
+			"Boolean",
+			"Integer",
+			"Bit String",
+			"Octet String",
+			"Null",
+			"Object Identifier",
+			"Object Descriptor",
+			"External",
+			"Real number",
+			"Enumerated",
+			"Embedded-PDV",
+			"UTF8 String",
+			"Relative Object Identifier",
+			"Time",
+			null,
+			"Sequence",
+			"Set",
+			"Numeric String",
+			"Printable String",
+			"T61 String",
+			"Videotex String",
+			"IA5 String",
+			"UTC Time",
+			"Generalized Time",
+			"Graphic String",
+			"Visible String",
+			"General String",
+			"Universal String",
+			"Character String",
+			"BMP String",
+			"Date",
+			"Time Of Day",
+			"Date/Time",
+			"Duration",
+			"OID IRI",
+			"Relative OID IRI"
+	};
+	
 	@Override
 	public List<Token> generateTokens(byte[] array) {
 		ArrayList<Token> list = new ArrayList<>();
@@ -51,8 +91,13 @@ public class ASN1TokenMaker extends TokenMaker {
 				type = (type << 7) | (next & 0b1111111);
 			} while ((next & (1 << 7)) != 0);
 		}
-		list.add(createToken(TOKEN_CHUNK_HEADER, chunkstart, buf.position() - chunkstart,
-				notice("id." + tag, notice("id.constructed." + constructed), type), Level.INFO));
+		if (tag == 0 && type < UNIVERSAL_TYPENAMES.length && UNIVERSAL_TYPENAMES[(int) type] != null) { // universal
+			list.add(createToken(TOKEN_CHUNK_HEADER, chunkstart, buf.position() - chunkstart,
+					notice("id.0.named", notice("id.constructed." + constructed), type, UNIVERSAL_TYPENAMES[(int) type]), Level.INFO));
+		} else {
+			list.add(createToken(TOKEN_CHUNK_HEADER, chunkstart, buf.position() - chunkstart,
+					notice("id." + tag, notice("id.constructed." + constructed), type), Level.INFO));
+		}
 		int lengthstart = buf.position();
 		byte lengthb = buf.get();
 		int length;
