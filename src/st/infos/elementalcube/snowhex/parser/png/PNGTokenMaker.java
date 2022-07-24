@@ -17,6 +17,9 @@ import java.util.zip.CRC32;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import st.infos.elementalcube.snowhex.ByteSelection;
 import st.infos.elementalcube.snowhex.HexDocument.EditType;
 import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowhex.Token.Level;
@@ -191,6 +194,17 @@ public class PNGTokenMaker extends TokenMaker {
 			} else {
 				list.add(createToken(TOKEN_COMMENT, buf.position(), length - (buf.position() - start)));
 			}
+			break;
+		case 0x70_48_59_73: // pHYs
+			list.add(createToken(TOKEN_IMAGE_SIZE, buf.position(), 8)); // subtype ? notice ?
+			list.add(createToken(TOKEN_METADATA, buf.position() + 8, 1)); // unit, no notice ?
+			list.add(createToken(TOKEN_CHUNK, buf.position() - 8, length + 12));
+			break;
+		case 0x62_4b_47_44: // bKGD
+			// standardise and use palette / use 8bit instead of 16 bit
+			list.add(createToken(TOKEN_IMAGE_COLOR, buf.position(), length,
+					"Color: #" + new ByteSelection(ArrayUtils.subarray(buf.array(), buf.position(), buf.position() + length)), Level.INFO));
+			list.add(createToken(TOKEN_CHUNK, buf.position() - 8, length + 12));
 			break;
 		}
 	}
