@@ -29,7 +29,7 @@ public class GIFTokenMaker extends TokenMaker {
 					&& array[i++] == 0x61) {
 				list.add(createToken(TOKEN_FILE_HEADER, i - 6, 6));
 			} else {
-				list.add(createToken(TOKEN_FILE_HEADER, 0, 1, notice("header"), Level.ERROR));
+				list.add(createToken(TOKEN_FILE_HEADER, 0, 1, invalidSignatureNotice(), Level.ERROR));
 				break gen;
 			}
 			int w = toShort(array[i++], array[i++]);
@@ -62,7 +62,7 @@ public class GIFTokenMaker extends TokenMaker {
 			}
 			readBlocks(list, array, i);
 		} catch (IndexOutOfBoundsException e) {
-			list.add(createToken(TOKEN_NONE, array.length - 1, 1, notice("ioob"), Level.ERROR));
+			list.add(createToken(TOKEN_NONE, array.length - 1, 1, unexpectedEOFNotice(), Level.ERROR));
 		}
 		return list;
 	}

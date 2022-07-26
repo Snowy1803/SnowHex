@@ -30,7 +30,7 @@ public class GZTokenMaker extends TokenMaker {
 		gen:
 		try {
 			if (array[0] != (byte) 0x1f || array[1] != (byte) 0x8b) {
-				list.add(createToken(TOKEN_FILE_HEADER, 0, 2, notice("header"), Level.ERROR));
+				list.add(createToken(TOKEN_FILE_HEADER, 0, 2, invalidSignatureNotice(), Level.ERROR));
 				break gen;
 			}
 			list.add(createToken(TOKEN_FILE_HEADER, 0, 2));
@@ -95,7 +95,7 @@ public class GZTokenMaker extends TokenMaker {
 			int isize = buf.getInt();
 			list.add(createToken(TOKEN_LENGTH, buf.position() - 4, 4, notice("isize", isize), Level.INFO));
 		} catch (IndexOutOfBoundsException | BufferUnderflowException e) {
-			list.add(createToken(TOKEN_NONE, array.length - 1, 1, notice("ioob"), Level.ERROR));
+			list.add(createToken(TOKEN_NONE, array.length - 1, 1, unexpectedEOFNotice(), Level.ERROR));
 		}
 		return list;
 	}

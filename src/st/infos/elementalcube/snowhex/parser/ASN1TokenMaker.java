@@ -78,7 +78,7 @@ public class ASN1TokenMaker extends TokenMaker {
 				readChunk(list, buf);
 			}
 		} catch (IndexOutOfBoundsException | BufferUnderflowException e) {
-			list.add(createToken(TOKEN_NONE, array.length - 1, 1, notice("ioob"), Level.ERROR));
+			list.add(createToken(TOKEN_NONE, array.length - 1, 1, unexpectedEOFNotice(), Level.ERROR));
 		}
 		return list;
 	}

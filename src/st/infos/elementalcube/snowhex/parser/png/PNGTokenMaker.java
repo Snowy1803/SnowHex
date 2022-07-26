@@ -42,7 +42,7 @@ public class PNGTokenMaker extends TokenMaker {
 		gen:
 		try {
 			if (!Arrays.equals(array, 0, 8, SIGNATURE, 0, 8)) {
-				list.add(createToken(TOKEN_FILE_HEADER, 0, 8, notice("header"), Level.ERROR));
+				list.add(createToken(TOKEN_FILE_HEADER, 0, 8, invalidSignatureNotice(), Level.ERROR));
 				break gen;
 			}
 			list.add(createToken(TOKEN_FILE_HEADER, 0, 8));

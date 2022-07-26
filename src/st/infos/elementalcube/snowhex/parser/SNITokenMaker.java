@@ -22,7 +22,7 @@ public class SNITokenMaker extends TokenMaker {
 			if (array[i++] == 0x53 && array[i++] == 0x4d) {
 				list.add(createToken(TOKEN_FILE_HEADER, i - 2, 2));
 			} else {
-				list.add(createToken(TOKEN_FILE_HEADER, 0, 1, notice("header"), Level.ERROR));
+				list.add(createToken(TOKEN_FILE_HEADER, 0, 1, invalidSignatureNotice(), Level.ERROR));
 				break gen;
 			}
 			SNIMetadata meta = new SNIMetadata(array[i++]);
@@ -100,7 +100,7 @@ public class SNITokenMaker extends TokenMaker {
 				list.add(createToken(TOKEN_NONE, i, array.length - i, notice("dead"), Level.WARNING));
 			}
 		} catch (IndexOutOfBoundsException e) {
-			list.add(createToken(TOKEN_NONE, array.length - 1, 1, notice("ioob"), Level.ERROR));
+			list.add(createToken(TOKEN_NONE, array.length - 1, 1, unexpectedEOFNotice(), Level.ERROR));
 		}
 		return list;
 	}

@@ -20,13 +20,13 @@ public class SERTokenMaker extends TokenMaker {
 			if (array[i++] == -84 && array[i++] == -19) {
 				list.add(createToken(TOKEN_FILE_HEADER, i - 2, 2));
 			} else {
-				list.add(createToken(TOKEN_FILE_HEADER, 0, 1, notice("header"), Level.ERROR));
+				list.add(createToken(TOKEN_FILE_HEADER, 0, 1, invalidSignatureNotice(), Level.ERROR));
 				break gen;
 			}
 			list.add(createToken(TOKEN_IMAGE_SIZE, i, 2, notice("version", toShort(array[i++], array[i++])), Level.INFO));
 			readBlocks(list, array, i);
 		} catch (IndexOutOfBoundsException e) {
-			list.add(createToken(TOKEN_NONE, array.length - 1, 1, notice("ioob"), Level.ERROR));
+			list.add(createToken(TOKEN_NONE, array.length - 1, 1, unexpectedEOFNotice(), Level.ERROR));
 		}
 		return list;
 	}

@@ -96,6 +96,14 @@ public abstract class TokenMaker implements TokenTypes {
 		return Lang.getString("parser." + getName() + "." + type, params);
 	}
 	
+	protected String invalidSignatureNotice() {
+		return Lang.getString("parser.commonNotice.signature", new ByteSelection(getSignature()).toString());
+	}
+	
+	protected String unexpectedEOFNotice() {
+		return Lang.getString("parser.commonNotice.ioob");
+	}
+	
 	/**
 	 * Returns the object to show as a preview.<br/>
 	 * If null, shows nothing.<br/>

@@ -41,9 +41,10 @@ menu.view.showProps=Afficher les properiétés
 
 parser.none=Aucune coloration
 parser.multipleNotices=Plusieurs étiquettes :
+parser.commonNotice.signature=L'entête (%s) est manquante
+parser.commonNotice.ioob=La fin du fichier est manquante
+
 parser.sni=Snow Image (SNI)
-parser.sni.ioob=La fin du fichier est manquante
-parser.sni.header=L'entête SNI (53 4d) est manquant.
 parser.sni.meta=Métadonnées :
 parser.sni.meta.alpha.true=<span style="color: green">✓</span> Avec de la transparence
 parser.sni.meta.alpha.false=<span style="color: red">✗</span> Sans transparence
@@ -63,8 +64,6 @@ parser.sni.dead=La fin de l'image a été atteinte
 parser.sni.palette.ioob=La palette est plus petite que %d.
 
 parser.gif=Graphics Interchange Format (GIF)
-parser.gif.header=L'entête GIF (47 49 46 38 (37|39) 61) est manquant.
-parser.gif.ioob=La fin du fichier est manquante
 parser.gif.pos=Position : %d, %d
 parser.gif.size=Taille : %d×%d
 parser.gif.charSize=Taille du caractère : %d×%d
@@ -104,7 +103,6 @@ parser.gif.interlace.true=<span style="color: green">✓</span> Entrelacé
 parser.gif.interlace.false=<span style="color: red">✗</span> Pas entrelacé
 
 parser.png=Portable Network Graphics (PNG)
-parser.png.header=L'entête PNG (89 50 4e 47 0d 0a 1a 0a) est manquant
 parser.png.ioob=Le tronçon IEND est manquant
 parser.png.invalidCrc=La somme de contrôle CRC32 est incorrect
 parser.png.invalidCrc.fix=Corriger la somme de contrôle et confirmer les données
@@ -136,7 +134,6 @@ parser.png.interlace.error=Entrelacé : Méthode inconnue
 parser.png.idat=Tronçon IDAT décompressé (PNG)
 
 parser.gz=Fichier GZIP (GZ)
-parser.gz.header=L'entête PNG (1f 8b) est manquant
 parser.gz.cm=Méthode de compression : Deflate
 parser.gz.cm.error=Méthode de compression inconnue
 parser.gz.flg.ftext.true=Contient du texte ASCII
@@ -153,7 +150,6 @@ parser.gz.mtime.none=<span style="color: red">✗</span> Aucune date de dernièr
 parser.gz.isize=Taille du fichier original : %d octets (mod 2^32)
 
 parser.ser=Fichier Java Sérialisé (SER)
-parser.ser.header=L'entête SER (AC ED) est manquant
 parser.ser.version=Sérialisation de version %d
 parser.ser.fieldname=Nom du champ : '%s'
 

@@ -41,9 +41,10 @@ menu.view.showProps=Show Properties
 
 parser.none=No highlighting
 parser.multipleNotices=Multiple notices:
+parser.commonNotice.signature=The file header (%s) is missing
+parser.commonNotice.ioob=The end of the file is missing
+
 parser.sni=Snow Image (SNI)
-parser.sni.ioob=The end of the file is missing
-parser.sni.header=The SNI header (53 4d) is missing
 parser.sni.meta=Metadata:
 parser.sni.meta.alpha.true=<span style="color: green">✓</span> With transparency
 parser.sni.meta.alpha.false=<span style="color: red">✗</span> Without transparency
@@ -63,8 +64,6 @@ parser.sni.dead=The image end has been reached
 parser.sni.palette.ioob=The palette is smaller than %d.
 
 parser.gif=Graphics Interchange Format (GIF)
-parser.gif.header=The GIF header (47 49 46 38 (37|39) 61) is missing
-parser.gif.ioob=The end of the file is missing
 parser.gif.pos=Position: %d, %d
 parser.gif.size=Size: %d×%d
 parser.gif.charSize=Character size: %d×%d
@@ -104,7 +103,6 @@ parser.gif.interlace.true=<span style="color: green">✓</span> Interlaced
 parser.gif.interlace.false=<span style="color: red">✗</span> Not interlaced
 
 parser.png=Portable Network Graphics (PNG)
-parser.png.header=The PNG header (89 50 4e 47 0d 0a 1a 0a) is missing
 parser.png.ioob=The IEND chunk is missing
 parser.png.invalidCrc=The CRC32 chunk checksum is incorrect
 parser.png.invalidCrc.fix=Fix checksum and confirm data
@@ -136,7 +134,6 @@ parser.png.interlace.error=Interlace: Unknown value
 parser.png.idat=Decompressed IDAT chunk (PNG)
 
 parser.gz=GZIP File (GZ)
-parser.gz.header=The GZIP header (1f 8b) is missing
 parser.gz.cm=Compression method: Deflate
 parser.gz.cm.error=Unknown compression method
 parser.gz.flg.ftext.true=Contains ASCII text
@@ -153,7 +150,6 @@ parser.gz.mtime.none=<span style="color: red">✗</span> No file modification ti
 parser.gz.isize=Original filesize: %d bytes (mod 2^32)
 
 parser.ser=Java Serialized File (SER)
-parser.ser.header=The SER header (AC ED) is missing
 parser.ser.version=Serialization version %d
 parser.ser.fieldname=Field name: '%s'
 

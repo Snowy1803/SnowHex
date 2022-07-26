@@ -41,9 +41,10 @@ menu.view.showProps=Vis informationer
 
 parser.none=Ingen farvning
 parser.multipleNotices=Flere etiketter:
+parser.commonNotice.signature=Fil headeren (%s) mangler.
+parser.commonNotice.ioob=Slutningen af filen mangler
+
 parser.sni=Snow Image (SNI)
-parser.sni.ioob=Slutningen af filen mangler
-parser.sni.header=SNI headeren (53 4d) mangler.
 parser.sni.meta=Metadata:
 parser.sni.meta.alpha.true=<span style="color: green">✓</span> Med gennemsigtighed
 parser.sni.meta.alpha.false=<span style="color: red">✗</span> Uden gennemsigtighed
@@ -63,8 +64,6 @@ parser.sni.dead=Slutningen af filen er nået
 parser.sni.palette.ioob=Paletten er mindre en %d.
 
 parser.gif=Graphics Interchange Format (GIF)
-parser.gif.header=GIF headeren (47 49 46 38 (37|39) 61) mangler.
-parser.gif.ioob=Slutningen af filen mangler
 parser.gif.pos=Position: %d, %d
 parser.gif.size=Størrelse: %d×%d
 parser.gif.charSize=Størrelsen af tegnet: %d×%d
@@ -104,7 +103,6 @@ parser.gif.interlace.true=<span style="color: green">✓</span> Interlaced
 parser.gif.interlace.false=<span style="color: red">✗</span> Ikke interlaced
 
 parser.png=Portable Network Graphics (PNG)
-parser.png.header=PNG headeren (89 50 4e 47 0d 0a 1a 0a) mangler
 parser.png.ioob=IEND blokken mangler
 parser.png.invalidCrc=CRC32 kontrolsummen til blokken er forkert
 parser.png.invalidCrc.fix=Ret kontrolsummen og bekræft data
@@ -136,7 +134,6 @@ parser.png.interlace.error=Interlace: Ukendt værdi
 parser.png.idat=Dekomprimeret IDAT blok (PNG)
 
 parser.gz=GZIP Fil (GZ)
-parser.gz.header=GZIP headeren (1f 8b) mangler
 parser.gz.cm=Komprimeringsmetode: Deflate
 parser.gz.cm.error=Ugyldig komprimeringsmetode
 parser.gz.flg.ftext.true=Indholder ASCII tekst
@@ -153,7 +150,6 @@ parser.gz.mtime.none=<span style="color: red">✗</span> Ingen redigeringstid ke
 parser.gz.isize=Original filstørrelse: %d bytes (mod 2^32)
 
 parser.ser=Java Serialiseret Fil (SER)
-parser.ser.header=SER headeren (AC ED) mangler
 parser.ser.version=Serialisation version %d
 parser.ser.fieldname=Feltnavn: '%s'
 
