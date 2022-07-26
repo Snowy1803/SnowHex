@@ -18,6 +18,7 @@ import st.infos.elementalcube.snowhex.parser.CORTokenMaker;
 import st.infos.elementalcube.snowhex.parser.GZTokenMaker;
 import st.infos.elementalcube.snowhex.parser.SNITokenMaker;
 import st.infos.elementalcube.snowhex.parser.gif.GIFTokenMaker;
+import st.infos.elementalcube.snowhex.parser.lsp.LSPTokenMaker;
 import st.infos.elementalcube.snowhex.parser.png.PNGTokenMaker;
 import st.infos.elementalcube.snowhex.ui.HexPanel;
 import st.infos.elementalcube.snowylangapi.Lang;
@@ -38,6 +39,7 @@ public abstract class TokenMaker implements TokenTypes {
 		subclasses.put("png", PNGTokenMaker.class);
 		subclasses.put("gz", GZTokenMaker.class);
 		subclasses.put("asn1", ASN1TokenMaker.class);
+		subclasses.put("c", LSPTokenMaker.class);
 		// TODO subclasses.put("ser", SERTokenMaker.class);
 	}
 	
@@ -55,15 +57,15 @@ public abstract class TokenMaker implements TokenTypes {
 	 * Create a Token instance. If you use a custom Token class, override this method.
 	 * @return an uninitialized token
 	 */
-	public Token allocToken() {
+	protected Token allocToken() {
 		return new TokenImpl();
 	}
 	
-	public Token createToken(int type, int offset, int length) {
+	protected Token createToken(int type, int offset, int length) {
 		return createToken(type, offset, length, null, null);
 	}
 	
-	public Token createToken(int type, int offset, int length, String desc, Level lvl) {
+	protected Token createToken(int type, int offset, int length, String desc, Level lvl) {
 		assert nextAvailableToken <= cache.size();
 		if (nextAvailableToken == cache.size()) {
 			cache.add(allocToken());
@@ -174,4 +176,6 @@ public abstract class TokenMaker implements TokenTypes {
 	public static Set<String> getParsers() {
 		return subclasses.keySet();
 	}
+
+	public void setParent(HexPanel hexPanel) {}
 }

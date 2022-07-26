@@ -358,6 +358,7 @@ public class HexPanel extends JPanel implements Scrollable {
 		if (this.colorer != colorer) {
 			TokenMaker old = this.colorer;
 			this.colorer = colorer;
+			colorer.setParent(this);
 			reloadColorsNow();
 			if (listener != null) listener.actionPerformed(new ActionEvent(colorer == null ? old : colorer, ActionEvent.ACTION_PERFORMED, null));
 		}
