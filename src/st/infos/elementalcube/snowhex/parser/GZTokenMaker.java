@@ -131,4 +131,14 @@ public class GZTokenMaker extends TokenMaker {
 			}
 		}
 	}
+	
+	@Override
+	public String[] getFileExtensions() {
+		return new String[] { "gz", "gzip" };
+	}
+	
+	@Override
+	public byte[] getSignature() {
+		return new byte[] { 0x1f, (byte) 0x8b };
+	}
 }

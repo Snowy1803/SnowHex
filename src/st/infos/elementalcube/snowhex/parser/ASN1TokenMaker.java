@@ -277,10 +277,15 @@ public class ASN1TokenMaker extends TokenMaker {
 	public String getName() {
 		return "asn1";
 	}
-
+	
 	@Override
-	public Object getDump(byte[] array) {
+	public byte[] getSignature() {
 		return null;
+	}
+	
+	@Override
+	public String[] getFileExtensions() {
+		return new String[] {"asn1", "cer", "crt", "der"};
 	}
 	
 	@Override

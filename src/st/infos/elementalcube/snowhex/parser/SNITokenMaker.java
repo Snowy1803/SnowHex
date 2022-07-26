@@ -141,6 +141,16 @@ public class SNITokenMaker extends TokenMaker {
 		return null;
 	}
 	
+	@Override
+	public byte[] getSignature() {
+		return new byte[] { 0x53, 0x4d };
+	}
+	
+	@Override
+	public String[] getFileExtensions() {
+		return new String[] { "sni" };
+	}
+	
 	private class SNIMetadata {
 		public static final byte ALPHA_MASK = 1, GRAYSCALE_MASK = 2, PALETTE_MASK = 8, PALETTE_COMPRESSION_MASK = 4, CLIP_MASK = 16,
 				SMALL_IMAGE_MASK = 32;// 64, 128

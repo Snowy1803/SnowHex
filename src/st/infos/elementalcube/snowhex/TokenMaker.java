@@ -10,6 +10,8 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import st.infos.elementalcube.snowhex.Token.Level;
 import st.infos.elementalcube.snowhex.parser.ASN1TokenMaker;
 import st.infos.elementalcube.snowhex.parser.Ant1TokenMaker;
@@ -55,15 +57,15 @@ public abstract class TokenMaker implements TokenTypes {
 	 * Create a Token instance. If you use a custom Token class, override this method.
 	 * @return an uninitialized token
 	 */
-	public Token allocToken() {
+	protected Token allocToken() {
 		return new TokenImpl();
 	}
 	
-	public Token createToken(int type, int offset, int length) {
+	protected Token createToken(int type, int offset, int length) {
 		return createToken(type, offset, length, null, null);
 	}
 	
-	public Token createToken(int type, int offset, int length, String desc, Level lvl) {
+	protected Token createToken(int type, int offset, int length, String desc, Level lvl) {
 		assert nextAvailableToken <= cache.size();
 		if (nextAvailableToken == cache.size()) {
 			cache.add(allocToken());
@@ -101,7 +103,9 @@ public abstract class TokenMaker implements TokenTypes {
 	 * 
 	 * @return the object to show to the user
 	 */
-	public abstract Object getDump(byte[] array);
+	public Object getDump(byte[] array) {
+		return null;
+	}
 
 	/**
 	 * Returns the closest token at the given position, to be shown in the properties panel
@@ -173,5 +177,21 @@ public abstract class TokenMaker implements TokenTypes {
 
 	public static Set<String> getParsers() {
 		return subclasses.keySet();
+	}
+	
+	/**
+	 * Returns the signature byte array common prefix to all files of this type
+	 * @return the magic number of this binary file type, or null if there is none
+	 */
+	public byte[] getSignature() {
+		return null;
+	}
+	
+	/**
+	 * Returns the valid file extensions (without the dot) for this file type (ex: `{"jpeg", "jpg"}`)
+	 * @return the file type's extensions, or an empty array if none is known
+	 */
+	public String[] getFileExtensions() {
+		return ArrayUtils.EMPTY_STRING_ARRAY;
 	}
 }

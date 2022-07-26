@@ -211,6 +211,16 @@ public class GIFTokenMaker extends TokenMaker {
 	}
 	
 	@Override
+	public byte[] getSignature() {
+		return new byte[] { 'G', 'I', 'F' };
+	}
+	
+	@Override
+	public String[] getFileExtensions() {
+		return new String[] { "gif" };
+	}
+	
+	@Override
 	public Token allocToken() {
 		return new GIFToken();
 	}

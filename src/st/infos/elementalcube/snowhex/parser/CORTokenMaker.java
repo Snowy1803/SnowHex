@@ -112,10 +112,14 @@ public class CORTokenMaker extends TokenMaker {
 	public String getName() {
 		return "cor";
 	}
-
+	
 	@Override
-	public Object getDump(byte[] array) {
-		return null;
+	public byte[] getSignature() {
+		return new byte[] {0x00, (byte) 0xea, (byte) 0x83, (byte) 0xf3};
 	}
-
+	
+	@Override
+	public String[] getFileExtensions() {
+		return new String[] {"cor"};
+	}
 }

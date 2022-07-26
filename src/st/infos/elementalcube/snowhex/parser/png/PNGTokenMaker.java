@@ -224,6 +224,16 @@ public class PNGTokenMaker extends TokenMaker {
 	}
 	
 	@Override
+	public byte[] getSignature() {
+		return SIGNATURE;
+	}
+	
+	@Override
+	public String[] getFileExtensions() {
+		return new String[] { "png" };
+	}
+	
+	@Override
 	public void willShowPopup(HexPanel panel, PopupMenu menu) {
 		PNGToken closest = (PNGToken) panel.getClosestToken();
 		if (closest != null) {
