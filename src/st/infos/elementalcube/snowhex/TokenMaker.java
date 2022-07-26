@@ -39,7 +39,7 @@ public abstract class TokenMaker implements TokenTypes {
 		subclasses.put("png", PNGTokenMaker.class);
 		subclasses.put("gz", GZTokenMaker.class);
 		subclasses.put("asn1", ASN1TokenMaker.class);
-		subclasses.put("c", LSPTokenMaker.class);
+		subclasses.put("grph", LSPTokenMaker.class);
 		// TODO subclasses.put("ser", SERTokenMaker.class);
 	}
 	

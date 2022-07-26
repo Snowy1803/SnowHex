@@ -66,7 +66,7 @@ public class LSPTokenMaker extends TokenMaker implements ActionListener {
 	@Override
 	public void setParent(HexPanel panel) {
 		try {
-			initialize(panel, new String[] { "/usr/bin/clangd" });
+			initialize(panel, new String[] { "/home/epedersen/Documents/grph/.build/debug/LSP" });
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -101,7 +101,7 @@ public class LSPTokenMaker extends TokenMaker implements ActionListener {
 		lastDoc = new String(panel.getDocument().getBytes(), StandardCharsets.UTF_8);
 		lastDocB = panel.getDocument().getBytes();
 		server.getRemoteProxy().getTextDocumentService().didOpen(new DidOpenTextDocumentParams(
-				new TextDocumentItem(id.getUri(), "c", id.getVersion(), lastDoc)));
+				new TextDocumentItem(id.getUri(), "grph", id.getVersion(), lastDoc)));
 		panel.getDocument().addEditListener(this);
 	}
 	
@@ -137,8 +137,7 @@ public class LSPTokenMaker extends TokenMaker implements ActionListener {
 			server.getRemoteProxy().getTextDocumentService().didChange(
 					new DidChangeTextDocumentParams(id, List.of(
 							new TextDocumentContentChangeEvent(
-									new Range(byteOffsetToPosition(lastDocB, 0), 
-											byteOffsetToPosition(lastDocB, lastDocB.length)), currDoc))));
+									null, currDoc))));
 			lastDoc = currDoc;
 			lastDocB = panel.getDocument().getBytes();
 			break;
@@ -229,6 +228,9 @@ public class LSPTokenMaker extends TokenMaker implements ActionListener {
 				break;
 			case SemanticTokenTypes.Variable:
 				tt = TOKEN_LENGTH;
+				break;
+			case "command":
+				tt = TOKEN_CHECKSUM;
 				break;
 			default:
 				tt = TOKEN_NONE;
