@@ -1,6 +1,7 @@
 package st.infos.elementalcube.snowhex.parser;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,5 +122,10 @@ public class CORTokenMaker extends TokenMaker {
 	@Override
 	public String[] getFileExtensions() {
 		return new String[] {"cor"};
+	}
+	
+	@Override
+	public ByteOrder getEndianness() {
+		return ByteOrder.BIG_ENDIAN;
 	}
 }

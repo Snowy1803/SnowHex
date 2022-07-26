@@ -7,7 +7,6 @@ import st.infos.elementalcube.snowhex.Token;
 import st.infos.elementalcube.snowhex.TokenMaker;
 
 public class Ant1TokenMaker extends TokenMaker {
-
 	@Override
 	public List<Token> generateTokens(byte[] array) {
 		return Arrays.asList(
@@ -21,10 +20,4 @@ public class Ant1TokenMaker extends TokenMaker {
 	public String getName() {
 		return "ant1";
 	}
-
-	@Override
-	public Object getDump(byte[] array) {
-		return null;
-	}
-
 }

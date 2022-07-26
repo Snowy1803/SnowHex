@@ -141,4 +141,9 @@ public class GZTokenMaker extends TokenMaker {
 	public byte[] getSignature() {
 		return new byte[] { 0x1f, (byte) 0x8b };
 	}
+	
+	@Override
+	public ByteOrder getEndianness() {
+		return ByteOrder.LITTLE_ENDIAN;
+	}
 }

@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -286,6 +287,11 @@ public class ASN1TokenMaker extends TokenMaker {
 	@Override
 	public String[] getFileExtensions() {
 		return new String[] {"asn1", "cer", "crt", "der"};
+	}
+	
+	@Override
+	public ByteOrder getEndianness() {
+		return ByteOrder.BIG_ENDIAN; // for INT
 	}
 	
 	@Override

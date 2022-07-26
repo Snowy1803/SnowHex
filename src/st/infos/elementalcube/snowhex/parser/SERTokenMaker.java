@@ -12,7 +12,7 @@ import st.infos.elementalcube.snowhex.TokenMaker;
 public class SERTokenMaker extends TokenMaker {
 	
 	@Override
-	public List<Token> generateTokens(byte[] array) {// Is GIF actually
+	public List<Token> generateTokens(byte[] array) {
 		ArrayList<Token> list = new ArrayList<>();
 		gen:
 		try {
@@ -82,7 +82,7 @@ public class SERTokenMaker extends TokenMaker {
 	}
 	
 	@Override
-	public Object getDump(byte[] array) {
-		return null;
+	public ByteOrder getEndianness() {
+		return ByteOrder.BIG_ENDIAN;
 	}
 }

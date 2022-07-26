@@ -234,6 +234,11 @@ public class PNGTokenMaker extends TokenMaker {
 	}
 	
 	@Override
+	public ByteOrder getEndianness() {
+		return ByteOrder.BIG_ENDIAN;
+	}
+	
+	@Override
 	public void willShowPopup(HexPanel panel, PopupMenu menu) {
 		PNGToken closest = (PNGToken) panel.getClosestToken();
 		if (closest != null) {

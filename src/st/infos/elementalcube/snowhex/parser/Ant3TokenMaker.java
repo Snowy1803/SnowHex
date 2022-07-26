@@ -40,10 +40,4 @@ public class Ant3TokenMaker extends TokenMaker {
 	public String getName() {
 		return "ant3";
 	}
-
-	@Override
-	public Object getDump(byte[] array) {
-		return null;
-	}
-
 }

@@ -202,4 +202,12 @@ public abstract class TokenMaker implements TokenTypes {
 	public String[] getFileExtensions() {
 		return ArrayUtils.EMPTY_STRING_ARRAY;
 	}
+	
+	/**
+	 * Returns the byte order of this file type
+	 * @return the byte order of the file type, or null if it makes no sense
+	 */
+	public ByteOrder getEndianness() {
+		return null;
+	}
 }

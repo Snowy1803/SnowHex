@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.nio.ByteBuffer;
@@ -11,6 +12,8 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+
+import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -26,6 +29,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
@@ -38,14 +42,14 @@ import st.infos.elementalcube.snowylangapi.Lang;
 
 public class FindFrame extends JDialog {
 	private static final long serialVersionUID = -5479927946638950219L;
-//	private HexFrame parent;
+	private HexFrame parent;
 	private SearchEngine engine;
 	private JButton find, close;
 	private JCheckBox backwards, selection;
 
 	public FindFrame(HexFrame parent) {
 		super(parent, Lang.getString("frame.find"), false);
-//		this.parent = parent;
+		this.parent = parent;
 		this.engine = new SearchEngine(parent.getEditor().getDocument(), null, 0, parent.getEditor().getDocument().getLength());
 		JPanel content = new JPanel(new BorderLayout());
 		
@@ -121,8 +125,18 @@ public class FindFrame extends JDialog {
 		
 		// utility style on macos
 		rootPane.putClientProperty("Window.style", "small");
+		rootPane.setDefaultButton(find);
 		if (System.getProperty("os.name").contains("Mac"))
 			setAlwaysOnTop(true);
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+		getRootPane().getActionMap().put("close", new AbstractAction() {
+			private static final long serialVersionUID = 5031761572638786701L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+			}
+		});
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setLocationByPlatform(true);
 		pack();
@@ -233,10 +247,16 @@ public class FindFrame extends JDialog {
 			
 			add(new JSeparator());
 			
+			ByteOrder defaultEndianness = ByteOrder.nativeOrder();
+			if (parent.getEditor().getColorer() != null &&
+					parent.getEditor().getColorer().getEndianness() != null) {
+				defaultEndianness = parent.getEditor().getColorer().getEndianness();
+			}
+			
 			endians = new ButtonGroup();
-			be = new JRadioButton("Big Endian", ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN));
+			be = new JRadioButton("Big Endian", defaultEndianness.equals(ByteOrder.BIG_ENDIAN));
 			endians.add(be);
-			le = new JRadioButton("Little Endian", ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN));
+			le = new JRadioButton("Little Endian", defaultEndianness.equals(ByteOrder.LITTLE_ENDIAN));
 			endians.add(le);
 			JPanel pend = new JPanel(new GridLayout(0, 2));
 			pend.setAlignmentX(0);

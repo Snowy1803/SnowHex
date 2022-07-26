@@ -221,6 +221,11 @@ public class GIFTokenMaker extends TokenMaker {
 	}
 	
 	@Override
+	public ByteOrder getEndianness() {
+		return ByteOrder.LITTLE_ENDIAN;
+	}
+	
+	@Override
 	public Token allocToken() {
 		return new GIFToken();
 	}

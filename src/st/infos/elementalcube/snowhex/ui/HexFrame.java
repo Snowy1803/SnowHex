@@ -96,7 +96,7 @@ public class HexFrame extends SnowHexFrame {
 		JMenuItem create = new JMenuItem(Lang.getString("menu.file.new")),
 				open = new JMenuItem(Lang.getString("menu.file.open")),
 				save = new JMenuItem(Lang.getString("menu.file.save")),
-				find = new JMenuItem(Lang.getString("menu.edit.find")),
+				find = new JMenuItem(Lang.getString("frame.find")),
 				showDump = new JCheckBoxMenuItem(Lang.getString("menu.view.showDump")),
 				showResult = new JCheckBoxMenuItem(Lang.getString("menu.view.showResult")),
 				showProps = new JCheckBoxMenuItem(Lang.getString("menu.view.showProps"));

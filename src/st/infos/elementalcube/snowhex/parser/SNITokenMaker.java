@@ -151,6 +151,11 @@ public class SNITokenMaker extends TokenMaker {
 		return new String[] { "sni" };
 	}
 	
+	@Override
+	public ByteOrder getEndianness() {
+		return ByteOrder.BIG_ENDIAN;
+	}
+	
 	private class SNIMetadata {
 		public static final byte ALPHA_MASK = 1, GRAYSCALE_MASK = 2, PALETTE_MASK = 8, PALETTE_COMPRESSION_MASK = 4, CLIP_MASK = 16,
 				SMALL_IMAGE_MASK = 32;// 64, 128
