@@ -60,7 +60,14 @@ public class StatusBar extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		colorer.setText(panel.getColorer() == null ? Lang.getString("parser.none") : panel.getColorer().getLocalizedName());
-		caret.setText(Lang.getString("frame.caretPos", panel.getCaret().getDot() / 16 + 1, panel.getCaret().getDot() % 16));
+		HexCaret pos = panel.getCaret();
+		if (pos.hasSelection()) {
+			caret.setText(Lang.getString("frame.caret.selection", pos.getFirstByte(), pos.getLastByte(), pos.getLastByte() - pos.getFirstByte() + 1));
+		} else if (pos.getDot() >= 0) {
+			caret.setText(Lang.getString("frame.caret.pos", pos.getDot()));
+		} else {
+			caret.setText("");
+		}
 		mode.setText(Lang.getString("frame." + (panel.isInsertMode() ? "insert" : "overwrite")));
 
 		if (panel.getTokens() != null) {

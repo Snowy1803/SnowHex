@@ -10,7 +10,8 @@ frame.properties=Properties
 frame.find=Find
 frame.overwrite=Overwrite
 frame.insert=Insert
-frame.caretPos=Line: %d Column: %d
+frame.caret.pos=Address: %#x
+frame.caret.selection=Selection: %#x - %#x (%d bytes)
 
 button.create=Create
 button.new=+ New

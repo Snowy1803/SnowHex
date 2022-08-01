@@ -10,7 +10,8 @@ frame.properties=Propriétés
 frame.find=Rechercher
 frame.overwrite=Écraser
 frame.insert=Insérer
-frame.caretPos=Ligne : %d Colonne : %d
+frame.caret.pos=Adresse : %#x
+frame.caret.selection=Sélection : %#x - %#x (%d octets)
 
 button.create=Créer
 button.new=+ Nouveau
