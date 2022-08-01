@@ -4,6 +4,7 @@ import java.awt.Desktop;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -191,14 +192,21 @@ public class ASN1TokenMaker extends TokenMaker {
 				}
 				String str = sj.toString();
 				try {
-					ObjectIdentifier oid = ObjectIdentifier.of(str);
+					ObjectIdentifier oid;
+					try {
+						// Linux
+						oid = (ObjectIdentifier) ObjectIdentifier.class.getDeclaredMethod("of", String.class).invoke(null, str);
+					} catch (NoSuchMethodException e) {
+						// macOS
+						oid = ObjectIdentifier.class.getConstructor(String.class).newInstance(str);
+					}
 					String name = OIDMap.getName(oid);
 					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length,
 							name == null ? notice("oid.unknown", str) : notice("oid", name, str), Level.INFO).withOid(str));
-				} catch (IOException e) {
+				} catch (InvocationTargetException | InstantiationException | NoSuchMethodException e) {
 					e.printStackTrace();
 					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.unknown", str), Level.INFO).withOid(str));
-				} catch (IllegalAccessError e) { // java 9 disallows 
+				} catch (IllegalAccessError | IllegalAccessException e) { // java 9 disallows 
 					e.printStackTrace();
 					list.add(createToken(TOKEN_KEYWORD, buf.position() - length, length, notice("oid.unknown", str), Level.INFO).withOid(str));
 					list.add(createToken(TOKEN_NONE, buf.position() - length, length,
