@@ -34,9 +34,11 @@ public class CORTokenMaker extends TokenMaker {
 	public List<Token> generateTokens(byte[] array) {
 		ArrayList<Token> tokens = new ArrayList<>();
 		tokens.add(createToken(TOKEN_FILE_HEADER, 0, 4, "Magic number", Level.INFO));
-		tokens.add(createToken(TOKEN_STRING, 4, 128 + 4, "Program name: " + new String(array, 4, 128 + 4), Level.INFO));
+		tokens.add(createToken(TOKEN_STRING, 4, 128 + 1, "Program name: " + new String(array, 4, 128 + 1), Level.INFO));
+		tokens.add(createToken(TOKEN_RESERVED, 4 + 128 + 1, 3, "Padding", Level.INFO));
 		tokens.add(createToken(TOKEN_LENGTH, 4 + 128 + 4, 4, "Program size: " + ByteBuffer.wrap(array, 4 + 128 + 4, 4).getInt() + " bytes", Level.INFO));
-		tokens.add(createToken(TOKEN_COMMENT, 4 + 128 + 4 + 4, 2048 + 4, "Program comment: " + new String(array, 4 + 128 + 4 + 4, 2048 + 4), Level.INFO));
+		tokens.add(createToken(TOKEN_COMMENT, 4 + 128 + 4 + 4, 2048 + 1, "Program comment: " + new String(array, 4 + 128 + 4 + 4, 2048 + 1), Level.INFO));
+		tokens.add(createToken(TOKEN_RESERVED, 4 + 128 + 4 + 4 + 2048 + 1, 3, "Padding", Level.INFO));
 		int offset = 2192;
 		while (offset < array.length) {
 			if (array[offset] <= 0 || array[offset] > OPNAMES.length) {
